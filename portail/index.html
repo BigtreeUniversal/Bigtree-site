@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>BigTree Universal - Portail</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            text-align: center;
+        }
+        header {
+            background-color: rgba(0,0,0,0.5);
+            padding: 2rem 1rem 1rem;
+        }
+        h1 {
+            margin: 0;
+            font-size: 3rem;
+        }
+        p.tagline {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+        }
+        .sections {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .section {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem;
+            max-width: 250px;
+            flex: 1;
+            min-width: 200px;
+        }
+        .section h2 {
+            margin-top: 0;
+        }
+        footer {
+            background-color: rgba(0,0,0,0.7);
+            padding: 2rem 1rem;
+        }
+        .newsletter input[type="email"] {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            margin-right: 0.5rem;
+        }
+        .newsletter button {
+            padding: 0.5rem 1rem;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .donate, .contact {
+            margin-top: 1rem;
+            display: block;
+            font-size: 1rem;
+            color: #fff;
+        }
+        .donate:hover, .contact:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>BigTree Universal</h1>
+        <p class="tagline">Artiste · Musicien · Auteur · Ingénieur</p>
+    </header>
+    <div class="sections">
+        <div class="section">
+            <h2>🎵 Musique</h2>
+            <p>Découvre mes compositions et projets sonores.</p>
+            <a href="../musique/index.html" class="button">Accéder</a>
+        </div>
+        <div class="section">
+            <h2>📚 Écriture</h2>
+            <p>Plonge dans mes récits, poèmes et illustrations.</p>
+            <a href="../ecriture-portrait-favicon.html" class="button">Accéder</a>
+        </div>
+        <div class="section">
+            <h2>🛠️ Engineering</h2>
+            <p>Explore mes expériences techniques et scientifiques.</p>
+            <a href="../engineering/index.html" class="button">Accéder</a>
+        </div>
+    </div>
+    <footer>
+        <div class="newsletter">
+            <p><strong>Join us</strong></p>
+            <form action="https://buttondown.email/api/emails/embed-subscribe/bigtreeuniversal" method="post" target="popupwindow" onsubmit="window.open('https://buttondown.email/bigtreeuniversal', 'popupwindow')" class="embeddable-buttondown-form">
+                <input type="email" name="email" placeholder="Adresse e-mail" required>
+                <button type="submit">S’inscrire</button>
+            </form>
+        </div>
+        <a href="https://www.paypal.me/bigtreeconnection" class="donate" target="_blank">💸 Faire un don</a>
+        <a href="mailto:bigtreeuniversal@proton.me" class="contact">📬 Contact : bigtreeuniversal@proton.me</a>
+    </footer>
+</body>
+</html>
