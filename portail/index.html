@@ -144,33 +144,30 @@
         
         
     </footer>
-<!-- Bandeau cookies -->
+
+
+    <!-- Bandeau cookies essentiels -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
 <script>
-  window.addEventListener("load", function(){
-    window.cookieconsent.initialise({
-      palette: {
-        popup: {
-          background: "#3d2d1e",
-          text: "#f0e6d2"
-        },
-        button: {
-          background: "#8b5e3c",
-          text: "#fff"
-        }
-      },
-      theme: "classic",
-      position: "bottom",
-      content: {
-        message: "Ce site n’utilise que des cookies essentiels au bon fonctionnement. Aucun cookie publicitaire n’est collecté.",
-        dismiss: "J’ai compris",
-        link: "En savoir plus",
-        href: "/confidentialite.html"
-      }
-    });
+window.addEventListener("load", function(){
+  window.cookieconsent.initialise({
+    palette: {
+      popup: { background: "#2f2f2f", text: "#ffffff" },
+      button: { background: "#4caf50", text: "#ffffff" }
+    },
+    theme: "classic",
+    position: "bottom",
+    content: {
+      message: "Ce site n’utilise que des cookies essentiels pour fonctionner correctement.",
+      dismiss: "OK, j’ai compris",
+      link: "En savoir plus",
+      href: "/confidentialite.html"
+    }
   });
+});
 </script>
+
     
 </body>
 </html>
