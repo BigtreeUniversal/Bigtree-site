@@ -136,5 +136,28 @@
     // Initialise le graphique puis attend le clic
     initChart().then(() => console.log('Graphique initialisé. Cliquer sur Go.'));
     goButton.addEventListener('click', initWebSocket);
-  </script></body>
+  </script>
+
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container" style="height: 400px;">
+  <div id="tv_btc_chart"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script type="text/javascript">
+    new TradingView.widget({
+      \"autosize\": true,
+      \"symbol\": \"BINANCE:BTCUSDT\",
+      \"interval\": \"D\",
+      \"timezone\": \"Etc/UTC\",
+      \"theme\": \"light\",
+      \"style\": \"1\",
+      \"locale\": \"fr\",
+      \"container_id\": \"tv_btc_chart\",
+      \"studies\":[\"MACD@tv-basicstudies\"]
+    });
+  </script>
+</div>
+<!-- TradingView Widget END -->
+
+
+</body>
 </html>
