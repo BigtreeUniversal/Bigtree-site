@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculateur ETH/USDT + Graphique</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .field { margin-bottom: 10px; }
+    input, button, span { padding: 5px; font-size: 1em; }
+    button { cursor: pointer; }
+    .blink { animation: blink 0.3s; }
+    @keyframes blink { from { background-color: yellow; } to { background-color: transparent; } }
+    .status-ok { color: green; font-weight: bold; }
+    .status-error { color: red; font-weight: bold; }
+    #tv_eth_chart { width: 100%; height: 400px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <h1>Calculateur Ethereum → USDT + Graphique</h1>
+
+  <div class="field">
+    <label for="ethAmount">Montant en ETH :</label>
+    <input type="number" id="ethAmount" step="any" min="0" value="0">
+  </div>
+
+  <div class="field">
+    <button id="goButton">Go (WS Binance)</button>
+    <label style="margin-left:10px;">Statut WS :</label>
+    <span id="wsStatus">--</span>
+  </div>
+
+  <div class="field">
+    <label>Cours ETH (USDT) :</label>
+    <span id="ethPrice">--</span>
+  </div>
+
+  <div class="field">
+    <label>Valeur en USDT :</label>
+    <span id="usdtValue">--</span>
+  </div>
+
+  <div class="field">
+    <label>Vérif. ETH :</label>
+    <span id="ethValue">--</span>
+  </div>
+
+  <script>
+    // WebSocket + UI update
+    const ethInput    = document.getElementById('ethAmount');
+    const wsStatus    = document.getElementById('wsStatus');
+    const priceField  = document.getElementById('ethPrice');
+    const usdtOutput  = document.getElementById('usdtValue');
+    const ethValueOut = document.getElementById('ethValue');
+    const goButton    = document.getElementById('goButton');
+    let ws = null;
+
+    function blink(el) {
+      el.classList.add('blink');
+      setTimeout(() => el.classList.remove('blink'), 300);
+    }
+
+    function updateUI(price) {
+      priceField.textContent = price.toFixed(2);
+      blink(priceField);
+      const amt  = parseFloat(ethInput.value) || 0;
+      const usdt = amt * price;
+      usdtOutput.textContent = usdt.toFixed(2);
+      blink(usdtOutput);
+      const back = price ? (usdt / price) : 0;
+      ethValueOut.textContent = back.toFixed(8);
+      blink(ethValueOut);
+    }
+
+    function initWS() {
+      if (ws) ws.close();
+      ws = new WebSocket('wss://stream.binance.com:9443/ws/ethusdt@ticker');
+      ws.onopen    = () => { wsStatus.textContent = 'Connecté'; wsStatus.className = 'status-ok blink'; setTimeout(() => wsStatus.classList.remove('blink'), 300); };
+      ws.onmessage = e => { const msg = JSON.parse(e.data); updateUI(parseFloat(msg.c)); };
+      ws.onclose   = () => { wsStatus.textContent = 'Déconnecté'; wsStatus.className = 'status-error'; setTimeout(initWS, 2000); };
+      ws.onerror   = err => { console.error('WS err:', err); ws.close(); };
+    }
+
+    goButton.addEventListener('click', initWS);
+  </script>
+
+  <!-- TradingView Widget pour ETH/USDT -->
+  <div id="tv_eth_chart"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script type="text/javascript">
+    new TradingView.widget({
+      "autosize":   true,
+      "symbol":     "BINANCE:ETHUSDT",
+      "interval":   "D",
+      "timezone":   "Etc/UTC",
+      "theme":      "light",
+      "style":      "1",
+      "locale":     "fr",
+      "container_id":"tv_eth_chart"
+    });
+  </script>
+
+</body>
+</html>
