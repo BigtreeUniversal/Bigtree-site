@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BUHS Phi Calculator - Bitcoin</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2rem; background: #f4f4f4; }
+    #phi { font-size: 5rem; margin-top: 1rem; transition: color 0.3s; }
+    .green { color: green; }
+    .orange { color: orange; }
+    .red { color: red; }
+    input { padding: 0.5rem; font-size: 1rem; width: 200px; }
+    label { display: block; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>BUHS • BigTree Φ Monitor</h1>
+  <p>Données en direct du marché Bitcoin via CoinGecko</p>
+
+  <label for="rhoTrade">ρ_trade ($ investi sur Bitcoin) :</label>
+  <input type="number" id="rhoTrade" placeholder="Ex: 10000" />
+
+  <div id="phi" class="green">Φ: --</div>
+
+  <script>
+    async function fetchBTCData() {
+      const response = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin');
+      const data = await response.json();
+      const volume = data.market_data.total_volume.usd;
+      return volume;
+    }
+
+    function updatePhi() {
+      const rhoTrade = parseFloat(document.getElementById('rhoTrade').value);
+      if (isNaN(rhoTrade) || rhoTrade <= 0) return;
+
+      fetchBTCData().then(rhoMarket => {
+        const phi = rhoTrade / rhoMarket;
+        const phiDisplay = document.getElementById('phi');
+        phiDisplay.textContent = `Φ = ${phi.toFixed(4)}`;
+
+        phiDisplay.className = "";
+        if (phi >= 0.95 && phi <= 1.05) {
+          phiDisplay.classList.add("green");
+        } else if (phi >= 0.85 && phi <= 1.15) {
+          phiDisplay.classList.add("orange");
+        } else {
+          phiDisplay.classList.add("red");
+        }
+      }).catch(error => {
+        console.error("Erreur CoinGecko :", error);
+      });
+    }
+
+    setInterval(updatePhi, 500);
+  </script>
+</body>
+</html>
