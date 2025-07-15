@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>BUHS Calculateur – BTC (Δ réel dynamique)</title>
+  <style>
+    body { background: #1e1e1e; color: white; font-family: sans-serif; padding: 2rem; text-align: center; }
+    input { padding: 0.5rem; font-size: 1rem; width: 150px; margin-top: 1rem; }
+    .output { margin-top: 1.2rem; font-size: 1.1rem; }
+    .label { font-weight: bold; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>BUHS Calculateur – BTC (Δ réel dynamique)</h1>
+
+  <label class="label">Montant du trade en BTC :</label>
+  <input type="number" id="btcInput" value="0.1" step="0.01" />
+
+  <div class="output" id="priceOpen">Prix d'ouverture : ...</div>
+  <div class="output" id="priceNow">Prix actuel : ...</div>
+  <div class="output" id="deltaNow">Δ (écart réel) : ...</div>
+  <div class="output" id="wNow">Valeur du trade (W) : ...</div>
+  <div class="output" id="phiNow">Φ : 1.0000 (fixé)</div>
+  <div class="output" id="psiNow">Ψ : 0.0000</div>
+  <div class="output" id="yResult">Y (Δ·W·Ψ) : 0 USDT</div>
+
+  <script>
+    let openPrice = 0;
+    let currentPrice = 0;
+
+    async function fetchAndCalculate() {
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/coins/bitcoin");
+        const data = await res.json();
+        const percentChange = data.market_data.price_change_percentage_24h;
+        currentPrice = data.market_data.current_price.usd;
+        openPrice = currentPrice / (1 + percentChange / 100);
+
+        const btcAmount = parseFloat(document.getElementById("btcInput").value);
+        const delta = currentPrice - openPrice;
+        const W = btcAmount * currentPrice;
+        
+        const volumeMarket = data.market_data.total_volume.usd;
+        const marketCap = data.market_data.market_cap.usd;
+        let phi = 1.0;
+        if (volumeMarket > 0 && marketCap > 0) {
+            const densiteTrade = W;
+            const densiteMarche = volumeMarket / marketCap;
+            phi = densiteTrade / densiteMarche;
+        }
+    
+        const psi = 1 - phi;
+        const Y = delta * W * psi;
+
+        document.getElementById("priceOpen").textContent = "Prix d'ouverture : " + openPrice.toFixed(2) + " USDT";
+        document.getElementById("priceNow").textContent = "Prix actuel : " + currentPrice.toFixed(2) + " USDT";
+        document.getElementById("deltaNow").textContent = "Δ (écart réel) : " + delta.toFixed(2) + " USDT";
+        document.getElementById("wNow").textContent = "Valeur du trade (W) : " + W.toFixed(2) + " USDT";
+        document.getElementById("phiNow").textContent = "Φ : " + phi.toFixed(4);
+        document.getElementById("psiNow").textContent = "Ψ : " + psi.toFixed(4);
+        document.getElementById("yResult").textContent = "Y (Δ·W·Ψ) : " + Y.toFixed(2) + " USDT";
+
+      } catch (err) {
+        document.getElementById("priceOpen").textContent = "Erreur CoinGecko API";
+        document.getElementById("priceNow").textContent = "";
+        document.getElementById("deltaNow").textContent = "";
+      }
+    }
+
+    setInterval(fetchAndCalculate, 500); // Toutes les 0,5 secondes
+  </script>
+</body>
+</html>
