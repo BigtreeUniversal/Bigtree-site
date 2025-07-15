@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calculateur BUHS - BTC</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f2f2f2; text-align: center; }
+    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+    label { display: block; margin: 1rem 0 0.5rem; }
+    input { padding: 0.5rem; width: 200px; font-size: 1rem; }
+    .output { margin-top: 1rem; font-size: 1.2rem; }
+    .phi-green { color: green; }
+    .phi-orange { color: orange; }
+    .phi-red { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Calculateur BUHS - Bitcoin (BTC)</h1>
+
+  <label for="btcInput">Montant du trade en BTC :</label>
+  <input type="number" id="btcInput" value="0.1" step="0.01" />
+
+  <div class="output" id="deltaDisplay">Δ 24h : ...</div>
+  <div class="output" id="phiDisplay">Φ : ...</div>
+  <div class="output" id="yDisplay">Y : ...</div>
+
+  <script>
+    let btcPrice = 0;
+    let marketVolume = 0;
+    let deltaPercent = 0;
+
+    async function fetchMarketData() {
+      try {
+        const res = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin');
+        const data = await res.json();
+        btcPrice = data.market_data.current_price.usd;
+        marketVolume = data.market_data.total_volume.usd;
+        deltaPercent = data.market_data.price_change_percentage_24h;
+        document.getElementById("deltaDisplay").textContent = "Δ 24h : " + deltaPercent.toFixed(2) + " %";
+      } catch (err) {
+        document.getElementById("deltaDisplay").textContent = "Erreur API CoinGecko";
+      }
+    }
+
+    function updateCalculation() {
+      const btcInput = parseFloat(document.getElementById("btcInput").value);
+      if (!btcInput || btcPrice === 0 || marketVolume === 0) return;
+
+      const tradeValueUSDT = btcInput * btcPrice;
+      const tradeDensity = tradeValueUSDT / tradeValueUSDT; // = 1
+      const marketDensity = btcPrice / marketVolume;
+
+      const phi = tradeDensity / marketDensity;
+      const psi = 1 - phi;
+
+      const deltaRatio = deltaPercent / 100;
+      const Y_usdt = deltaRatio * tradeValueUSDT * psi;
+      const Y_btc = Y_usdt / btcPrice;
+
+      // Affichage de Φ
+      const phiDisplay = document.getElementById("phiDisplay");
+      phiDisplay.textContent = "Φ : " + phi.toFixed(4);
+      if (phi < 1.2) {
+        phiDisplay.className = "output phi-green";
+      } else if (phi < 2.0) {
+        phiDisplay.className = "output phi-orange";
+      } else {
+        phiDisplay.className = "output phi-red";
+      }
+
+      // Affichage de Y
+      document.getElementById("yDisplay").textContent =
+        "Y : " + Y_usdt.toFixed(2) + " USDT ≈ " + Y_btc.toFixed(6) + " BTC";
+    }
+
+    // Rafraîchissement
+    setInterval(updateCalculation, 500); // toutes les 0,5 s
+    fetchMarketData(); // initial
+    setInterval(fetchMarketData, 60000); // toutes les 60 s
+  </script>
+</body>
+</html>
