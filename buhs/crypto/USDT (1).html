@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Portail EUR ↔ USDT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Chart.js + adapter date-fns -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { font-size: 1.5em; margin-bottom: 20px; }
+
+    /* conteneur graphique */
+    #chartContainer {
+      width: 100%;
+      max-width: 800px;
+      height: 300px;           /* change ici pour ajuster la hauteur */
+      margin: 0 auto 20px auto;
+    }
+    /* canvas plein conteneur */
+    #eurChart {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* effet de clignotement */
+    .blink {
+      animation: blink 0.3s;
+    }
+    @keyframes blink {
+      from { background-color: yellow; }
+      to   { background-color: transparent; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Graphique EUR → USDT (1 an)</h1>
+  <p> 
+
+Portail Crypto – Référence Euro vs USDT
+
+1. Contexte et justification
+
+En France, la majorité des utilisateurs pensent naturellement en euros. Or dans l’univers des crypto-monnaies, les prix sont souvent affichés en USDT (Tether), un stablecoin indexé sur le dollar américain.
+
+  </p>
+
+  <!-- Graphique -->
+  <div id="chartContainer">
+    <canvas id="eurChart"></canvas>
+  </div>
+
+  <!-- Mini-calculateur EUR ↔ USDT -->
+  <div style="font-size:1.1em; text-align:center; margin-bottom:20px;">
+    <div>1 € = <span id="eurToUsdt">–</span> USDT</div>
+    <div>1 USDT = <span id="usdtToEur">–</span> €</div>
+  </div>
+
+  <!-- Script : dessiner le graphique -->
+  <script>
+    async function drawEurChart() {
+      try {
+        const res  = await fetch(
+          'https://api.coingecko.com/api/v3/coins/tether/market_chart?vs_currency=eur&days=365'
+        );
+        const json = await res.json();
+        const data = json.prices.map(([t,p]) => ({ x:new Date(t), y:1/p }));
+        const ctx  = document.getElementById('eurChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            datasets: [{ label:'1 € = x USDT', data, borderWidth:1, pointRadius:0, fill:false }]
+          },
+          options: {
+            maintainAspectRatio: false,
+            scales: {
+              x: { type:'time', time:{unit:'month'}, title:{display:true,text:'Date'} },
+              y: { title:{display:true,text:'USDT pour 1 €'} }
+            }
+          }
+        });
+      } catch(e) {
+        console.error('Erreur chargement historique:', e);
+      }
+    }
+    document.addEventListener('DOMContentLoaded', drawEurChart);
+
+
+  </script>
+
+  <!-- Script : mini-calculateur en temps réel -->
+  <script>
+    const spanE = document.getElementById('eurToUsdt');
+    const spanU = document.getElementById('usdtToEur');
+    let price = null, ws = null;
+
+    function blink(el) {
+      el.classList.add('blink');
+      setTimeout(() => el.classList.remove('blink'), 200);
+    }
+    function refreshCalc() {
+      if (price !== null) {
+        spanE.textContent = price.toFixed(6);
+        blink(spanE);
+        spanU.textContent = (1/price).toFixed(6);
+        blink(spanU);
+      }
+    }
+    function startWS() {
+      if (ws) ws.close();
+      ws = new WebSocket('wss://stream.binance.com:9443/ws/eurusdt@ticker');
+      ws.onmessage = e => {
+        price = parseFloat(JSON.parse(e.data).c);
+        refreshCalc();
+      };
+      ws.onclose = () => setTimeout(startWS, 2000);
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      startWS();
+      setInterval(refreshCalc, 500);
+    });
+ 
+
+ </script>
+
+
+ <h1>Convertisseur Crypto BUHS</h1>
+  <div class="field">
+    <label for="coinSelect">Crypto :</label>
+    <select id="coinSelect">
+      <option value="bitcoin">Bitcoin (BTC)</option>
+      <option value="ethereum">Ethereum (ETH)</option>
+      <option value="binancecoin">BNB (BNB)</option>
+      <option value="solana">Solana (SOL)</option>
+      <option value="ripple">Ripple (XRP)</option>
+      <option value="dogecoin">Dogecoin (DOGE)</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="amountInput">Montant :</label>
+    <input type="number" id="amountInput" value="1" step="any" min="0">
+  </div>
+  <div class="small">Les taux sont récupérés en direct et harmonisés selon le protocole SYNCROLINK&trade;
+</div>
+  <div class="field">
+    <output id="usdtResult">-- USDT</output>
+    <output id="eurResult">-- EUR</output>
+  </div>
+
+  <script>
+    const coinSelect = document.getElementById('coinSelect');
+    const amountInput = document.getElementById('amountInput');
+    const usdtResult = document.getElementById('usdtResult');
+    const eurResult = document.getElementById('eurResult');
+
+    let rates = {};  // contiendra { btc: {usdt:..., eur:...}, ... }
+
+    async function fetchRates() {
+      const ids = ['bitcoin','ethereum','binancecoin','solana','ripple','dogecoin'].join(',');
+      const res = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usdt,eur`
+      );
+      rates = await res.json();
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      const coin = coinSelect.value;
+      const amount = parseFloat(amountInput.value) || 0;
+      if (!rates[coin]) return;
+      const r = rates[coin];
+      usdtResult.textContent = (amount * r.usdt).toFixed(6) + ' USDT';
+      eurResult.textContent  = (amount * r.eur).toFixed(6)  + ' EUR';
+    }
+
+    // rafraîchit toutes les 5 s
+    fetchRates();
+    setInterval(fetchRates, 5000);
+
+    // rafraîchir à chaque changement
+    coinSelect.addEventListener('change', updateDisplay);
+    amountInput.addEventListener('input', updateDisplay);
+  </script>
+
+</body>
+</html>
