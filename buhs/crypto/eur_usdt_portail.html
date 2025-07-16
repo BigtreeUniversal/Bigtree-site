@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Graphique EUR → USDT (1 an)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Chart.js and date-fns adapter -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { font-size: 1.5em; margin-bottom: 20px; }
+    #eurChart { width: 100%; height: 400px; }
+  </style>
+</head>
+<body>
+  <h1>Graphique EUR → USDT (Dernier an)</h1>
+
+<p> 
+
+Portail Crypto – Référence Euro vs USDT
+
+1. Contexte et justification
+
+En France, la majorité des utilisateurs pensent naturellement en euros. Or dans l’univers des crypto-monnaies, les prix sont souvent affichés en USDT (Tether), un stablecoin indexé sur le dollar américain.
+
+</p>
+
+
+  <canvas id="eurChart"></canvas>
+  <script>
+    async function drawEurChart() {
+      try {
+        const res  = await fetch(
+          'https://api.coingecko.com/api/v3/coins/tether/market_chart?vs_currency=eur&days=365'
+        );
+        const json = await res.json();
+        // json.prices = [[timestamp, prix en EUR], ...]
+        const data = json.prices.map(([t, p]) => ({ x: new Date(t), y: 1 / p }));
+        const ctx  = document.getElementById('eurChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            datasets: [{
+              label: '1 € = x USDT',
+              data: data,
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false
+            }]
+          },
+          options: {
+            scales: {
+              x: {
+                type: 'time',
+                time: { unit: 'month' },
+                title: { display: true, text: 'Date' }
+              },
+              y: {
+                title: { display: true, text: 'USDT pour 1 €' }
+              }
+            },
+            plugins: {
+              legend: { display: true }
+            },
+            maintainAspectRatio: false
+          }
+        });
+      } catch (e) {
+        console.error('Erreur chargement historique EUR/USDT:', e);
+      }
+    }
+    document.addEventListener('DOMContentLoaded', drawEurChart);
+  </script>
+</body>
+</html>
