@@ -51,6 +51,61 @@ En France, la majorité des utilisateurs pensent naturellement en euros. Or dans
   <h1>Graphique EUR → USDT</h1>
   <div id="chartContainer">
     <canvas id="eurChart"></canvas>
+    <!-- Calculateur EUR ↔ USDT -->
+<div style="margin-top:20px; font-size:1.1em;">
+  <div>
+    <strong>1 € =</strong>
+    <span id="eurToUsdt" class="blinkable">--</span> USDT
+  </div>
+  <div>
+    <strong>1 USDT =</strong>
+    <span id="usdtToEur" class="blinkable">--</span> €
+  </div>
+</div>
+
+<script>
+  // On réutilise la classe .blink que tu as déjà pour faire pulser le texte
+  const eurSpan = document.getElementById('eurToUsdt');
+  const usdtSpan = document.getElementById('usdtToEur');
+  let lastPrice = null;
+  let ws = null;
+
+  function blink(el) {
+    el.classList.add('blink');
+    setTimeout(() => el.classList.remove('blink'), 200);
+  }
+
+  function updateCalculator() {
+    if (lastPrice !== null) {
+      // 1 EUR en USDT = lastPrice
+      eurSpan.textContent = lastPrice.toFixed(6);
+      blink(eurSpan);
+      // 1 USDT en EUR = 1 / lastPrice
+      const inv = 1 / lastPrice;
+      usdtSpan.textContent = inv.toFixed(6);
+      blink(usdtSpan);
+    }
+  }
+
+  function initEurWs() {
+    if (ws) ws.close();
+    ws = new WebSocket('wss://stream.binance.com:9443/ws/eurusdt@ticker');
+    ws.onmessage = evt => {
+      const msg = JSON.parse(evt.data);
+      lastPrice = parseFloat(msg.c);
+      // On applique tout de suite
+      updateCalculator();
+    };
+    ws.onerror = () => ws.close();
+    ws.onclose = () => setTimeout(initEurWs, 2000);
+  }
+
+  // Démarrage : WebSocket + timer 0.5 s
+  document.addEventListener('DOMContentLoaded', () => {
+    initEurWs();
+    setInterval(updateCalculator, 500);
+  });
+</script>
   </div>
 
   <script>
