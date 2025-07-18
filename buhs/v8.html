@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Oscilloscope Circulaire – Démo Phi (V5 + affichage ajusté)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+:root {
+  --bg: #0f1115;
+  --panel: #1c222b;
+  --panel-alt: #232b35;
+  --accent: #ffb400;
+  --accent-fg: #4a3200;
+  --text: #e6e9ed;
+  --text-dim: #9aa4b1;
+  --danger: #ff4d4f;
+  --radius: 16px;
+  --focus: 0 0 0 3px rgba(255,181,0,.35);
+  font-family: system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin:0;
+  background: radial-gradient(circle at 30% 20%, #18202a, #0f1115 70%);
+  color: var(--text);
+  line-height:1.42;
+  font-size:16px;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+h1 {
+  font-size: clamp(1.4rem,2.4vw,2.1rem);
+  margin: 0 0 1rem;
+  font-weight:600;
+  letter-spacing:.5px;
+}
+p.lead {
+  margin-top:0;
+  max-width: 70ch;
+  font-size: .95rem;
+  color: var(--text-dim);
+}
+main {
+  width:100%;
+  max-width:1100px;
+  margin:0 auto;
+  padding: clamp(1rem,3vw,2.5rem);
+  flex:1;
+}
+section {
+  background: linear-gradient(145deg, var(--panel), var(--panel-alt));
+  border:1px solid #2a323d;
+  padding:1.2rem clamp(1rem,2vw,1.8rem);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px -10px rgba(0,0,0,.6), 0 2px 4px -2px rgba(0,0,0,.4);
+  backdrop-filter: blur(4px);
+}
+.grid { display:grid; gap:1.2rem; }
+@media (min-width:920px){
+  .layout {display:grid; grid-template-columns: 500px 1fr; gap:2rem; align-items:start;}
+}
+.controls form {
+  display:grid;
+  gap: .9rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+  align-items: end;
+}
+.controls .full { grid-column: 1 / -1; }
+label {
+  display:flex;
+  flex-direction:column;
+  gap:.35rem;
+  font-size:.75rem;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  font-weight:600;
+  color: var(--text-dim);
+}
+input[type=text], input[type=number], select {
+  background:#12181f;
+  color:var(--text);
+  border:1px solid #303b46;
+  border-radius:10px;
+  padding:.55rem .7rem;
+  font:inherit;
+  outline:none;
+  transition:.25s border, .25s background;
+}
+input:focus, select:focus { border-color: var(--accent); box-shadow: var(--focus); }
+button {
+  cursor:pointer;
+  border:none;
+  font:inherit;
+  background: linear-gradient(135deg,var(--accent), #ffce4d);
+  color: var(--accent-fg);
+  padding:.75rem 1.2rem;
+  border-radius: 12px;
+  font-weight:600;
+  letter-spacing:.5px;
+  box-shadow: 0 4px 10px -4px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.05);
+  position:relative;
+  overflow:hidden;
+}
+button:active { transform: translateY(1px); }
+.inline { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+.range-wrap { display:flex; flex-direction:column; gap:.35rem; }
+input[type=range] { width:100%; accent-color: var(--accent); }
+small.value {
+  font-size:.7rem;
+  letter-spacing:.5px;
+  color: var(--accent);
+  font-weight:600;
+}
+canvas {
+  width:100%;
+  aspect-ratio:1/1;
+  background:#07090c;
+  border-radius:50%;
+  border:2px solid #212a33;
+  display:block;
+  image-rendering:crisp-edges;
+  max-width: 500px;
+  margin: 0 auto;
+}
+#status {
+  font-size:.7rem;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  margin-top:.6rem;
+  text-align:center;
+}
+.footer {
+  margin:2rem 0 0;
+  text-align:center;
+  font-size:.65rem;
+  color:#5d6875;
+}
+fieldset.toggle {
+  border:1px solid #2b3640;
+  border-radius:12px;
+  padding:.8rem 1rem;
+  grid-column:1 / -1;
+  display:flex;
+  gap:1rem;
+  flex-wrap:wrap;
+  align-items:center;
+  background:#141b22;
+}
+fieldset.toggle legend {
+  padding:0 .5rem;
+  font-size:.65rem;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  color: var(--text-dim);
+}
+.switch {
+  display:inline-flex;
+  align-items:center;
+  gap:.45rem;
+  font-size:.7rem;
+  font-weight:600;
+  letter-spacing:.5px;
+  cursor:pointer;
+  user-select:none;
+}
+.switch input { display:none; }
+.switch .pill {
+  width:38px;height:22px;
+  border-radius:11px;
+  background:#2d3844;
+  position:relative;
+  transition:.3s background;
+  box-shadow: inset 0 0 0 1px #394552;
+}
+.switch .pill::after {
+  content:""; position:absolute;
+  width:16px;height:16px;
+  background:#fff;
+  border-radius:50%;
+  top:3px; left:3px;
+  transition:.3s transform, .3s background;
+  box-shadow:0 2px 4px -1px rgba(0,0,0,.6);
+}
+.switch input:checked + .pill { background: var(--accent); }
+.switch input:checked + .pill::after { transform: translateX(16px); background:#593d00; }
+.note-display {
+  font-size: 2.2rem;
+  font-weight:600;
+  letter-spacing:1px;
+  text-align:center;
+  margin:.2rem 0 1rem;
+  background:linear-gradient(90deg,#ffe6b3,#ffcc55);
+  -webkit-background-clip:text;
+  color:transparent;
+  min-height:2.4rem;
+}
+.hr {
+  height:1px;
+  background:linear-gradient(90deg,transparent,#2d3a45,transparent);
+  margin:1.2rem 0;
+  grid-column:1/-1;
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="layout">
+    <section>
+      <h1>Oscilloscope<br>Circulaire <span style="font-weight:400; font-size:.55em; color:var(--text-dim)">Expérience Audio</span></h1>
+      <p class="lead">
+        Sélectionne une note, choisis si tu veux arrondir la fréquence au multiple le plus proche du nombre d'or (φ ≈ 1.618),
+        puis clique <strong>Jouer</strong>. L'onde est convertie en déformation radiale d'un cercle.
+        L'affichage montre la fréquence de base et (si φ) la fréquence ajustée.
+      </p>
+      <div class="note-display" id="noteReadout">–</div>
+      <canvas id="osc"></canvas>
+      <div id="status">Prêt</div>
+    </section>
+
+    <section class="controls">
+      <h2 style="margin:0 0 .6rem; font-size:.85rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim);">Contrôles</h2>
+      <form id="ctrlForm" onsubmit="event.preventDefault(); play();">
+        <label>
+          Note
+          <select id="note">
+            <option>C4</option><option>C#4</option><option>D4</option><option>D#4</option>
+            <option>E4</option><option>F4</option><option>F#4</option><option>G4</option>
+            <option>G#4</option><option>A4</option><option>A#4</option><option>B4</option>
+          </select>
+        </label>
+
+        <label>
+          Durée (s)
+          <input type="number" id="duration" value="2" min="0.2" step="0.1">
+        </label>
+
+        <label>
+          Tours (spirales)
+          <input type="number" id="revs" value="1" min="1" step="1">
+        </label>
+
+        <label>
+          Epaisseur trait
+          <input type="number" id="lineWidth" value="2" min="1" max="8">
+        </label>
+
+        <label class="range-wrap">
+          Amplitude visuelle
+          <input type="range" id="amp" min="0.05" max="0.6" step="0.01" value="0.25">
+          <small class="value" id="ampVal">0.25</small>
+        </label>
+
+        <label class="range-wrap">
+          Déphasage rotation
+          <input type="range" id="rotSpeed" min="-6" max="6" step="0.1" value="1.2">
+          <small class="value" id="rotVal">1.2</small>
+        </label>
+
+        <label class="range-wrap">
+          Rémanence (trail)
+          <input type="range" id="trail" min="0.05" max="0.5" step="0.01" value="0.18">
+          <small class="value" id="trailVal">0.18</small>
+        </label>
+
+        <fieldset class="toggle">
+          <legend>Options</legend>
+
+          <label class="switch">
+            <input type="checkbox" id="phi">
+            <span class="pill"></span> <span>Aligner φ</span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" id="autoRotate" checked>
+            <span class="pill"></span> <span>Rotation animée</span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" id="showBase" checked>
+            <span class="pill"></span> <span>Cercle base</span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" id="gradient" checked>
+            <span class="pill"></span> <span>Dégradé</span>
+          </label>
+        </fieldset>
+
+        <div class="full" style="display:flex; gap:.8rem; flex-wrap:wrap;">
+          <button type="submit">Jouer</button>
+          <button type="button" onclick="stopAudio()" style="background:linear-gradient(135deg,var(--danger),#ff9798);color:#330000;">Stop</button>
+          <button type="button" onclick="snapshot()">Capture PNG</button>
+        </div>
+      </form>
+      <div class="hr"></div>
+      <p style="margin:0;font-size:.65rem; color:var(--text-dim)">
+        * Amplitude visuelle ≠ volume.<br>
+        * L’écart φ est souvent très petit (&lt; 1 Hz) : affiché sous forme base → ajustée + Δ.
+      </p>
+    </section>
+  </div>
+
+  <div class="footer">
+    Expérience WebAudio/Canvas – libre de réutilisation.
+  </div>
+</main>
+
+<script>
+const noteFreqs = {
+  'C4':261.625565,'C#4':277.182631,'D4':293.664768,'D#4':311.126984,
+  'E4':329.627557,'F4':349.228231,'F#4':369.994423,'G4':391.995436,
+  'G#4':415.304698,'A4':440,'A#4':466.163762,'B4':493.883301
+};
+const phiConst = 1.618;
+
+let audioCtx=null, osc=null, gain=null, analyser=null, dataArr=null;
+let animToken=null;
+
+function ensureAudio(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 1024;
+    dataArr = new Uint8Array(analyser.fftSize);
+  }
+}
+
+// Arrondi au multiple de 1.618 Hz le plus proche
+function closestPhi(f){ return Math.round(f/phiConst)*phiConst; }
+
+const oscCanvas = document.getElementById('osc');
+const ctx = oscCanvas.getContext('2d');
+function resizeCanvas(){
+  const rect = oscCanvas.getBoundingClientRect();
+  oscCanvas.width = rect.width * window.devicePixelRatio;
+  oscCanvas.height = rect.width * window.devicePixelRatio;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function play(){
+  stopAudio();
+  ensureAudio();
+
+  const note = document.getElementById('note').value;
+  const baseFreq = noteFreqs[note];
+  const usePhi = document.getElementById('phi').checked;
+  const adjustedFreq = usePhi ? closestPhi(baseFreq) : baseFreq;
+  const diff = adjustedFreq - baseFreq;
+  const duration = parseFloat(document.getElementById('duration').value)||2;
+
+  osc = audioCtx.createOscillator();
+  gain = audioCtx.createGain();
+  gain.gain.value = 0.25;
+  osc.type='sine';
+  osc.frequency.setValueAtTime(adjustedFreq, audioCtx.currentTime);
+  osc.connect(gain);
+  gain.connect(analyser);
+  analyser.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+
+  // ----- Affichage base → ajustée + Δ -----
+  const readout = document.getElementById('noteReadout');
+  if(usePhi){
+    const diffStr = (diff>=0?'+':'') + diff.toFixed(5) + ' Hz';
+    readout.innerHTML =
+      '<span style="color:#ffcf55">φ</span> ' + note + ': ' +
+      baseFreq.toFixed(5) + ' Hz → <span style="color:#66ffb8">' +
+      adjustedFreq.toFixed(5) + ' Hz</span>' +
+      '<span style="display:block;font-size:.55em;margin-top:.25rem;color:#9aa4b1">Δ ' + diffStr + '</span>';
+  } else {
+    readout.textContent = note + ' : ' + baseFreq.toFixed(5) + ' Hz (sans φ)';
+  }
+
+  document.getElementById('status').textContent='Lecture…';
+  drawCircular(duration);
+}
+
+function stopAudio(){
+  if(osc){
+    try{osc.stop();}catch(e){}
+    osc=null;
+  }
+  if(animToken) animToken.cancelled=true;
+  document.getElementById('status').textContent='Arrêt';
+}
+
+function snapshot(){
+  const link = document.createElement('a');
+  link.download = 'oscilloscope_circulaire.png';
+  link.href = oscCanvas.toDataURL('image/png');
+  link.click();
+}
+
+function drawCircular(duration){
+  const start = audioCtx.currentTime;
+  if(animToken) animToken.cancelled=true;
+  const token = {cancelled:false};
+  animToken=token;
+  const showBase = document.getElementById('showBase');
+  const autoRot = document.getElementById('autoRotate');
+  const gradOn = document.getElementById('gradient');
+
+  function frame(){
+    if(token.cancelled) return;
+    const now = audioCtx.currentTime;
+    const elapsed = now - start;
+    analyser.getByteTimeDomainData(dataArr);
+
+    // Effet de rémanence
+    const trail = parseFloat(document.getElementById('trail').value);
+    ctx.fillStyle = 'rgba(7,9,12,'+trail+')';
+    ctx.fillRect(0,0,oscCanvas.width,oscCanvas.height);
+
+    const cssSize = oscCanvas.getBoundingClientRect().width;
+    const cx = cssSize/2;
+    const cy = cssSize/2;
+    const base = cssSize*0.38;
+    const ampVis = parseFloat(document.getElementById('amp').value);
+    const revs = parseInt(document.getElementById('revs').value)||1;
+    const lineW = parseFloat(document.getElementById('lineWidth').value)||2;
+    const rotSpeed = parseFloat(document.getElementById('rotSpeed').value);
+    const rotation = autoRot.checked ? elapsed * rotSpeed : 0;
+
+    let strokeStyle = '#ffd466';
+    if(gradOn.checked){
+      const g = ctx.createConicGradient(rotation, cx, cy);
+      g.addColorStop(0,'#ffcf4f');
+      g.addColorStop(.25,'#ffb400');
+      g.addColorStop(.5,'#ffcf4f');
+      g.addColorStop(.75,'#ffe7a8');
+      g.addColorStop(1,'#ffcf4f');
+      strokeStyle = g;
+    }
+
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(rotation*0.15);
+
+    ctx.beginPath();
+    for(let i=0;i<dataArr.length;i++){
+      const v = (dataArr[i]-128)/128;
+      const theta = (i/(dataArr.length-1))*Math.PI*2*revs;
+      const r = base + v * base * ampVis;
+      const x = r*Math.cos(theta);
+      const y = r*Math.sin(theta);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.lineWidth = lineW;
+    ctx.strokeStyle = strokeStyle;
+    ctx.shadowColor='rgba(255,180,0,.4)';
+    ctx.shadowBlur=18;
+    ctx.stroke();
+
+    if(showBase.checked){
+      ctx.beginPath();
+      ctx.arc(0,0,base,0,Math.PI*2);
+      ctx.strokeStyle='rgba(255,255,255,.08)';
+      ctx.lineWidth=1;
+      ctx.shadowBlur=0;
+      ctx.stroke();
+    }
+
+    ctx.restore();
+
+    if(osc){
+      const remain = Math.max(0, duration - elapsed);
+      document.getElementById('status').textContent = 'Lecture '+remain.toFixed(2)+' s';
+    }
+
+    if(elapsed < duration && osc){
+      requestAnimationFrame(frame);
+    } else {
+      document.getElementById('status').textContent='Terminé';
+    }
+  }
+  frame();
+}
+
+// Mises à jour des valeurs affichées sur sliders
+['amp','rotSpeed','trail'].forEach(id=>{
+  const el = document.getElementById(id);
+  const valEl = document.getElementById(id+'Val');
+  el.addEventListener('input', ()=> valEl.textContent = el.value);
+});
+</script>
+</body>
+</html>
