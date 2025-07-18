@@ -206,6 +206,84 @@ fieldset.toggle legend {
 </head>
 <body>
 <main>
+  <section id="intro-phi" style="background:#1c222b;border:1px solid #2a323d;border-radius:16px;padding:1.4rem 1.6rem;margin:0 0 1.8rem;line-height:1.5;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,sans-serif;color:#e6e9ed;">
+  <h2 style="margin:0 0 .9rem;font-size:1.35rem;line-height:1.25;font-weight:600;letter-spacing:.5px;background:linear-gradient(90deg,#ffe6b3,#ffcc55);-webkit-background-clip:text;color:transparent;">
+    Micro-Ajustements Phi et Perception Subtile
+  </h2>
+
+  <h3 style="margin:1.4rem 0 .6rem;font-size:1rem;font-weight:600;letter-spacing:.4px;color:#ffcf55;">1. Intention pédagogique</h3>
+  <p style="margin:.4rem 0;">
+    Cette page a une vocation <strong>pédagogique</strong> : elle permet de comparer, pour chaque note de la quatrième octave (C4 à B4),
+    la <em>fréquence standard</em> (tempérée) et sa <em>fréquence ajustée</em> au multiple le plus proche du nombre d’or (φ ≈ 1,618).
+    La différence est volontairement minime : <strong>quasi inaudible isolément</strong> et visuellement très subtile.
+  </p>
+
+  <h3 style="margin:1.4rem 0 .6rem;font-size:1rem;font-weight:600;letter-spacing:.4px;color:#ffcf55;">2. Principe de l’ajustement φ</h3>
+  <p style="margin:.4rem 0;">
+    Pour une fréquence de base <code>f₀</code> issue du tempérament égal (ancré sur le La 440 Hz), on détermine l’entier <code>k</code>
+    tel que <code>k · φ</code> soit le plus proche de <code>f₀</code>. On obtient :
+  </p>
+  <p style="margin:.4rem 0;font-family:monospace;font-size:.85rem;background:#12181f;padding:.6rem .8rem;border:1px solid #303b46;border-radius:8px;overflow-x:auto;">
+    f<sub>φ</sub> = round(f₀ / φ) × φ
+  </p>
+  <p style="margin:.4rem 0;">
+    Le 440 Hz n’est ici qu’un <strong>repère d’étalonnage culturel</strong>. La note “corrigée” ne reste plus strictement dans la grille
+    12-TET : elle se ré-inscrit dans une <em>trame dorée</em> discrète.
+  </p>
+
+  <h3 style="margin:1.4rem 0 .6rem;font-size:1rem;font-weight:600;letter-spacing:.4px;color:#ffcf55;">3. Caractère des écarts</h3>
+  <ul style="margin:.4rem 0 1rem 1.1rem;padding:0;">
+    <li style="margin:.35rem 0;">Amplitude : dixièmes, centièmes ou millièmes de Hertz.</li>
+    <li style="margin:.35rem 0;">Audition : isolément, quasi aucune différence pour une oreille non entraînée.</li>
+    <li style="margin:.35rem 0;">Ressenti corporel (retours subjectifs) : sensation de fluidité / “arrondi”.</li>
+  </ul>
+
+  <h3 style="margin:1.4rem 0 .6rem;font-size:1rem;font-weight:600;letter-spacing:.4px;color:#ffcf55;">4. Points de convergence (ex. Mi4)</h3>
+  <p style="margin:.4rem 0;">
+    Certaines notes (comme le Mi4) apparaissent parfois quasi alignées d’emblée : l’écart affiché frôle zéro (à la précision retenue).
+    Nous lisons cela comme un <strong>point de convergence</strong> — une intersection vibratoire où la grille tempérée
+    et la maille φ se recouvrent presque. L’analogie avec des “nœuds” (géobiologie, réseaux symboliques) est imagée
+    et ne prétend pas être une preuve scientifique ; elle aide à visualiser ce recouvrement.
+  </p>
+
+  <h3 style="margin:1.4rem 0 .6rem;font-size:1rem;font-weight:600;letter-spacing:.4px;color:#ffcf55;">5. De l’isolement à la combinaison</h3>
+  <p style="margin:.4rem 0;">
+    L’effet devient plus tangible quand on empile les notes (accords) ou qu’on joue des motifs successifs
+    “standard → φ → standard”. Les micro-décalages modifient subtilement la distribution des battements interharmoniques :
+    certains accords semblent “respirer” différemment (impressions subjectives récurrentes).
+  </p>
+
+  <h3 style="margin:1.4rem 0 .6rem;font-size:1rem;font-weight:600;letter-spacing:.4px;color:#ffcf55;">6. Portée et limites</h3>
+  <ul style="margin:.4rem 0 1rem 1.1rem;padding:0;">
+    <li style="margin:.35rem 0;">Méthode volontairement simple : arrondi direct au multiple de φ.</li>
+    <li style="margin:.35rem 0;">Approche exploratoire, non une revendication de “supériorité”.</li>
+    <li style="margin:.35rem 0;">Notation musicale inchangée (C, C#, etc.) — transition douce.</li>
+  </ul>
+
+  <h3 style="margin:1.4rem 0 .6rem;font-size:1rem;font-weight:600;letter-spacing:.4px;color:#ffcf55;">7. Intérêt pédagogique</h3>
+  <ol style="margin:.4rem 0 1rem 1.1rem;padding:0;">
+    <li style="margin:.35rem 0;">Rendre visible un écart inaudible.</li>
+    <li style="margin:.35rem 0;">Habituer l’oreille à des micro-variations.</li>
+    <li style="margin:.35rem 0;">Préparer l’introduction de douze tonalités “dorées”.</li>
+  </ol>
+
+  <h3 style="margin:1.4rem 0 .6rem;font-size:1rem;font-weight:600;letter-spacing:.4px;color:#ffcf55;">8. Perspectives</h3>
+  <ul style="margin:.4rem 0 1rem 1.1rem;padding:0;">
+    <li style="margin:.35rem 0;">Étendre la cartographie à plusieurs octaves.</li>
+    <li style="margin:.35rem 0;">Statistiques des écarts (Hz / cents).</li>
+    <li style="margin:.35rem 0;">Tests d’écoute A/B.</li>
+    <li style="margin:.35rem 0;">Exploration corporelle / vibratoire (protocoles décrits plus tard).</li>
+  </ul>
+
+  <h3 style="margin:1.4rem 0 .6rem;font-size:1rem;font-weight:600;letter-spacing:.4px;color:#ffcf55;">9. Synthèse</h3>
+  <blockquote style="margin:.8rem 0;padding:.8rem 1rem;border-left:4px solid #ffcf55;background:#12181f;border-radius:10px;font-size:.9rem;line-height:1.45;color:#d7dadf;">
+    “La valeur de cette approche n’est pas dans l’ampleur de l’écart, mais dans la qualité des interstices qu’elle révèle.
+    Le nombre d’or n’est pas ici un talisman, plutôt une règle alternative – discrète – pour re-mailler l’espace sonore.”
+  </blockquote>
+  <p style="margin:.6rem 0 0;">
+    Cette gamme φ-ajustée ouvre un espace sensible entre mathématique, perception fine et résonance corporelle.
+  </p>
+</section>
   <div class="layout">
     <section>
       <h1>Oscilloscope<br>Circulaire <span style="font-weight:400; font-size:.55em; color:var(--text-dim)">Expérience Audio</span></h1>
