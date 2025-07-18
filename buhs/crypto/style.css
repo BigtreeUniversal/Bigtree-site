@@ -10,7 +10,7 @@ body {
 }
 
 .background-overlay {
-  background-image: url("buhs/crypto/assets/bg-vibration.jpg");
+  background-image: url("/buhs/crypto/assets/bg-vibration.jpg");
   background-size: cover;
   background-position: center center;
   background-attachment: fixed;
