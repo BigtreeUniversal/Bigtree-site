@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>GPS Embed</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoSgLibJEiwQ3s="
+  crossorigin="anonymous">
+<style>
+html,body { margin:0; height:100%; width:100%; background:#0b141c; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+#map { height:100%; width:100%; background:#0b141c; }
+.leaflet-container { background:#0b141c; font:12px/1.3 system-ui; }
+#statusBar {
+  position:absolute; top:4px; left:6px;
+  background:rgba(0,0,0,.45); color:#eee;
+  padding:4px 7px; font-size:11px; border-radius:6px;
+  backdrop-filter:blur(4px);
+  display:flex; align-items:center; gap:6px;
+}
+#btnStop,#btnStart {
+  background:#1d2f3a; color:#ffd978; border:1px solid #314451;
+  padding:2px 6px; font-size:11px; border-radius:4px; cursor:pointer;
+}
+#btnStop:hover,#btnStart:hover { background:#254254; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="statusBar">
+  <span id="msg">Init…</span>
+  <button id="btnStart" style="display:none;">Start</button>
+  <button id="btnStop" style="display:none;">Stop</button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+ crossorigin="anonymous"></script>
+<script>
+let map, marker, path, watchId=null, first=true;
+
+function initMap(){
+  map = L.map('map',{center:[0,0],zoom:2,zoomControl:true,attributionControl:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19, attribution:'© OpenStreetMap'
+  }).addTo(map);
+  marker = L.marker([0,0]).addTo(map);
+  path = L.polyline([], {color:'#ffc94d', weight:3, opacity:0.9}).addTo(map);
+  setTimeout(()=>map.invalidateSize(),150);
+  setTimeout(()=>map.invalidateSize(),400);
+  document.getElementById('msg').textContent='Prêt. Autorise le GPS.';
+  startGPS(); // Démarrage automatique
+}
+function startGPS(){
+  if(!navigator.geolocation){
+    document.getElementById('msg').textContent='Geoloc indisponible';
+    return;
+  }
+  if(watchId!==null) return;
+  document.getElementById('msg').textContent='Activation…';
+  watchId = navigator.geolocation.watchPosition(onPos,onErr,{
+    enableHighAccuracy:true, maximumAge:1000, timeout:20000
+  });
+  document.getElementById('btnStop').style.display='inline-block';
+  document.getElementById('btnStart').style.display='none';
+}
+function stopGPS(){
+  if(watchId!==null){
+    navigator.geolocation.clearWatch(watchId);
+    watchId=null;
+    document.getElementById('msg').textContent='Arrêté.';
+    document.getElementById('btnStart').style.display='inline-block';
+    document.getElementById('btnStop').style.display='none';
+  }
+}
+function onPos(pos){
+  const {latitude, longitude} = pos.coords;
+  marker.setLatLng([latitude,longitude]);
+  path.addLatLng([latitude,longitude]);
+  if(first){
+    map.setView([latitude,longitude],6,{animate:false});
+    first=false;
+  } else {
+    map.panTo([latitude,longitude],{animate:true});
+  }
+  document.getElementById('msg').textContent = latitude.toFixed(5)+' , '+longitude.toFixed(5);
+  // Envoi au parent
+  if(window.parent && window.parent !== window){
+    window.parent.postMessage({type:'gps-pos', lat:latitude, lon:longitude}, '*');
+  }
+}
+function onErr(e){
+  document.getElementById('msg').textContent='Erreur: '+e.message;
+  document.getElementById('btnStart').style.display='inline-block';
+}
+document.getElementById('btnStop').onclick=stopGPS;
+document.getElementById('btnStart').onclick=startGPS;
+window.addEventListener('orientationchange', ()=> {
+  if(map) setTimeout(()=>map.invalidateSize(),250);
+});
+initMap();
+</script>
+</body>
+</html>
