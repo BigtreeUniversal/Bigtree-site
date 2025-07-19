@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Force Financière ψ<sub>r</sub> – WebSocket Binance</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root {
+  --bg:#0f1116; --panel:#1b232d; --accent:#f8c24d; --accent2:#1f6feb; --text:#e6edf3; --muted:#88939e;
+  font-family: system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,sans-serif;
+}
+body{margin:0;background:linear-gradient(130deg,#131b24,#0f1116 70%);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+h1{font-size:1.4rem;margin:.6rem 0 1rem;font-weight:600;letter-spacing:.5px;display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;}
+main{width:100%;max-width:1380px;margin:0 auto;padding:1rem 1.2rem 3rem;flex:1;box-sizing:border-box;}
+section.box{background:var(--panel);border:1px solid #25313d;border-radius:18px;padding:1rem 1.1rem 1.25rem;box-shadow:0 8px 28px -14px rgba(0,0,0,.65),0 2px 6px -2px rgba(0,0,0,.4);}
+.grid{display:grid;gap:1.2rem;}
+@media (min-width:1200px){.grid{grid-template-columns:340px 1fr;}}
+.controls label{display:flex;flex-direction:column;gap:.4rem;font-size:.7rem;letter-spacing:.6px;text-transform:uppercase;font-weight:600;color:var(--muted);}
+.controls input, .controls select{
+  background:#10181f;color:var(--text);border:1px solid #2c3945;border-radius:10px;
+  padding:.55rem .65rem;font:inherit;outline:none;transition:.25s border;
+}
+.controls input:focus, .controls select:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(248,194,77,.25);}
+.controls .row{display:grid;gap:.85rem;margin-bottom:.9rem;}
+.controls .row.cols-2{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+.controls button{
+  cursor:pointer;border:none;font:inherit;font-weight:600;letter-spacing:.5px;
+  background:linear-gradient(135deg,var(--accent),#ffd978);color:#412d00;
+  padding:.7rem 1rem;border-radius:12px;box-shadow:0 4px 12px -6px rgba(0,0,0,.7);transition:.25s transform;
+}
+.controls button.secondary{background:linear-gradient(135deg,var(--accent2),#4aa3ff);color:#051d38;}
+.controls button:active{transform:translateY(2px);}
+small.hint{font-size:.62rem;color:var(--muted);display:block;margin-top:.25rem;line-height:1.25;}
+#priceLive{font-size:1.9rem;font-weight:600;letter-spacing:.5px;margin:.2rem 0 .4rem;}
+.badge{display:inline-flex;align-items:center;gap:.35rem;background:#13212d;color:#6fb2ff;font-size:.6rem;font-weight:600;padding:.3rem .55rem;border-radius:30px;letter-spacing:.5px;text-transform:uppercase;}
+.flex{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+hr.sep{border:0;height:1px;background:linear-gradient(90deg,transparent,#2a3743,transparent);margin:1.1rem 0;}
+table{width:100%;border-collapse:collapse;font-size:.68rem;}
+th,td{padding:.45rem .55rem;text-align:right;}
+th{position:sticky;top:0;background:#121c25;z-index:2;font-weight:600;color:#c9d2da;border-bottom:1px solid #25313d;}
+tbody tr:nth-child(even){background:#141f28;}
+tbody tr:nth-child(odd){background:#102029;}
+tbody tr:hover{background:#1f2f3b;}
+td.time, th.time{text-align:left;}
+.code{font-family:ui-monospace,Consolas,'Cascadia Code',monospace;font-size:.74rem;background:#121c25;padding:.6rem .7rem;border:1px solid #25313d;border-radius:10px;line-height:1.3;overflow:auto;}
+.status{font-size:.65rem;letter-spacing:.5px;color:var(--muted);margin-top:.4rem;}
+#chartWrap{position:relative;}
+canvas{width:100%;max-width:100%;height:340px;background:#0a131a;border:1px solid #1d2a33;border-radius:14px;}
+footer{padding:1rem 1.2rem 2rem;text-align:center;font-size:.6rem;color:#5c6671;}
+.tag{color:#ffd463;}
+.inlineStat{font-size:.7rem;color:var(--muted);}
+</style>
+</head>
+<body>
+<main>
+  <h1>Force Financière ψ<sub>r</sub> <span class="badge">Prototype</span></h1>
+  <div class="grid">
+    <section class="box controls">
+      <div class="row cols-2">
+        <label>Symbole (Spot)
+          <select id="symbol">
+            <option value="BTCUSDT">BTCUSDT</option>
+            <option value="ETHUSDT">ETHUSDT</option>
+            <option value="SOLUSDT">SOLUSDT</option>
+            <option value="XRPUSDT">XRPUSDT</option>
+            <option value="ADAUSDT">ADAUSDT</option>
+            <option value="LTCUSDT">LTCUSDT</option>
+            <option value="MATICUSDT">MATICUSDT</option>
+          </select>
+        </label>
+        <label>Intervalle
+          <select id="interval">
+            <option>1m</option>
+            <option>5m</option>
+            <option>15m</option>
+            <option>1h</option>
+            <option>4h</option>
+            <option>1d</option>
+          </select>
+        </label>
+        <label>Bougies historiques
+          <select id="historyLimit">
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="120" selected>120</option>
+            <option value="240">240</option>
+            <option value="500">500</option>
+          </select>
+        </label>
+        <label>Position Q (crypto)
+          <input id="positionQ" type="number" step="0.0001" value="1">
+        </label>
+        <label>Liquidité L (USDT)
+          <input id="liqL" type="number" step="1000" value="1000000000">
+        </label>
+        <label>Décimales Prix
+          <input id="priceDp" type="number" min="0" max="8" value="2">
+        </label>
+      </div>
+      <div class="flex">
+        <button id="reloadBtn">Recharger Historique</button>
+        <button id="applyBtn" class="secondary">Appliquer Q & L</button>
+      </div>
+      <small class="hint">
+        ψ<sub>r</sub> = L / (L + Q·P<sub>close</sub>) – mesure de “capacité restante”.<br>
+        F<sub>crypto</sub> = ΔP · V<sub>crypto</sub> · ψ<sub>r</sub>. F<sub>USDT</sub>=F<sub>crypto</sub>·P<sub>close</sub>. Normalisation: / L.
+      </small>
+      <hr class="sep">
+      <div id="priceLive">—</div>
+      <div class="inlineStat" id="lastStats">ΔP: — | ψ<sub>r</sub>: — | F: —</div>
+      <div class="status" id="connStatus">Statut: inactif</div>
+    </section>
+
+    <section class="box">
+      <div id="chartWrap">
+        <canvas id="priceChart"></canvas>
+      </div>
+      <hr class="sep">
+      <div style="overflow:auto;max-height:420px;border:1px solid #25313d;border-radius:12px;">
+        <table id="forcesTable">
+          <thead>
+            <tr>
+              <th class="time">Time</th>
+              <th>Open</th>
+              <th>Close</th>
+              <th>ΔP %</th>
+              <th>Vol</th>
+              <th>ψ<sub>r</sub></th>
+              <th>F<sub>crypto</sub></th>
+              <th>F<sub>USDT</sub></th>
+              <th>F<sub>USDT</sub><sub>norm</sub></th>
+              <th>F<sub>crypto</sub><sub>norm</sub></th>
+            </tr>
+          </thead>
+          <tbody id="forcesBody"></tbody>
+        </table>
+      </div>
+      <div class="flex" style="margin-top:.8rem;">
+        <button id="exportBtn" class="secondary">Exporter CSV</button>
+        <span class="inlineStat" id="rowsInfo"></span>
+      </div>
+    </section>
+  </div>
+
+  <section class="box" style="margin-top:1.2rem;">
+    <h2 style="margin:.2rem 0 .8rem;font-size:1rem;letter-spacing:.5px;">Formule & Notes</h2>
+    <div class="code">
+ΔP = (P_close - P_open) / P_open<br>
+ψ_r = L / (L + Q * P_close)<br>
+F_crypto = ΔP * Volume_crypto * ψ_r<br>
+F_USDT   = F_crypto * P_close<br>
+F_USDT_norm   = F_USDT / L<br>
+F_crypto_norm = F_USDT_norm / P_close
+    </div>
+  </section>
+</main>
+<footer>Prototype pédagogique – aucune garantie d'exactitude. Données publiques Binance.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let ws = null;
+let klines = [];          // historique des bougies (fermées + éventuellement en formation)
+let priceChart = null;
+let historyLimit = 120;
+let Q = 1;  // position crypto
+let L = 1e9;
+
+const symbolEl = document.getElementById('symbol');
+const intervalEl = document.getElementById('interval');
+const historyEl = document.getElementById('historyLimit');
+const QEl = document.getElementById('positionQ');
+const LEl = document.getElementById('liqL');
+const priceDpEl = document.getElementById('priceDp');
+
+const priceLiveEl = document.getElementById('priceLive');
+const lastStatsEl = document.getElementById('lastStats');
+const connStatusEl = document.getElementById('connStatus');
+const forcesBodyEl = document.getElementById('forcesBody');
+const rowsInfoEl = document.getElementById('rowsInfo');
+
+document.getElementById('reloadBtn').addEventListener('click', ()=>{
+  applyParams();
+  loadAndConnect(true);
+});
+document.getElementById('applyBtn').addEventListener('click', ()=>{
+  applyParams();
+  // recalcul sur la dernière bougie fermée pour refléter nouvelles Q,L
+  recomputeForces();
+});
+
+document.getElementById('exportBtn').addEventListener('click', exportCSV);
+
+function applyParams(){
+  Q = parseFloat(QEl.value)||0;
+  L = parseFloat(LEl.value)||1;
+  historyLimit = parseInt(historyEl.value)||120;
+}
+
+async function loadAndConnect(forceReconnect=false){
+  if(ws && forceReconnect){
+    try{ ws.close(); } catch(e){}
+    ws = null;
+  }
+  connStatusEl.textContent = 'Chargement historique…';
+  klines = await fetchHistory(symbolEl.value, intervalEl.value, historyLimit);
+  drawChart(); // initial
+  recomputeForces(); // compute existing closed
+  openWS();
+}
+
+async function fetchHistory(symbol, interval, limit){
+  const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const raw = await res.json();
+  return raw.map(k => ({
+    openTime: k[0],
+    open: parseFloat(k[1]),
+    high: parseFloat(k[2]),
+    low: parseFloat(k[3]),
+    close: parseFloat(k[4]),
+    volumeCrypto: parseFloat(k[5]),
+    closed: true
+  }));
+}
+
+function openWS(){
+  const sym = symbolEl.value.toLowerCase();
+  const interval = intervalEl.value;
+  const kstream = `${sym}@kline_${interval}`;
+  const tstream = `${sym}@trade`;
+  const url = `wss://stream.binance.com:9443/stream?streams=${kstream}/${tstream}`;
+  ws = new WebSocket(url);
+  connStatusEl.textContent = 'Connexion WebSocket…';
+  ws.onopen = () => connStatusEl.textContent = 'Connecté';
+  ws.onmessage = (evt)=>{
+    const msg = JSON.parse(evt.data);
+    const stream = msg.stream;
+    if(stream.endsWith('@trade')){
+      const p = parseFloat(msg.data.p);
+      const dp = parseInt(priceDpEl.value)||2;
+      priceLiveEl.textContent = p.toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});
+    } else if(stream.includes('@kline_')){
+      const k = msg.data.k;
+      upsertLiveKline(k);
+    }
+  };
+  ws.onclose = ()=> connStatusEl.textContent = 'Déconnecté';
+  ws.onerror = ()=> connStatusEl.textContent = 'Erreur WS';
+}
+
+function upsertLiveKline(k){
+  const openTime = k.t;
+  const existingIndex = klines.findIndex(x => x.openTime === openTime);
+  const candle = {
+    openTime,
+    open: parseFloat(k.o),
+    high: parseFloat(k.h),
+    low: parseFloat(k.l),
+    close: parseFloat(k.c),
+    volumeCrypto: parseFloat(k.v),
+    closed: k.x
+  };
+  if(existingIndex >= 0){
+    klines[existingIndex] = candle;
+  } else {
+    klines.push(candle);
+    if(klines.length > historyLimit) klines.shift();
+  }
+  drawChart(); // update price series
+  if(candle.closed){
+    // compute force for this candle
+    appendForceRow(candle, computeForce(candle));
+  } else {
+    // updating forming candle doesn't change closed forces
+  }
+}
+
+function computeForce(c){
+  const O = c.open, C = c.close;
+  if(O === 0) return null;
+  const deltaP = (C - O) / O;            // dimensionless
+  const volumeCrypto = c.volumeCrypto;   // units crypto
+  const positionValue = Q * C;           // USDT
+  const psi_r = L / (L + positionValue); // (0,1]
+  const F_crypto = deltaP * volumeCrypto * psi_r; // crypto units
+  const F_USDT = F_crypto * C;           // USDT
+  const F_USDT_norm = F_USDT / L;        // dimensionless
+  const F_crypto_norm = F_USDT_norm / C; // crypto-equivalent normalized
+  return {deltaP, psi_r, F_crypto, F_USDT, F_USDT_norm, F_crypto_norm, close:C, open:O, vol:volumeCrypto};
+}
+
+function recomputeForces(){
+  // Rebuild table for all closed candles
+  forcesBodyEl.innerHTML = '';
+  klines.filter(k=>k.closed).forEach(c=>{
+    appendForceRow(c, computeForce(c));
+  });
+}
+
+function appendForceRow(c, m){
+  if(!m) return;
+  const tr = document.createElement('tr');
+  const timeStr = new Date(c.openTime).toLocaleTimeString();
+  const dp = parseInt(priceDpEl.value)||2;
+
+  const toPct = (x)=> (x*100).toFixed(4);
+  const fmt = (x,dec=6)=> Number(x).toFixed(dec);
+  const fmtP = (x)=> Number(x).toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});
+
+  tr.innerHTML = `
+    <td class="time">${timeStr}</td>
+    <td>${fmtP(m.open)}</td>
+    <td>${fmtP(m.close)}</td>
+    <td>${toPct(m.deltaP)}</td>
+    <td>${fmt(m.vol,3)}</td>
+    <td>${m.psi_r.toFixed(6)}</td>
+    <td>${fmt(m.F_crypto,6)}</td>
+    <td>${fmt(m.F_USDT,2)}</td>
+    <td>${fmt(m.F_USDT_norm,6)}</td>
+    <td>${fmt(m.F_crypto_norm,6)}</td>
+  `;
+  // Insert newest on top
+  forcesBodyEl.prepend(tr);
+  const rows = forcesBodyEl.querySelectorAll('tr').length;
+  rowsInfoEl.textContent = rows+' lignes';
+  // Update quick stats
+  if(c.closed){
+    lastStatsEl.innerHTML = `ΔP: ${(m.deltaP*100).toFixed(4)}% | ψ<sub>r</sub>: ${m.psi_r.toFixed(6)} | F<sub>crypto</sub>: ${m.F_crypto.toFixed(6)} | F<sub>USDT_norm</sub>: ${m.F_USDT_norm.toFixed(6)}`;
+  }
+}
+
+function drawChart(){
+  const labels = klines.map(k=> new Date(k.openTime).toLocaleTimeString());
+  const closes = klines.map(k=> k.close);
+  if(!priceChart){
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    priceChart = new Chart(ctx, {
+      type:'line',
+      data:{
+        labels,
+        datasets:[{
+          label:'Prix Close',
+          data:closes,
+          borderColor:'#1f6feb',
+          backgroundColor:'rgba(31,110,235,0.15)',
+          tension:.25,
+          pointRadius:0
+        }]
+      },
+      options:{
+        animation:false,
+        responsive:true,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{display:true,title:{display:false}},
+          y:{display:true,title:{display:false},ticks:{color:'#c8d2dc'}}
+        }
+      }
+    });
+  } else {
+    priceChart.data.labels = labels;
+    priceChart.data.datasets[0].data = closes;
+    priceChart.update('none');
+  }
+}
+
+// CSV Export
+function exportCSV(){
+  const rows = [...forcesBodyEl.querySelectorAll('tr')].map(tr=>[...tr.children].map(td=>td.textContent));
+  const header = ['Time','Open','Close','DeltaP_pct','VolumeCrypto','psi_r','F_crypto','F_USDT','F_USDT_norm','F_crypto_norm'];
+  const all = [header, ...rows];
+  const csv = all.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'forces_financiaires.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+applyParams();
+loadAndConnect(true);
+</script>
+</body>
+</html>
