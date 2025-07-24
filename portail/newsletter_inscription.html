@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>S’abonner à la newsletter BigTree Universal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f9f7ed;
+      min-height:100vh;
+      margin:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .main-container {
+      background: #fff;
+      padding: 2.7em 2em 2.4em 2em;
+      border-radius: 17px;
+      box-shadow: 0 10px 40px #b2a37c2c;
+      text-align: center;
+      max-width: 430px;
+      width: 96vw;
+      margin: 2em 0;
+    }
+    .header {
+      margin-bottom: 1.6em;
+    }
+    .logo {
+      max-height: 54px;
+      margin-bottom: 0.5em;
+    }
+    .site-title {
+      font-size: 1.5em;
+      color: #855f14;
+      font-weight: bold;
+      margin-bottom: 0.2em;
+    }
+    .substack-link {
+      display: inline-block;
+      color: #ff8902;
+      text-decoration: underline;
+      font-size: 1.07em;
+      margin: 0.8em 0 0.2em 0;
+    }
+    .substack-link:hover {
+      color: #ab5702;
+      text-decoration: none;
+    }
+    .explain {
+      background: #f4ede1;
+      color: #775824;
+      border-radius: 9px;
+      padding: 1.0em 1.2em 1.1em 1.2em;
+      margin-bottom: 1.8em;
+      font-size: 1.06em;
+      line-height: 1.55em;
+      box-shadow: 0 2px 8px #f0e6d655;
+    }
+    .optionbox {
+      margin: 1.6em 0 1em;
+      text-align: left;
+      padding: 0 1.2em;
+    }
+    label { font-weight: 500;}
+    input[type="email"] {
+      padding: 0.8em 1em;
+      width: 92%;
+      border: 1px solid #eedcb9;
+      border-radius: 6px;
+      font-size:1.12em;
+      margin-top: 0.6em;
+    }
+    .btn {
+      display:inline-block;
+      background:#ff9b1e;
+      color:#fff;
+      font-weight:bold;
+      padding:1em 2.4em;
+      border-radius:8px;
+      text-decoration:none;
+      margin:1.3em 0 0 0;
+      border:none;
+      font-size:1.13em;
+      cursor:pointer;
+      transition: background .17s;
+    }
+    .btn:hover { background:#b67311; }
+    .grise { opacity:0.6; pointer-events:none;}
+    .confirmation {
+      margin-top: 1.5em;
+      color:#407f3d;
+      font-size: 1.1em;
+    }
+    @media (max-width: 600px) {
+      .main-container { padding: 1.2em 2vw 1.6em 2vw;}
+      .header { margin-bottom: 1em;}
+      .explain { font-size:1em; padding: 0.7em 0.3em; }
+      .optionbox { padding: 0;}
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- EN-TÊTE AVEC LOGO ET TITRE -->
+    <div class="header">
+      <img src="bigtree_universal.jpg" alt="BigTree Universal" class="logo"><br>
+      <span class="site-title">BigTree Universal</span>
+      <br>
+      <a href="https://bigtreeuniversal.substack.com/" target="_blank" class="substack-link">Découvrir la page Substack</a>
+    </div>
+
+    <!-- TEXTE EXPLICATIF -->
+    <div class="explain">
+      Vous pouvez recevoir <b>la même newsletter "Voix de l'arbre" </b> soit directement depuis ce site, soit via <b>Substack</b>.<br>
+      <br>
+      <b>Les deux options vous donnent accès à tous les chapitres du portail littéraire + accès au chat communautaire.</b>
+      <br><br>
+      Si vous êtes déjà habitué à Substack, sélectionnez cette option. Sinon, laissez l’inscription classique proposée ci-dessous.
+    </div>
+
+    <!-- FORMULAIRE -->
+    <form id="inscription-form" autocomplete="off">
+      <div class="optionbox">
+        <input type="radio" id="newsletter" name="choix" value="newsletter" checked>
+        <label for="newsletter" style="display:inline;">S’abonner à la newsletter BigTree Universal</label>
+        <br>
+        <input type="radio" id="substack" name="choix" value="substack">
+        <label for="substack" style="display:inline;">S’abonner via Substack</label>
+      </div>
+      <div id="champ-email">
+        <input type="email" id="email" name="email" placeholder="Votre adresse email" required>
+      </div>
+      <button type="submit" id="submitBtn" class="btn">Je m’abonne</button>
+    </form>
+
+    <div id="confirmation" class="confirmation" style="display:none;">
+      Merci pour votre inscription !<br>Vous recevrez bientôt nos actualités.
+    </div>
+  </div>
+
+  <script>
+    // Modifie le formulaire selon le choix sélectionné
+    const newsletterRadio = document.getElementById('newsletter');
+    const substackRadio = document.getElementById('substack');
+    const emailInput = document.getElementById('email');
+    const champEmail = document.getElementById('champ-email');
+    const form = document.getElementById('inscription-form');
+    const confirmation = document.getElementById('confirmation');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function updateForm() {
+      if(substackRadio.checked) {
+        emailInput.disabled = true;
+        champEmail.classList.add('grise');
+        submitBtn.textContent = "S’abonner sur Substack";
+      } else {
+        emailInput.disabled = false;
+        champEmail.classList.remove('grise');
+        submitBtn.textContent = "Je m’abonne";
+      }
+    }
+    newsletterRadio.addEventListener('change', updateForm);
+    substackRadio.addEventListener('change', updateForm);
+
+    // Au submit : soit formulaire maison, soit lien vers Substack
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      if(substackRadio.checked) {
+        window.open("https://TONSUBSTACK.substack.com/subscribe", "_blank");
+      } else {
+        form.style.display = "none";
+        confirmation.style.display = "block";
+      }
+    });
+    // Initialiser l’affichage
+    updateForm();
+  </script>
+</body>
+</html>
