@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BigTree Universal</title>
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #fff;
+      background-image: url('background-image.jpg'); /* Remplacez par votre image */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      backdrop-filter: blur(0.5px);
+    }
+    .overlay {
+      background: rgba(36, 19, 2, 0.68); /* effet de superposition pour lisibilité */
+      min-height: 100vh;
+      width: 100%;
+      position: absolute;
+      top: 0; left: 0;
+      z-index: 0;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 60px auto;
+      background: rgba(255, 255, 255, 0.09);
+      padding: 38px 40px;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.20);
+      backdrop-filter: blur(2.5px);
+    }
+    h1, h2 {
+      font-family: 'Merriweather', serif;
+      color: #ffdf98;
+      margin-top: 0;
+      letter-spacing: 1px;
+    }
+    h1 {
+      font-size: 2.5em;
+    }
+    a, .btn {
+      color: #ffdf98;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+    a:hover, .btn:hover {
+      color: #ffeac2;
+    }
+    .btn {
+      display: inline-block;
+      background: #2c3e50cc;
+      padding: 12px 28px;
+      margin: 16px 0;
+      border-radius: 6px;
+      border: none;
+      font-size: 1.09em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.22s;
+    }
+    .btn-primary {
+      background: #c49241cc;
+      color: #fff;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul li {
+      margin-bottom: 9px;
+      position: relative;
+      padding-left: 28px;
+    }
+    ul li::before {
+      content: "✔️";
+      position: absolute;
+      left: 0;
+      top: 2px;
+      font-size: 1.2em;
+      color: #ffd27f;
+    }
+    .footer {
+      margin-top: 30px;
+      font-style: italic;
+      color: #f7e7c7;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 18px 6px;
+      }
+      h1 { font-size: 1.6em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="container">
+    <h1>Note de l'auteur</h1>
+    <p><strong>Bonjour les amis,</strong></p>
+    <p>Après plus de 30 ans de carrière dans la musique, l’écriture, la création, l’invention et la recherche en tous genres, j’ai décidé de regrouper l’ensemble de mes travaux dans un seul et même portail.</p>
+    <p>Ce site est le fruit de ce parcours : un espace unique où se croisent plusieurs disciplines, destiné à partager librement mon univers avec celles et ceux qui souhaitent le découvrir.</p>
+    <p>J’ai voulu proposer <strong>la palette la plus large possible</strong> afin que chacun puisse y trouver un point d’entrée, une curiosité, une inspiration. Certains contenus nécessitent une inscription pour aller plus loin.</p>
+    
+    <h2>Abonnements : fonctionnement</h2>
+    <ul>
+      <li><strong>Gratuit :</strong> Accès aux livres et à une grande partie du site. <a href="https://votre-lien-gratuit.fr">S'inscrire</a></li>
+      <li><strong>Standard :</strong> Accès étendu, y compris aux rubriques spécialisées, sauf outils scientifiques avancés. <a href="https://votre-lien-standard.fr">Choisir</a></li>
+      <li><strong>Premium :</strong> Accès complet à tout le portail, y compris la section scientifique et les calculateurs. <a href="https://votre-lien-premium.fr" class="btn btn-primary">Devenir Premium</a></li>
+    </ul>
+
+    <p>📚 Une <strong>documentation détaillée</strong> est disponible sur le site pour plus d’informations.  
+      <a href="https://votre-lien-documentation.fr" class="btn">Voir la documentation</a>
+    </p>
+
+    <div class="footer">
+      <p>Ce projet est bien plus qu’un site : c’est une aventure créative et humaine.</p>
+      <p>S’abonner, c’est me soutenir, mais aussi rejoindre un espace de transmission et de passion.</p>
+      <p><strong>Merci à toutes et tous pour votre présence et votre intérêt.</strong></p>
+      <p>Et à très bientôt — sur scène, sur papier… ou sur écran !</p>
+      <p><strong>— Big Tree</strong></p>
+    </div>
+  </div>
+</body>
+</html>
