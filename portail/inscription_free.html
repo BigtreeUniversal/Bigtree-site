@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Inscription à la newsletter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #fffbf1; color: #444; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .box { background: #fffbe9; padding: 2em 2.5em; border-radius: 14px; box-shadow: 0 8px 30px #a3925d24; text-align: center; max-width: 360px;}
+    .btn { display:inline-block; background:#ff9b1e; color:#fff; font-weight:bold; padding:1em 2em; border-radius:8px; text-decoration:none; margin:1.3em 0; transition: background .16s; }
+    .btn:hover { background:#b67311; }
+    small { color: #c97; display: block; margin-top: 0.8em; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Abonnez-vous pour continuer la lecture</h1>
+    <p>Pour accéder à tout le contenu, inscrivez-vous gratuitement à la newsletter BigTree Universal. Vous recevrez le code d’accès par email.</p>
+    <a href="#" id="substackBtn" class="btn">M’inscrire à la newsletter</a>
+    <small>Après inscription, revenez ici pour continuer votre lecture.</small>
+  </div>
+  <script>
+    // Récupère l’URL de retour (si présente dans l’URL)
+    const urlParams = new URLSearchParams(window.location.search);
+    const retour = urlParams.get('retour');
+    // Lien vers Substack, AVEC un retour à la page de remerciement
+    // (L’utilisateur doit revenir manuellement, Substack ne gère pas la redirection)
+    let merciUrl = "merci.html";
+    if(retour) merciUrl += "?retour=" + encodeURIComponent(retour);
+    // Met à jour le lien d’inscription
+    document.getElementById('substackBtn').href = "https://bigtreeuniversal.substack.com/subscribe";
+    // Ajoute une info “Après inscription, cliquez ici…” (si tu veux)
+  </script>
+</body>
+</html>
