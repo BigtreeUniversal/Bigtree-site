@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>BigTree Roots — Mes Liens</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- FontAwesome pour logos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: #141414;
+      font-family: 'Garamond', Georgia, serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .main-container {
+      background: rgba(22,22,22,0.93);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px #0009;
+      padding: 2.2em 2.1em 1.6em 2.1em;
+      text-align: center;
+      max-width: 370px;
+      width: 94vw;
+      z-index: 2;
+      position: relative;
+    }
+    .logo {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 1.1em;
+      border: 2.2px solid #25ab36;
+      box-shadow: 0 0 9px #fff700bb;
+    }
+    h1 {
+      color: #fff;
+      font-size: 1.26em;
+      margin: 0.1em 0 0.8em 0;
+      letter-spacing: 1.5px;
+      font-family: inherit;
+      font-weight: 600;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.2em 1.2em;
+      margin-top: 1.4em;
+      margin-bottom: 0.8em;
+    }
+    .circle-btn {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #212121;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e5e5e5;
+      font-size: 1.55em;
+      text-decoration: none;
+      transition: background 0.18s, box-shadow 0.14s, transform 0.10s;
+      box-shadow: 0 1px 9px #0005;
+      border: 1.5px solid #222;
+      position: relative;
+    }
+    .circle-btn:hover {
+      background: #25ab36;
+      color: #fff;
+      box-shadow: 0 2px 13px #25ab3681, 0 1px 12px #000a;
+      transform: scale(1.12);
+    }
+    .circle-btn[data-color="yellow"]:hover { background: #fff700; color: #141414;}
+    .circle-btn[data-color="red"]:hover { background: #ed2024; color: #fff;}
+    .circle-btn[data-color="blue"]:hover { background: #1d5cce; color: #fff;}
+    .circle-btn[data-color="pink"]:hover { background: #f52ea6; color: #fff;}
+    .circle-btn[data-color="gray"]:hover { background: #7b7b7b; color: #fff;}
+    .label {
+      font-size: 0.93em;
+      color: #e4e4e4;
+      margin-top: 0.32em;
+      margin-bottom: 1.13em;
+    }
+    .footer {
+      margin-top: 1.4em;
+      color: #ffd400;
+      font-size: 0.97em;
+      opacity: 0.82;
+      text-shadow: 0 1px 4px #000c;
+    }
+    @media (max-width: 500px) {
+      .main-container { padding: 1em 2vw 0.5em 2vw; max-width: 95vw;}
+      .logo { width: 54px; height: 54px;}
+      .circle-btn { width: 42px; height: 42px; font-size: 1.15em;}
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <img src="ton-logo-vert-jaune-rouge.png" alt="Logo BigTree Roots" class="logo">
+    <h1>BigTree Roots</h1>
+    <div class="label">Retrouve-moi sur toutes les plateformes</div>
+    <div class="links">
+      <a href="https://instagram.com/oliverbigtree" class="circle-btn" data-color="pink" title="Instagram" target="_blank">
+        <i class="fa-brands fa-instagram"></i>
+      </a>
+      <a href="https://facebook.com/TONCOMPTE" class="circle-btn" data-color="blue" title="Facebook" target="_blank">
+        <i class="fa-brands fa-facebook-f"></i>
+      </a>
+      <a href="https://tiktok.com/@oliver.bigtree" class="circle-btn" data-color="gray" title="TikTok" target="_blank">
+        <i class="fa-brands fa-tiktok"></i>
+      </a>
+      <a href="https://youtube.com/@" class="circle-btn" data-color="red" title="YouTube" target="_blank">
+        <i class="fa-brands fa-youtube"></i>
+      </a>
+      <a href="https://open.spotify.com/artist/oliverbigtree" class="circle-btn" data-color="green" title="Spotify" target="_blank">
+        <i class="fa-brands fa-spotify"></i>
+      </a>
+      <a href="https://bigtreeuniversal.substack.com/" class="circle-btn" data-color="yellow" title="Substack" target="_blank">
+        <i class="fa-solid fa-newspaper"></i>
+      </a>
+      <a href="https://www.bigtreeconnection.com" class="circle-btn" data-color="yellow" title="Newsletter" target="_blank">
+        <i class="fa-regular fa-envelope"></i>
+      </a>
+      <a href="mailto:bigtreeuniversal@proton.me" class="circle-btn" data-color="green" title="E-mail">
+        <i class="fa-solid fa-paper-plane"></i>
+      </a>
+      <a href="https://tonsite.com" class="circle-btn" data-color="green" title="Site" target="_blank">
+        <i class="fa-solid fa-music"></i>
+      </a>
+      <a href="https://discord.gg/TONCHAT" class="circle-btn" data-color="gray" title="Chat/Discord" target="_blank">
+        <i class="fa-brands fa-discord"></i>
+      </a>
+    </div>
+    <div class="footer">
+      &copy; 2025 BigTree Roots — One Love ✨
+    </div>
+  </div>
+</body>
+</html>
