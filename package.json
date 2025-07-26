@@ -1,0 +1,2 @@
+{ "name": "synchrolink-server", "version": "1.0.0", "description": "Serveur WebSocket SynchroLink pour flux temps réel", "main": "synchrolink-server.js", "scripts": { "start": "node synchrolink-server.js" }, "dependencies": { "ws": "^8.15.0" }, "license": "MIT" }
+
