@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculateur Soleil & Lune Terre Plate - Carte personnalisée</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #eef6fb; }
+    #container { width: 450px; margin: 30px auto; background: #fff; padding: 24px; border-radius: 16px; box-shadow: 0 2px 14px #0002; }
+    #azimuthal { display: block; margin: 0 auto; background: #b4e2fa; border-radius: 50%; }
+    .form-row { margin-bottom: 16px; }
+    .legend { margin: 8px 0 0 0; text-align: center; }
+    .legend span { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin: 0 8px 0 4px; vertical-align: middle; }
+    .sun { background: gold; border: 2px solid #ffa600; }
+    .moon { background: #b2b2ff; border: 2px solid #7878c0; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h2>Calculateur Soleil & Lune<br>(avec carte personnalisée)</h2>
+    <div class="form-row">
+      <label>Date : <input type="date" id="date" /></label>
+      <label style="margin-left:20px;">Heure : <input type="time" id="time" value="12:00" step="900"/></label>
+      <button onclick="update()">Calculer</button>
+    </div>
+    <canvas id="azimuthal" width="400" height="400"></canvas>
+    <div class="legend">
+      <span class="sun"></span> Soleil
+      <span class="moon"></span> Lune
+    </div>
+    <div id="infos" style="margin-top:12px; text-align:center;"></div>
+    <div style="font-size:12px; color:#555; margin-top:6px">
+      <b>Astuce :</b> Change le chemin de l’image et les coordonnées de Greenwich/Centre dans le code.
+    </div>
+  </div>
+
+<script>
+const CANVAS_SIZE = 400;
+
+// --- PARAMÈTRES À ADAPTER SELON TA CARTE ---
+const MAP_IMAGE_SRC = "https://upload.wikimedia.org/wikipedia/commons/9/98/Azimuthal_equidistant_projection_SW.jpg"; // ou "azimuthal_map.png"
+const CENTER_X = 200, CENTER_Y = 200; // centre du disque
+const GREENWICH_X = 200, GREENWICH_Y = 22; // point où passe le méridien de Greenwich sur le bord de la carte
+// --------------------------------------------
+
+const R_TROPIC_CANCER = 90;
+const R_EQUATOR = 130;
+const R_TROPIC_CAPRICORN = 170;
+const R_SUN_MIN = R_TROPIC_CANCER;
+const R_SUN_MAX = R_TROPIC_CAPRICORN;
+const R_MOON_MIN = R_TROPIC_CANCER + 10;
+const R_MOON_MAX = R_TROPIC_CAPRICORN - 10;
+
+const canvas = document.getElementById('azimuthal');
+const ctx = canvas.getContext('2d');
+
+let mapImg = new Image();
+mapImg.src = MAP_IMAGE_SRC;
+mapImg.onload = update;
+
+function getDayOfYear(date) {
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date - start + ((start.getTimezoneOffset() - date.getTimezoneOffset()) * 60 * 1000);
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+function getMoonCycleDay(date) {
+  const KNOWN_NEW_MOON = new Date(2024, 0, 11);
+  const days = Math.floor((date - KNOWN_NEW_MOON) / (1000*60*60*24));
+  let phase = (days % 29.53 + 29.53) % 29.53;
+  return phase;
+}
+function getMoonPhaseName(phase) {
+  if (phase < 1) return "Nouvelle lune";
+  if (phase < 7) return "Premier croissant";
+  if (phase < 8) return "Premier quartier";
+  if (phase < 15) return "Gibbeuse croissante";
+  if (phase < 16) return "Pleine lune";
+  if (phase < 22) return "Gibbeuse décroissante";
+  if (phase < 23) return "Dernier quartier";
+  if (phase < 29) return "Dernier croissant";
+  return "Nouvelle lune";
+}
+
+// Calcule l’angle du point Greenwich sur la carte (par rapport au nord)
+function getGreenwichAngle() {
+  let dx = GREENWICH_X - CENTER_X;
+  let dy = GREENWICH_Y - CENTER_Y;
+  let angle = Math.atan2(dy, dx) * 180/Math.PI;
+  // 0° = nord, 90° = est
+  return angle;
+}
+
+// Angle du Soleil, corrigé pour que 0° de longitude (Greenwich) soit au zénith à midi UTC
+function getSunAngle(hours, greenwichAngle) {
+  // Soleil tourne 360°/24h = 15°/h (sens horaire)
+  // 0° = nord (minuit à Greenwich)
+  let angle = ((hours / 24) * 360) - 90;
+  // Décalage pour que le soleil soit sur Greenwich à midi
+  // À midi solaire vrai, le Soleil doit être pile sur Greenwich
+  // Donc, à midi, l’angle du soleil doit correspondre à greenwichAngle
+  // On applique l’offset :
+  let offset = greenwichAngle - 180; // 180 car à midi le soleil est censé être « au sud » sur la projection
+  return angle + offset;
+}
+
+function getSunPosition(date, hours) {
+  let day = getDayOfYear(date);
+  let t = ((day - 172 + 365) % 365) / 182.5;
+  let sinus = Math.abs(Math.sin(Math.PI * t / 2));
+  let r = R_SUN_MIN + (R_SUN_MAX - R_SUN_MIN) * sinus;
+  let greenwichAngle = getGreenwichAngle();
+  let angle = getSunAngle(hours, greenwichAngle);
+  let rad = angle * Math.PI / 180;
+  let x = CENTER_X + r * Math.cos(rad);
+  let y = CENTER_Y + r * Math.sin(rad);
+  return { x, y, angle, r };
+}
+
+function getMoonPosition(date, hours) {
+  let sun = getSunPosition(date, hours);
+  let phase = getMoonCycleDay(date);
+  let retard = phase * (360 / 29.53);
+  let angle = sun.angle - retard;
+  let t = (phase / 14.765);
+  let sinus = Math.abs(Math.sin(Math.PI * t / 2));
+  let r = R_MOON_MIN + (R_MOON_MAX - R_MOON_MIN) * sinus;
+  let rad = angle * Math.PI / 180;
+  let x = CENTER_X + r * Math.cos(rad);
+  let y = CENTER_Y + r * Math.sin(rad);
+  return { x, y, angle, r, phase };
+}
+
+function draw(date, hours) {
+  // Affiche la carte en fond
+  ctx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(CENTER_X, CENTER_Y, CANVAS_SIZE/2, 0, 2*Math.PI);
+  ctx.closePath();
+  ctx.clip();
+  ctx.drawImage(mapImg, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  ctx.restore();
+
+  // Cercles tropiques/équateur
+  ctx.strokeStyle = "#2e6d94cc";
+  ctx.lineWidth = 2;
+  [R_TROPIC_CANCER, R_EQUATOR, R_TROPIC_CAPRICORN].forEach(r => {
+    ctx.beginPath();
+    ctx.arc(CENTER_X, CENTER_Y, r, 0, 2*Math.PI);
+    ctx.stroke();
+  });
+
+  // Soleil
+  const sun = getSunPosition(date, hours);
+  ctx.beginPath();
+  ctx.arc(sun.x, sun.y, 14, 0, 2*Math.PI);
+  ctx.fillStyle = "gold";
+  ctx.strokeStyle = "#ffa600";
+  ctx.lineWidth = 3;
+  ctx.fill();
+  ctx.stroke();
+
+  // Lune
+  const moon = getMoonPosition(date, hours);
+  ctx.beginPath();
+  ctx.arc(moon.x, moon.y, 10, 0, 2*Math.PI);
+  ctx.fillStyle = "#b2b2ff";
+  ctx.strokeStyle = "#7878c0";
+  ctx.lineWidth = 2;
+  ctx.fill();
+  ctx.stroke();
+
+  // Centre/Nord
+  ctx.fillStyle = "#222";
+  ctx.font = "bold 14px Arial";
+  ctx.fillText("N", CENTER_X-6, CENTER_Y-8);
+  ctx.fillText("S", CENTER_X-8, CANVAS_SIZE-6);
+  ctx.fillText("E", CANVAS_SIZE-22, CENTER_Y+5);
+  ctx.fillText("O", 12, CENTER_Y+5);
+
+  // Marquer Greenwich
+  ctx.beginPath();
+  ctx.arc(GREENWICH_X, GREENWICH_Y, 5, 0, 2*Math.PI);
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.font = "12px Arial";
+  ctx.fillStyle = "red";
+  ctx.fillText("Greenwich", GREENWICH_X+6, GREENWICH_Y+2);
+}
+
+function update() {
+  if (!mapImg.complete) return;
+  let dateStr = document.getElementById('date').value;
+  let timeStr = document.getElementById('time').value;
+  if (!dateStr || !timeStr) return;
+  let [yyyy, mm, dd] = dateStr.split('-');
+  let [HH, MM] = timeStr.split(':');
+  let date = new Date(yyyy, mm-1, dd, HH, MM);
+  let hours = parseInt(HH) + parseInt(MM)/60;
+  draw(date, hours);
+  // Infos texte
+  let moon = getMoonPosition(date, hours);
+  let moonPhase = getMoonPhaseName(moon.phase);
+  let moonCycleDay = Math.floor(moon.phase) + 1;
+  let year = date.getFullYear();
+  let firstNewMoon = new Date(year, 0, 11);
+  let num = 1 + Math.floor((date - firstNewMoon) / (29.53*24*60*60*1000));
+  document.getElementById('infos').innerHTML =
+    `<b>Date :</b> ${date.toLocaleDateString()} <b>Heure :</b> ${("0"+HH).slice(-2)}:${("0"+MM).slice(-2)}<br>
+    <b>Soleil :</b> <small>(midi solaire sur Greenwich)</small><br>
+    <b>Lune :</b> ${moonPhase} (Jour ${moonCycleDay} du cycle lunaire, Lune n°${num} de l'année)`;
+}
+
+// Valeurs par défaut
+window.onload = function() {
+  let today = new Date();
+  document.getElementById('date').value = today.toISOString().slice(0,10);
+  document.getElementById('time').value = "12:00";
+  update();
+};
+</script>
+</body>
+</html>
