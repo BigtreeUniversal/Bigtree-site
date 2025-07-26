@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Synchrolink Client</title>
+  <style>
+    body {
+      font-family: monospace;
+      background-color: #111;
+      color: #0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    button {
+      margin: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    pre {
+      width: 90%;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #0f0;
+      padding: 10px;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Synchrolink Client</h1>
+  <button onclick="callServer()">Appeler le serveur</button>
+  <pre id="response">En attente...</pre>  <script>
+    async function callServer() {
+      const output = document.getElementById('response');
+      const timestamp = new Date().toLocaleTimeString();
+
+      try {
+        output.textContent = `[${timestamp}] 📡 Tentative de connexion...`;
+        const res = await fetch('https://syncrolink-server.onrender.com/');
+        const text = await res.text();
+        output.textContent = `[${timestamp}] ✅ Réponse du serveur (HTTP ${res.status}):\n\n` + text;
+      } catch (err) {
+        output.textContent = `[${timestamp}] ❌ Erreur: "${err.message}"\n\nVérifiez si le serveur est en ligne et que le CORS est bien activé.`;
+        console.error('Erreur fetch :', err);
+      }
+    }
+  </script></body>
+</html>
