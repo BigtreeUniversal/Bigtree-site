@@ -1,11 +1,12 @@
-{
-  "name": "synchrolink-server",
-  "version": "1.0.0",
-  "main": "synchrolink-server.js",
-  "scripts": {
-    "start": "node synchrolink-server.js"
-  },
-  "dependencies": {
-    "ws": "^8.15.0"
-  }
-}
+// synchrolink-server.js
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.send('Hello from Synchrolink Server!');
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
