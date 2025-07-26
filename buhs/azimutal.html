@@ -39,7 +39,7 @@ const CANVAS_SIZE = 400;
 // --- PARAMÈTRES À ADAPTER SELON TA CARTE ---
 const MAP_IMAGE_SRC = "azimutal_map.jpg"; // ou "azimuthal_map.png"
 const CENTER_X = 200, CENTER_Y = 200; // centre du disque
-const GREENWICH_X = 22, GREENWICH_Y = 200; // point où passe le méridien de Greenwich sur le bord de la carte
+const GREENWICH_X = 22, GREENWICH_Y = 390; // point où passe le méridien de Greenwich sur le bord de la carte
 // --------------------------------------------
 
 const R_TROPIC_CANCER = 90;
@@ -93,7 +93,7 @@ function getGreenwichAngle() {
 function getSunAngle(hours, greenwichAngle) {
   // Soleil tourne 360°/24h = 15°/h (sens horaire)
   // 0° = nord (minuit à Greenwich)
-  let angle = ((hours / 24) * 360) - 90;
+  let angle = ((hours / 24) * 360) - 360;
   // Décalage pour que le soleil soit sur Greenwich à midi
   // À midi solaire vrai, le Soleil doit être pile sur Greenwich
   // Donc, à midi, l’angle du soleil doit correspondre à greenwichAngle
