@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calculateur Soleil & Lune</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { background: black; color: lime; text-align: center; font-family: monospace; }
+    #map { position: relative; display: inline-block; }
+    .marker { position: absolute; width: 20px; height: 20px; border-radius: 50%; }
+    #sun { background: yellow; }
+    #moon { background: violet; }
+  </style>
+</head>
+<body>
+  <h1>Calculateur Soleil & Lune</h1>
+  <div id="map">
+    <img src="img/azimuthal_map.jpg" width="300" height="300" />
+    <div id="sun" class="marker"></div>
+    <div id="moon" class="marker"></div>
+  </div>
+  <p id="info"></p>
+
+  <script>
+    const SUN = document.getElementById("sun");
+    const MOON = document.getElementById("moon");
+    const INFO = document.getElementById("info");
+
+    async function updatePositions() {
+      try {
+        const res = await fetch('https://synchrolink-server.onrender.com/sunmoon?lat=0&lon=0');
+        const data = await res.json();
+
+        const azimuthToXY = (az, alt) => {
+          const x = 150 + 100 * Math.cos(az * Math.PI / 180);
+          const y = 150 + 100 * Math.sin(az * Math.PI / 180);
+          return { left: `${x}px`, top: `${y}px` };
+        };
+
+        Object.assign(SUN.style, azimuthToXY(data.sun.azimuth, data.sun.altitude));
+        Object.assign(MOON.style, azimuthToXY(data.moon.azimuth, data.moon.altitude));
+
+        INFO.textContent = `Soleil: ${data.sun.azimuth.toFixed(1)}°, Lune: ${data.moon.azimuth.toFixed(1)}°`;
+      } catch (err) {
+        INFO.textContent = 'Erreur lors de la récupération des données.';
+      }
+    }
+
+    updatePositions();
+    setInterval(updatePositions, 300000); // toutes les 5 minutes
+  </script>
+</body>
+</html>
