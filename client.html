@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Synchrolink Client</title>
+</head>
+<body>
+  <h1>Synchrolink Client</h1>
+  <button onclick="callServer()">Appeler le serveur</button>
+  <pre id="response"></pre>
+
+  <script>
+    async function callServer() {
+      try {
+        const res = await fetch('https://syncrolink-server.onrender.com/');
+        const data = await res.text();
+        document.getElementById('response').innerText = data;
+      } catch (err) {
+        document.getElementById('response').innerText = 'Erreur : ' + err;
+      }
+    }
+  </script>
+</body>
+</html>
