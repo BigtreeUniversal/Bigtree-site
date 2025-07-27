@@ -1,0 +1,63 @@
+<div id="mapContainer" style="position: relative; display: inline-block;">
+  <img
+    id="map"
+    src="images/map_azimutal.jpg"
+    alt="Carte azimutale équidistante"
+  />
+</div>
+<div id="status">Chargement…</div>
+
+<script>
+  async function drawSunMoonAzimuth(lat, lon) {
+    const res = await fetch(
+      `https://syncrolink-server.onrender.com/sunmoon?lat=${lat}&lon=${lon}`
+    );
+    if (!res.ok) {
+      document.getElementById("status").textContent =
+        "❌ Erreur serveur " + res.status;
+      return;
+    }
+    const { sunAzimuth, moonAzimuth } = await res.json();
+    document.getElementById("status").innerHTML =
+      `☀️ Azimut Soleil: ${sunAzimuth.toFixed(1)}°<br>` +
+      `🌙 Azimut Lune: ${moonAzimuth.toFixed(1)}°`;
+
+    const img = document.getElementById("map");
+    // Attend le chargement de l’image pour récupérer ses dimensions
+    if (!img.complete) await new Promise((r) => (img.onload = r));
+
+    const w = img.naturalWidth, h = img.naturalHeight;
+    const cx = w / 2, cy = h / 2;      // centre = Nord
+    const R = h / 2;                   // rayon = distance centre → bord
+
+    const container = document.getElementById("mapContainer");
+    // Supprime les anciennes icônes
+    container.querySelectorAll(".marker").forEach((e) => e.remove());
+
+    // Fonction pour placer une icône selon l’azimut
+    function placeMarker(az, iconSrc) {
+      const θ = (az * Math.PI) / 180;      // conversion en radians
+      const r = (az / 180) * R;            // 0°→0px ; 180°→R pixels
+      const x = cx + r * Math.sin(θ);
+      const y = cy + r * Math.cos(θ);
+
+      const el = document.createElement("img");
+      el.src = iconSrc;
+      el.className = "marker";
+      Object.assign(el.style, {
+        position: "absolute",
+        width: "32px",
+        left:  `${x - 16}px`,
+        top:   `${y - 16}px`,
+      });
+      container.appendChild(el);
+    }
+
+    // Place le soleil et la lune
+    placeMarker(sunAzimuth,  "images/sun_icon.png");
+    placeMarker(moonAzimuth, "images/moon_icon.png");
+  }
+
+  // Ex. pour Paris (à adapter ou rendre dynamique)
+  drawSunMoonAzimuth(48.8566, 2.3522);
+</script>
