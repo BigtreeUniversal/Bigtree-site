@@ -1,15 +1,14 @@
 {
   "name": "synchrolink-server",
   "version": "1.0.0",
-  "main": "synchrolink-server.js",
+  "description": "Serveur SynchroLink avec support pour SunCalc",
+  "main": "syncrolink-server.js",
   "scripts": {
-    "start": "node synchrolink-server.js"
+    "start": "node syncrolink-server.js"
   },
-
   "dependencies": {
-  "express": "^4.18.2",
-  "cors": "^2.8.5",
-  "ws": "^8.13.0"
-  "suncalc": "^1.9.0"
-    }
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "suncalc": "^1.9.0"
+  }
 }
