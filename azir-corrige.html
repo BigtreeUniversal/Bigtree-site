@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌞 Calculateur Soleil & 🌙 Lune</title>
+  <style>
+    body {
+      background-color: black;
+      color: green;
+      font-family: monospace;
+      text-align: center;
+    }
+    #map {
+      margin: 20px auto;
+      display: block;
+      max-width: 90%;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌞 Calculateur Soleil & 🌙 Lune</h1>
+  <img id="map" src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Azimuthal_equidistant_projection_SW.jpg" alt="Map" />
+  <div id="status">Chargement...</div>
+
+  <script>
+    async function getSunMoon(lat, lon) {
+      const endpoint = `https://syncrolink-server.onrender.com/sunmoon?lat=${lat}&lon=${lon}`;
+      try {
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error("Erreur du serveur");
+
+        const data = await response.json();
+        console.log("✅ Données Soleil/Lune :", data);
+        document.getElementById("status").innerHTML = 
+          "✅ Azimuth Soleil: " + data.sunAzimuth + " | Altitude: " + data.sunAltitude +
+          "<br>🌙 Azimuth Lune: " + data.moonAzimuth + " | Altitude: " + data.moonAltitude;
+
+      } catch (error) {
+        console.error("Erreur fetch :", error);
+        document.getElementById("status").innerHTML = "❌ Erreur de chargement";
+      }
+    }
+
+    // Exemple : coordonnées de Paris
+    getSunMoon(48.8566, 2.3522);
+  </script>
+</body>
+</html>
