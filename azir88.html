@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌞 Calculateur Soleil & 🌙 Lune</title>
+  <style>
+    body {
+      background-color: black;
+      color: green;
+      font-family: monospace;
+      text-align: center;
+    }
+    #mapContainer img {
+      margin: 20px auto;
+      display: block;
+      max-width: 90%;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌞 Calculateur Soleil & 🌙 Lune</h1>
+
+  <div id="mapContainer" style="position: relative; display: inline-block;">
+    <img
+      id="map"
+      src="https://raw.githubusercontent.com/BigtreeUniversal/Bigtree-site/main/images/map_azimutal.jpg"
+      alt="Carte azimutale équidistante"
+    />
+  </div>
+  <div id="status">Chargement…</div>
+
+  <script>
+    async function drawSunMoonAzimuth(lat, lon) {
+      const statusEl = document.getElementById("status");
+      try {
+        const res = await fetch(
+          `https://syncrolink-server.onrender.com/sunmoon?lat=${lat}&lon=${lon}`
+        );
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const { sunAzimuth, moonAzimuth } = await res.json();
+        statusEl.innerHTML =
+          `☀️ Azimut Soleil: ${sunAzimuth.toFixed(1)}°<br>` +
+          `🌙 Azimut Lune: ${moonAzimuth.toFixed(1)}°`;
+      } catch (err) {
+        console.error("Erreur fetch :", err);
+        statusEl.innerHTML = `❌ Erreur de fetch : ${err.message}`;
+      }
+    }
+    // Test pour Paris
+    drawSunMoonAzimuth(48.8566, 2.3522);
+  </script>
+</body>
+</html>
