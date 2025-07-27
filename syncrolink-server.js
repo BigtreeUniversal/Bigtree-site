@@ -2,7 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const sunmoon = require('./sunmoon');
+const sunmoon = require('./services/sunmoon');
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
