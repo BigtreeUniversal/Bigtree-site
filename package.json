@@ -1,7 +1,7 @@
 {
   "name": "synchrolink-server",
   "version": "1.0.0",
-  "description": "Serveur SynchroLink avec support pour SunCalc",
+  "description": "Serveur SynchroLink avec Binance et SunCalc",
   "main": "syncrolink-server.js",
   "scripts": {
     "start": "node syncrolink-server.js"
@@ -9,6 +9,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "suncalc": "^1.9.0"
+    "suncalc": "^1.9.0",
+    "ws": "^8.13.0"
   }
 }
