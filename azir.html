@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>🌞 & 🌙 Carte – Tropiques</title>
+  <style>
+    body{background:#000;color:#0f0;font-family:monospace;text-align:center}
+    #mapC{position:relative;width:660px;height:660px;margin:20px auto}
+    #map{position:absolute;top:0;left:0;width:660px;height:660px}
+    .mkr{position:absolute;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);display:none}
+    .mkr.sun{background:yellow;border:2px solid orange}
+    .mkr.moon{background:cyan;border:2px solid blue}
+    #status{margin-top:10px}
+  </style>
+</head><body>
+  <h1>🌞 & 🌙 Tropiques (V2)</h1>
+  <div id="mapC">
+    <img id="map"
+      src="https://raw.githack.com/BigtreeUniversal/Bigtree-site/main/images/map_azimutal.jpg"
+      alt="Carte azimutale 660×660">
+    <div class="mkr sun"></div>
+    <div class="mkr moon"></div>
+  </div>
+  <div id="status">Chargement…</div>
+  <script>
+  (async()=>{
+    const st = document.getElementById('status');
+    let d;
+    try {
+      const r = await fetch(
+        'https://syncrolink-server.onrender.com/sunmoon?lat=48.8566&lon=2.3522'
+      );
+      if(!r.ok) throw new Error(r.status);
+      d = await r.json();
+    } catch(e){
+      return st.textContent = '❌ API : '+e.message;
+    }
+
+    const cx=330, cy=330, R=330, δmax=23.44*Math.PI/180;
+    [['sunAzimuth','sunDeclination','sun'],
+     ['moonAzimuth','moonDeclination','moon']]
+    .forEach(([azKey,decKey,cls])=>{
+      const az   = d[azKey],
+            decl = d[decKey];
+      // nouveau rayon limité aux tropiques
+      const rpx = ((δmax - decl)/(2*δmax))*R;
+      const x   = cx + rpx*Math.sin(az);
+      const y   = cy + rpx*Math.cos(az);
+      const el  = document.querySelector('.mkr.'+cls);
+      el.style.left    = x+'px';
+      el.style.top     = y+'px';
+      el.style.display = 'block';
+    });
+
+    st.textContent = '✔️ Soleil & Lune entre tropiques';
+  })();
+  </script>
+</body></html>
