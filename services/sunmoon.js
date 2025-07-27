@@ -1,19 +1,19 @@
 const SunCalc = require('suncalc');
 
-function getSunMoonPosition(lat = 0, lon = 0, date = new Date()) {
-  const sun = SunCalc.getPosition(date, lat, lon);
-  const moon = SunCalc.getMoonPosition(date, lat, lon);
+module.exports = function getPositions(lat, lon) {
+  const now = new Date();
+  const sunPos = SunCalc.getPosition(now, lat, lon);
+  const moonPos = SunCalc.getMoonPosition(now, lat, lon);
 
   return {
     sun: {
-      azimuth: (sun.azimuth * 180 / Math.PI + 180) % 360,
-      altitude: sun.altitude * 180 / Math.PI
+      azimuth: sunPos.azimuth,
+      altitude: sunPos.altitude
     },
     moon: {
-      azimuth: (moon.azimuth * 180 / Math.PI + 180) % 360,
-      altitude: moon.altitude * 180 / Math.PI
-    }
+      azimuth: moonPos.azimuth,
+      altitude: moonPos.altitude
+    },
+    timestamp: now
   };
-}
-
-module.exports = { getSunMoonPosition };
+};
