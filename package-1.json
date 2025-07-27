@@ -1,0 +1,15 @@
+
+{
+  "name": "synchrolink-server",
+  "version": "1.0.0",
+  "description": "Serveur SynchroLink pour calculs Soleil et Lune",
+  "main": "syncrolink-server.js",
+  "scripts": {
+    "start": "node syncrolink-server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "suncalc": "^1.9.0"
+  }
+}
