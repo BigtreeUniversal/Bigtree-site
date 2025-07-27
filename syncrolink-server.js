@@ -1,18 +1,19 @@
 const express = require('express');
 const cors = require('cors');
-const { connectToBinance, getPrice } = require('./services/binance'); // 👈 ajout
+const { connectToBinance, getPrice } = require('./services/binance');
+const { getSunMoonPosition } = require('./services/sunmoon'); // 👈 ajout
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
-// Route principale de test
+// ✅ Test de connexion
 app.get('/', (req, res) => {
   res.send('Le serveur SynchroLink répond ✅');
 });
 
-// Route crypto pour obtenir le dernier prix BTC/USDT
+// ✅ Prix crypto BTC/USDT
 app.get('/crypto', (req, res) => {
   const price = getPrice();
   if (price) {
@@ -22,7 +23,17 @@ app.get('/crypto', (req, res) => {
   }
 });
 
-// Connexion WebSocket Binance
+// ✅ Positions Soleil & Lune
+app.get('/sunmoon', (req, res) => {
+  try {
+    const position = getSunMoonPosition(); // extrait date courante automatiquement
+    res.json(position);
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur de calcul des positions' });
+  }
+});
+
+// ✅ Connexion Binance en WebSocket
 connectToBinance();
 
 app.listen(PORT, () => {
