@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculateur Azimutal Soleil / Lune</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      text-align: center;
+    }
+    canvas {
+      background-image: url('images/azimutal-map.png');
+      background-size: cover;
+      display: block;
+      margin: auto;
+    }
+    #status {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🌍 Calculateur Azimutal SynchroLink</h2>
+  <canvas id="azimuthCanvas" width="600" height="600"></canvas>
+  <div id="status">Connexion...</div>
+
+  <script>
+    const canvas = document.getElementById("azimuthCanvas");
+    const ctx = canvas.getContext("2d");
+    const center = canvas.width / 2;
+    const radius = center - 20;
+
+    const lat = 48.8566; // Paris (exemple)
+    const lon = 2.3522;
+
+    function drawPoint(angleDeg, distance, color, label) {
+      const correctedAngle = (angleDeg + 180) % 360; // 0° = bas (Greenwich)
+      const angleRad = correctedAngle * Math.PI / 180;
+      const x = center + distance * Math.sin(angleRad);
+      const y = center - distance * Math.cos(angleRad);
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.stroke();
+      ctx.fillStyle = "#fff";
+      ctx.fillText(label, x + 10, y);
+    }
+
+    function fetchData() {
+      fetch(`https://syncrolink-server.onrender.com/sunmoon?lat=${lat}&lon=${lon}`)
+        .then(res => res.json())
+        .then(data => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          // Soleil
+          drawPoint(data.sunAzimuth, radius * 0.7, "yellow", "☀️ Soleil");
+
+          // Lune
+          drawPoint(data.moonAzimuth, radius * 0.5, "lightblue", "🌙 Lune");
+
+          document.getElementById("status").innerText = "🔄 Données à jour (" + new Date().toLocaleTimeString() + ")";
+        })
+        .catch(err => {
+          document.getElementById("status").innerText = "Erreur : " + err;
+        });
+    }
+
+    // Premier chargement + rafraîchissement toutes les 60 secondes
+    fetchData();
+    setInterval(fetchData, 60000);
+  </script>
+</body>
+</html>
