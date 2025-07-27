@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌞 Calculateur Soleil & 🌙 Lune (Terre-Plate)</title>
+  <style>
+    /* Corps de page */
+    body {
+      margin: 0; padding: 20px;
+      background-color: #000;
+      color: #0f0;
+      font-family: monospace;
+      text-align: center;
+    }
+    /* Conteneur de la carte (660×660 px) */
+    #mapContainer {
+      position: relative;
+      width: 660px; height: 660px;
+      margin: 0 auto 20px;
+      border: 2px solid #0f0;
+    }
+    /* Image de fond (projection azimutale) */
+    #map {
+      position: absolute;
+      top: 0; left: 0;
+      width: 660px; height: 660px;
+    }
+    /* Cercles (marqueurs Soleil/Lune) */
+    .marker {
+      position: absolute;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      display: none; /* on les affichera après calcul */
+      border: 2px solid #fff;
+    }
+    .marker.sun  { background: red;   border-color: #800; }
+    .marker.moon { background: white; border-color: #444; }
+    /* Zone de statut (message) */
+    #status {
+      font-size: 1.1em;
+      height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌞 Position sous-solaire & 🌙 sous-lunaire</h1>
+
+  <!-- Conteneur de la carte et des marqueurs -->
+  <div id="mapContainer">
+    <img id="map" src="images/map_azimutal.jpg" alt="Carte azimutale équidistante 660×660" />
+    <!-- On crée deux div vides qui seront placées -->
+    <div class="marker sun"></div>
+    <div class="marker moon"></div>
+  </div>
+
+  <!-- Indication d’état (chargement, erreur, succès) -->
+  <div id="status">Chargement…</div>
+
+  <script>
+    /**
+     * Fonction principale : interroge l’API, récupère
+     * declination et longitude, puis place les marqueurs.
+     *
+     * @param {number} lat – latitude de l’observateur (en degrés)
+     * @param {number} lon – longitude de l’observateur (en degrés)
+     */
+    async function drawFlat(lat, lon) {
+      const statusEl = document.getElementById('status');
+      let data;
+
+      // 1. Appel à l’API /sunmoon
+      try {
+        const resp = await fetch(
+          `https://syncrolink-server.onrender.com/sunmoon?lat=${lat}&lon=${lon}`
+        );
+        if (!resp.ok) {
+          throw new Error('Code ' + resp.status);
+        }
+        data = await resp.json();
+      } catch (err) {
+        statusEl.textContent = '❌ Erreur réseau : ' + err.message;
+        return;
+      }
+
+      // 2. Paramètres fixes de taille
+      const cx = 330, cy = 330, R = 330;  // centre et rayon de la carte
+
+      // 3. Pour Soleil et Lune, on récupère déclinaison & longitude
+      [
+        { declKey: 'sunDeclination',  lonKey: 'sunLongitude',  cls: 'sun'  },
+        { declKey: 'moonDeclination', lonKey: 'moonLongitude', cls: 'moon' }
+      ].forEach(({declKey, lonKey, cls}) => {
+        const decl = data[declKey];   // latitude céleste (rad)
+        const lam  = data[lonKey];    // longitude sous-astre (rad)
+
+        // 4. Calcul du rayon r pour cette latitude
+        //    colatitude = π/2 – decl → de 0 (Pôle N) à π (Pôle S)
+        const colat = Math.PI/2 - decl;
+        const r = (colat / Math.PI) * R;
+
+        // 5. Conversion polaire → cartésien (0 rad = bas de l’image)
+        const x = cx + r * Math.sin(lam);
+        const y = cy + r * Math.cos(lam);
+
+        // 6. Placement du marqueur
+        const el = document.querySelector(`.marker.${cls}`);
+        el.style.left    = x + 'px';
+        el.style.top     = y + 'px';
+        el.style.display = 'block';
+      });
+
+      statusEl.textContent = '☀️ et 🌙 placés entre les Tropiques !';
+    }
+
+    // Exécution pour un observateur à Paris
+    drawFlat(48.8566, 2.3522);
+  </script>
+
+</body>
+</html>
