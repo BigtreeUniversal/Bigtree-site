@@ -1,35 +1,20 @@
 const express = require('express');
-const cors = require('cors');
 const app = express();
+const path = require('path');
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(express.json());
+const sunmoon = require('./services/sunmoon.js'); // ← bien vérifier ce chemin
 
-// Exemple de route simple
-app.get('/', (req, res) => {
-  res.send('Serveur SynchroLink opérationnel');
-});
+app.get('/sunmoon', (req, res) => {
+  const latitude = parseFloat(req.query.lat) || 48.8566;  // Ex : Paris par défaut
+  const longitude = parseFloat(req.query.lon) || 2.3522;
 
-// Route pour récupérer des données soleil/lune
-const sunmoon = require('./services/sunmoon.js');
-app.get('/api/sunmoon', async (req, res) => {
   try {
-    const data = await sunmoon.getSunMoonData();
+    const data = sunmoon(latitude, longitude);
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur de récupération des données' });
-  }
-});
-
-// Route Binance (si utilisée)
-const binance = require('./services/binance.js');
-app.get('/api/binance', async (req, res) => {
-  try {
-    const data = await binance.getPriceData();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur Binance' });
+    console.error('Erreur dans /sunmoon :', error);
+    res.status(500).json({ error: 'Erreur du serveur' });
   }
 });
 
