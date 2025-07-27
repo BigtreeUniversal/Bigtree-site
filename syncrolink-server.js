@@ -1,41 +1,16 @@
-const express = require('express');
-const cors = require('cors');
-const { connectToBinance, getPrice } = require('./services/binance');
-const { getSunMoonPosition } = require('./services/sunmoon');
+// === syncrolink-server.js ===
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const express = require("express"); const cors = require("cors"); const app = express(); const PORT = process.env.PORT || 3000;
+
+const getSunMoonData = require("./services/sunmoon"); const getBinanceData = require("./services/binance");
 
 app.use(cors());
 
-app.get('/', (req, res) => {
-  res.send('Le serveur SynchroLink répond ✅');
-});
+// Test route app.get("/", (req, res) => { res.json({ message: "Le serveur SynchroLink répond ✅" }); });
 
-// Route pour les données crypto
-app.get('/crypto', (req, res) => {
-  const price = getPrice();
-  if (price) {
-    res.json({ symbol: 'BTC/USDT', price });
-  } else {
-    res.status(503).json({ error: 'Pas encore de données Binance' });
-  }
-});
+// Route Binance app.get("/binance", async (req, res) => { try { const data = await getBinanceData(); res.json(data); } catch (err) { console.error("Erreur Binance:", err); res.status(500).json({ error: "Erreur lors de la récupération Binance" }); } });
 
-// ✅ Route pour la position du Soleil et de la Lune
-app.get('/sunmoon', (req, res) => {
-  try {
-    const lat = parseFloat(req.query.lat) || 0;
-    const lon = parseFloat(req.query.lon) || 0;
-    const position = getSunMoonPosition(lat, lon);
-    res.json(position);
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur de calcul des positions', details: error.toString() });
-  }
-});
+// Route Soleil & Lune app.get("/sunmoon", async (req, res) => { try { const date = req.query.date || new Date().toISOString(); const result = await getSunMoonData(date); res.json(result); } catch (err) { console.error("Erreur SunMoon:", err); res.status(500).json({ error: "Erreur lors de la récupération Soleil/Lune" }); } });
 
-connectToBinance();
+app.listen(PORT, () => { console.log(SynchroLink en ligne sur le port ${PORT}); });
 
-app.listen(PORT, () => {
-  console.log(`Serveur en écoute sur le port ${PORT}`);
-});
