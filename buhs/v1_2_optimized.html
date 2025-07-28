@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Calculateur Force Proxy ΔP·V·(1-φ) – v1.1 + GPS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root {
+  --bg:#0f1216; --panel:#1a222b; --border:#27323d; --accent:#ffc94d; --accent2:#1f6feb;
+  --text:#e6edf3; --muted:#76838f; --danger:#ff4d4d; --warn:#ffb347; --ok:#34d399;
+  font-family: system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,sans-serif;
+}
+body{margin:0;background:linear-gradient(140deg,#101820,#0b0f14);color:var(--text);}
+h1{font-size:1.2rem;font-weight:600;letter-spacing:.6px;margin:.6rem 0 .7rem;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+.badge{background:#13212d;color:#6fb2ff;padding:.3rem .7rem;border-radius:30px;font-size:.58rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.badge.sim{background:#243946;color:#6fb2ff;}
+.badge.csv{background:#44341a;color:#ffc94d;}
+main{max-width:1320px;margin:0 auto;padding:1rem 1.2rem 3rem;box-sizing:border-box;}
+section.box{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:1rem 1.25rem 1.35rem;box-shadow:0 8px 28px -14px rgba(0,0,0,.55);}
+.grid{display:grid;gap:1rem;}
+@media (min-width:1250px){.grid{grid-template-columns:380px 1fr;}}
+label.lbl{display:flex;flex-direction:column;font-size:.65rem;letter-spacing:.5px;text-transform:uppercase;font-weight:600;color:var(--muted);gap:.35rem;}
+input,select{background:#0f1921;color:var(--text);border:1px solid #2d3a46;border-radius:10px;padding:.55rem .65rem;font:inherit;outline:none;transition:.25s border;}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,201,77,.25);}
+.row{display:grid;gap:.8rem;margin-bottom:.9rem;}
+.cols-2{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+button{cursor:pointer;border:none;font:inherit;font-weight:600;letter-spacing:.5px;
+  background:linear-gradient(135deg,var(--accent),#ffd978);color:#402a00;padding:.7rem .95rem;border-radius:12px;
+  box-shadow:0 4px 12px -6px rgba(0,0,0,.6);transition:.25s transform;}
+button.secondary{background:linear-gradient(135deg,var(--accent2),#4aa3ff);color:#031a32;}
+button.danger{background:linear-gradient(135deg,#ff6767,#ff3d3d);color:#300;}
+button:active{transform:translateY(2px);}
+button:disabled{opacity:.5;cursor:not-allowed;}
+small.hint{font-size:.6rem;color:var(--muted);display:block;line-height:1.2;margin-top:.3rem;}
+#phiBarWrap{background:#121c25;border:1px solid #283440;border-radius:10px;height:16px;overflow:hidden;position:relative;margin-top:.5rem;}
+#phiBar{height:100%;width:0;background:var(--ok);transition:width .5s,background .4s;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-top:.9rem;}
+.metric{background:#121c1f;padding:.55rem .65rem .65rem;border:1px solid #2a3641;border-radius:12px;min-width:0;}
+.metric h4{margin:.1rem 0 .45rem;font-size:.65rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:600;}
+.metric .v{font-size:.85rem;font-weight:600;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.flex{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+.tabs{display:flex;gap:.4rem;margin-bottom:.7rem;flex-wrap:wrap;}
+.tabs button{background:#18242d;color:#c9d2da;}
+.tabs button.active{background:linear-gradient(135deg,#ffc94d,#ffdf95);color:#412b00;}
+.sourceBadge{font-size:.6rem;padding:.25rem .55rem;border-radius:30px;font-weight:600;letter-spacing:.5px;display:inline-flex;align-items:center;gap:.35rem;}
+.sourceBadge.sim{background:#243946;color:#6fb2ff;}
+.sourceBadge.csv{background:#44341a;color:#ffc94d;}
+hr.sep{border:0;height:1px;background:linear-gradient(90deg,transparent,#293541,transparent);margin:1.2rem 0;}
+table{width:100%;border-collapse:collapse;font-size:.63rem;}
+th,td{padding:.42rem .5rem;text-align:right;}
+th{background:#162029;position:sticky;top:0;z-index:2;font-weight:600;color:#c9d2da;border-bottom:1px solid #25313d;}
+tbody tr:nth-child(even){background:#131f28;}
+tbody tr:nth-child(odd){background:#0f1b24;}
+tbody tr:hover{background:#1e2d38;}
+td.time,th.time{text-align:left;}
+.status{font-size:.6rem;letter-spacing:.5px;color:var(--muted);margin-top:.4rem;}
+canvas{width:100%;max-width:100%;height:320px;background:#091118;border:1px solid #1d2a33;border-radius:14px;}
+footer{padding:1.4rem 1rem 3rem;text-align:center;font-size:.55rem;color:#6c7680;}
+toggle{display:flex;align-items:center;gap:.4rem;font-size:.6rem;}
+pre.code{background:#121c25;padding:.6rem .8rem;border:1px solid #283440;border-radius:12px;font-size:.62rem;overflow:auto;line-height:1.25;}
+.badge.small{padding:.25rem .45rem;font-size:.52rem;}
+.csvConfig{background:#121c25;border:1px solid #27323d;border-radius:14px;padding:.7rem .8rem;margin-top:.6rem;}
+.csvPreview{max-height:130px;overflow:auto;font-family:ui-monospace,Consolas,monospace;font-size:.62rem;line-height:1.25;background:#101820;border:1px solid #2a3641;border-radius:8px;padding:.4rem .55rem;margin-top:.4rem;}
+.inlineNote{font-size:.55rem;color:#8a96a1;margin-top:.3rem;}
+.speedSelect{background:#18242d;border:1px solid #2d3a46;color:#e6edf3;border-radius:10px;padding:.4rem .55rem;font-size:.65rem;}
+#gpsPanel small.hint { display:block; margin-top:.5rem; }
+</style>
+
+<!-- Leaflet CSS/JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+ integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoSgLibJEiwQ3s=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+</head>
+<body>
+<main>
+  <h1>Calculateur Force Proxy ΔP·V·(1-φ) <span class="badge">v1.1 + GPS</span> <span id="sourceBadge" class="sourceBadge sim">SOURCE: Simulation</span></h1>
+  <div class="grid">
+    <!-- Controls -->
+    <section class="box">
+      <div class="tabs" id="sourceTabs">
+        <button data-mode="simulation" class="active">Simulation</button>
+        <button data-mode="csv">Fichier CSV</button>
+      </div>
+
+      <div id="simulationPanel">
+        <div class="row cols-2">
+          <label class="lbl">Fluide
+            <select id="fluid">
+              <option value="air" selected>Air</option>
+              <option value="eau">Eau</option>
+            </select>
+          </label>
+          <label class="lbl">Gaz interne
+            <select id="gas">
+              <option value="helium" selected>Hélium</option>
+              <option value="hydrogen">Hydrogène</option>
+              <option value="air">Air (même fluide)</option>
+            </select>
+          </label>
+          <label class="lbl">Masse nacelle (kg)
+            <input id="massNac" type="number" step="0.01" value="5">
+          </label>
+          <label class="lbl">Volume initial V₀ (m³)
+            <input id="volInit" type="number" step="0.01" value="8">
+          </label>
+          <label class="lbl">P₀ référence (Pa)
+            <input id="pref" type="number" step="1" value="101325">
+          </label>
+          <label class="lbl">Température init (K)
+            <input id="tempInit" type="number" step="0.1" value="293.15">
+          </label>
+          <label class="lbl">Pression init (Pa)
+            <input id="pressInit" type="number" step="1" value="101325">
+          </label>
+          <label class="lbl">Taille historique
+            <input id="histSize" type="number" step="10" value="600">
+          </label>
+        </div>
+        <div class="flex">
+          <button id="initBtn">Initialiser</button>
+          <button id="resetBtn" class="secondary">Reset</button>
+          <label style="font-size:.6rem;display:flex;align-items:center;gap:.35rem;">
+            <input type="checkbox" id="emaToggle"> Lissage ΔP (EMA)
+          </label>
+        </div>
+        <small class="hint">
+          Formule : F = (P - P₀) · V · (1 - ρ<sub>glob</sub> / ρ<sub>fluide</sub>) – Simulation interne sinus (P & T).
+        </small>
+      </div>
+
+      <div id="csvPanel" style="display:none;">
+        <div class="csvConfig">
+          <strong style="font-size:.7rem;letter-spacing:.5px;">Import CSV</strong>
+          <div class="flex" style="margin-top:.5rem;">
+            <input type="file" id="csvInput" accept=".csv" style="flex:1;">
+            <select id="csvSpeed" class="speedSelect" title="Vitesse lecture">
+              <option value="1">Vitesse 1x</option>
+              <option value="0.5">0.5x</option>
+              <option value="2">2x</option>
+              <option value="5">5x</option>
+            </select>
+            <button id="csvPlayBtn" disabled>Play</button>
+            <button id="csvPauseBtn" class="secondary" disabled>Pause</button>
+            <button id="csvResetBtn" class="danger" disabled>Reset</button>
+          </div>
+          <div class="row cols-2" style="margin-top:.6rem;">
+            <label class="lbl">Col Time
+              <select id="colTime"></select>
+            </label>
+            <label class="lbl">Col Pression (Pa)
+              <select id="colP"></select>
+            </label>
+            <label class="lbl">Col Température
+              <select id="colT"></select>
+            </label>
+            <label class="lbl">Temp en (K/°C)
+              <select id="tempUnit">
+                <option value="K">K</option>
+                <option value="C">°C</option>
+              </select>
+            </label>
+          </div>
+          <button id="applyMappingBtn" class="secondary" disabled>Appliquer Mapping</button>
+          <div class="inlineNote" id="csvInfo">Aucun fichier chargé.</div>
+          <div class="csvPreview" id="csvPreview"></div>
+          <small class="hint">
+            1. Choisir fichier → 2. Sélectionner colonnes → 3. Appliquer Mapping → 4. Play pour lecture progressive. <br>
+            Si absence de colonne temps, laisser vide (un index interne sera généré).
+          </small>
+        </div>
+      </div>
+
+      <hr class="sep">
+      <div id="phiBarWrap"><div id="phiBar"></div></div>
+      <div class="metrics">
+        <div class="metric"><h4>ΔP (Pa)</h4><div class="v" id="deltaPVal">—</div></div>
+        <div class="metric"><h4>V (m³)</h4><div class="v" id="volVal">—</div></div>
+        <div class="metric"><h4>φ</h4><div class="v" id="phiVal">—</div></div>
+        <div class="metric"><h4>ψ = 1 - φ</h4><div class="v" id="psiVal">—</div></div>
+        <div class="metric"><h4>F (proxy N)</h4><div class="v" id="forceVal">—</div></div>
+      </div>
+      <div class="status" id="status">Status: sélectionne une source et initialise / charge un CSV.</div>
+    </section>
+
+    <!-- Charts & Table -->
+    <section class="box">
+      <canvas id="forceChart"></canvas>
+
+      <!-- GPS Panel -->
+      <section class="box" id="gpsPanel" style="margin-top:1rem;">
+        <h2 style="margin:0 0 .6rem;font-size:.9rem;font-weight:600;letter-spacing:.5px;">GPS / Carte</h2>
+        <div class="flex" style="margin-bottom:.6rem;">
+          <button id="gpsToggleBtn" class="secondary">Activer GPS</button>
+          <span id="gpsStatus" style="font-size:.6rem;color:#8aa0b2;">Inactif.</span>
+        </div>
+        <div id="map" style="width:100%;height:320px;border:1px solid #27323d;border-radius:14px;"></div>
+        <small class="hint">
+          Le suivi GPS est local (aucune donnée envoyée). Appuie de nouveau pour arrêter.
+        </small>
+      </section>
+
+      <hr class="sep">
+      <div style="max-height:360px;overflow:auto;border:1px solid var(--border);border-radius:12px;">
+        <table>
+          <thead>
+            <tr>
+              <th class="time">Time</th>
+              <th>P (Pa)</th>
+              <th>ΔP</th>
+              <th>T (K)</th>
+              <th>V (m³)</th>
+              <th>ρ_glob</th>
+              <th>ρ_fluide</th>
+              <th>φ</th>
+              <th>ψ</th>
+              <th>F</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody id="histBody"></tbody>
+        </table>
+      </div>
+      <div class="flex" style="margin-top:.7rem;">
+        <button id="exportBtn" class="secondary">Exporter CSV (résultats)</button>
+        <span id="rowsInfo" style="font-size:.6rem;color:var(--muted);"></span>
+      </div>
+    </section>
+  </div>
+
+  <section class="box" style="margin-top:1.2rem;">
+    <h2 style="margin:.2rem 0 .8rem;font-size:1rem;font-weight:600;letter-spacing:.5px;">Notes & Formule</h2>
+    <pre class="code">F = (P - P0) · V · (1 - φ)
+φ = ρ_glob / ρ_fluide
+ρ_glob = (m_nac + m_gaz) / V
+V = m_gaz / ρ_gaz ; ρ_gaz = P / (R_gaz T)
+ρ_fluide (air) = P / (R_air T) ; eau ~ 1000 kg/m³
+Simulation sinus: P(t)=P0 - 2000 sin(t/120); T(t)=T0 + 3 sin(t/180)
+Mode CSV: lecture progressive, vitesse ajustable.</pre>
+  </section>
+</main>
+<footer>Prototype v1.1 + GPS – Source Simulation ou CSV. Aucun envoi serveur (100% local). © BigTree</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// ================== Constantes gaz ==================
+const R_AIR = 287.05;
+const R = { helium: 2077, hydrogen: 4124, air: R_AIR };
+
+// ================== ÉTAT GLOBAL ==================
+const state = {
+  initialized: false,
+  mGas: 0,
+  mNac: 0,
+  V0: 0,
+  P0: 101325,
+  history: [],
+  emaDeltaP: null,
+  mode: 'simulation'
+};
+
+// ================== Sélecteurs UI ==================
+const els = {
+  sourceTabs: document.getElementById('sourceTabs'),
+  simulationPanel: document.getElementById('simulationPanel'),
+  csvPanel: document.getElementById('csvPanel'),
+  sourceBadge: document.getElementById('sourceBadge'),
+  fluid: document.getElementById('fluid'),
+  gas: document.getElementById('gas'),
+  massNac: document.getElementById('massNac'),
+  volInit: document.getElementById('volInit'),
+  pref: document.getElementById('pref'),
+  tempInit: document.getElementById('tempInit'),
+  pressInit: document.getElementById('pressInit'),
+  histSize: document.getElementById('histSize'),
+  emaToggle: document.getElementById('emaToggle'),
+  initBtn: document.getElementById('initBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  // CSV
+  csvInput: document.getElementById('csvInput'),
+  csvPreview: document.getElementById('csvPreview'),
+  csvInfo: document.getElementById('csvInfo'),
+  colTime: document.getElementById('colTime'),
+  colP: document.getElementById('colP'),
+  colT: document.getElementById('colT'),
+  tempUnit: document.getElementById('tempUnit'),
+  applyMappingBtn: document.getElementById('applyMappingBtn'),
+  csvPlayBtn: document.getElementById('csvPlayBtn'),
+  csvPauseBtn: document.getElementById('csvPauseBtn'),
+  csvResetBtn: document.getElementById('csvResetBtn'),
+  csvSpeed: document.getElementById('csvSpeed'),
+  // Metrics
+  deltaPVal: document.getElementById('deltaPVal'),
+  volVal: document.getElementById('volVal'),
+  phiVal: document.getElementById('phiVal'),
+  psiVal: document.getElementById('psiVal'),
+  forceVal: document.getElementById('forceVal'),
+  status: document.getElementById('status'),
+  phiBar: document.getElementById('phiBar'),
+  // Table / Chart
+  histBody: document.getElementById('histBody'),
+  rowsInfo: document.getElementById('rowsInfo'),
+  exportBtn: document.getElementById('exportBtn')
+};
+
+let forceChart = null;
+
+// ================== Source Manager ==================
+const dataSourceManager = {
+  simFrame: 0,
+  simActive: false,
+  csv: {
+    rawLines: [],
+    header: [],
+    rows: [],
+    mapped: false,
+    playing: false,
+    idx: 0,
+    timer: null
+  },
+  setMode(mode){
+    if(state.mode === mode) return;
+    if(state.mode === 'simulation'){
+      this.stopSimulation();
+    }
+    if(state.mode === 'csv'){
+      this.stopCSV();
+    }
+    state.mode = mode;
+    updateSourceUI();
+  },
+  startSimulation(){
+    if(!state.initialized) return;
+    this.simActive = true;
+    els.status.textContent = 'Simulation en cours…';
+    const loop = () => {
+      if(!this.simActive || state.mode !== 'simulation' || !state.initialized) return;
+      this.simFrame++;
+      const t = this.simFrame;
+      const P = state.P0 - 2000 * Math.sin(t/120);
+      const T0 = parseFloat(els.tempInit.value)||293.15;
+      const T = T0 + 3*Math.sin(t/180);
+      ingestSample({P, T, timestamp: Date.now(), src:'SIM'});
+      requestAnimationFrame(loop);
+    };
+    loop();
+  },
+  stopSimulation(){
+    this.simActive = false;
+    els.status.textContent = 'Simulation arrêtée.';
+  },
+  loadCSV(text){
+    const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
+    this.csv.rawLines = lines;
+    this.csv.header = lines[0].split(/[,;\t]/);
+    this.csv.rows = lines.slice(1).map(l=> l.split(/[,;\t]/));
+    this.csv.mapped = false;
+    this.csv.idx = 0;
+    this.populateMappingSelectors();
+    this.previewCSV();
+    els.csvInfo.textContent = `Fichier chargé: ${this.csv.rows.length} lignes de données. Sélectionne les colonnes puis "Appliquer Mapping".`;
+    els.applyMappingBtn.disabled = false;
+  },
+  populateMappingSelectors(){
+    [els.colTime, els.colP, els.colT].forEach(sel=>{
+      sel.innerHTML = '<option value="">(Aucune)</option>';
+    });
+    this.csv.header.forEach((h,i)=>{
+      const o1 = document.createElement('option');
+      o1.value = i;
+      o1.textContent = `${i}: ${h}`;
+      const o2 = o1.cloneNode(true);
+      const o3 = o1.cloneNode(true);
+      els.colTime.appendChild(o1);
+      els.colP.appendChild(o2);
+      els.colT.appendChild(o3);
+    });
+  },
+  applyMapping(){
+    const pIdx = parseInt(els.colP.value);
+    const tIdx = parseInt(els.colT.value);
+    if(Number.isNaN(pIdx) || Number.isNaN(tIdx)){
+      els.csvInfo.textContent = 'Mapping invalide : pression et température obligatoires.';
+      return;
+    }
+    this.csv.mapped = true;
+    this.csv.idx = 0;
+    els.csvInfo.textContent = 'Mapping appliqué. Prêt à lire.';
+    els.csvPlayBtn.disabled = false;
+    els.csvPauseBtn.disabled = true;
+    els.csvResetBtn.disabled = false;
+    els.status.textContent = 'CSV prêt (Pause).';
+  },
+  previewCSV(){
+    const head = this.csv.header.join(' | ');
+    const bodyLines = this.csv.rows.slice(0,5).map(r=>r.join(' | '));
+    els.csvPreview.textContent = [head, ...bodyLines].join('\n');
+  },
+  playCSV(){
+    if(!this.csv.mapped || this.csv.playing) return;
+
+    // Auto-init si nécessaire
+    if(!state.initialized){
+      try {
+        initModel();
+        els.status.textContent = 'Initialisation auto depuis CSV puis lecture...';
+      } catch(e){
+        els.status.textContent = 'Auto-init échoué: ' + e.message;
+        return;
+      }
+    }
+
+    this.stopSimulation();
+    this.csv.playing = true;
+    els.csvPlayBtn.disabled = true;
+    els.csvPauseBtn.disabled = false;
+    const speed = parseFloat(els.csvSpeed.value)||1;
+    const interval = 500 / speed;
+    const pIdx = parseInt(els.colP.value);
+    const tIdx = parseInt(els.colT.value);
+    const timeIdx = els.colTime.value === '' ? null : parseInt(els.colTime.value);
+    const tempUnit = els.tempUnit.value;
+
+    els.status.textContent = 'Lecture CSV…';
+
+    const step = () => {
+      if(!this.csv.playing || state.mode !== 'csv') return;
+      if(this.csv.idx >= this.csv.rows.length){
+        this.csv.playing = false;
+        els.csvPlayBtn.disabled = false;
+        els.csvPauseBtn.disabled = true;
+        els.status.textContent = 'Lecture CSV terminée.';
+        return;
+      }
+      const row = this.csv.rows[this.csv.idx];
+      const P = parseFloat(row[pIdx]);
+      let T = parseFloat(row[tIdx]);
+      if(tempUnit === 'C') T = T + 273.15;
+      let timestamp = Date.now();
+      if(timeIdx !== null){
+        const rawTime = row[timeIdx];
+        const pDate = Date.parse(rawTime);
+        if(!isNaN(pDate)) timestamp = pDate;
+      }
+      if(isFinite(P) && isFinite(T) && P>0 && T>0){
+        ingestSample({P, T, timestamp, src:'CSV'});
+      }
+      this.csv.idx++;
+      this.csv.timer = setTimeout(step, interval);
+    };
+    step();
+  },
+  pauseCSV(){
+    if(!this.csv.playing) return;
+    this.csv.playing = false;
+    if(this.csv.timer) clearTimeout(this.csv.timer);
+    els.csvPlayBtn.disabled = false;
+    els.csvPauseBtn.disabled = true;
+    els.status.textContent = 'Lecture CSV en pause.';
+  },
+  resetCSV(){
+    if(this.csv.timer) clearTimeout(this.csv.timer);
+    this.csv.idx = 0;
+    this.csv.playing = false;
+    els.csvPlayBtn.disabled = !this.csv.mapped;
+    els.csvPauseBtn.disabled = true;
+    els.status.textContent = 'Lecture CSV réinitialisée (Index = 0).';
+  },
+  stopCSV(){
+    if(this.csv.timer) clearTimeout(this.csv.timer);
+    this.csv.playing = false;
+  }
+};
+
+// ================== Événements UI ==================
+els.sourceTabs.addEventListener('click', e=>{
+  if(e.target.tagName !== 'BUTTON') return;
+  const mode = e.target.getAttribute('data-mode');
+  document.querySelectorAll('#sourceTabs button').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  dataSourceManager.setMode(mode);
+});
+
+els.initBtn.addEventListener('click', () => {
+  try {
+    initModel();
+    els.status.textContent = 'Initialisé. Choisis Simulation ou charge un CSV.';
+    if(state.mode === 'simulation'){
+      dataSourceManager.startSimulation();
+    }
+  } catch(e){
+    els.status.textContent = 'Erreur init: ' + e.message;
+  }
+});
+
+els.resetBtn.addEventListener('click', resetModel);
+els.exportBtn.addEventListener('click', exportResultsCSV);
+
+els.csvInput.addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file){ return; }
+  const reader = new FileReader();
+  reader.onload = evt => {
+    dataSourceManager.loadCSV(evt.target.result);
+  };
+  reader.readAsText(file);
+});
+
+els.applyMappingBtn.addEventListener('click', ()=> dataSourceManager.applyMapping());
+els.csvPlayBtn.addEventListener('click', ()=> dataSourceManager.playCSV());
+els.csvPauseBtn.addEventListener('click', ()=> dataSourceManager.pauseCSV());
+els.csvResetBtn.addEventListener('click', ()=> dataSourceManager.resetCSV());
+els.csvSpeed.addEventListener('change', ()=>{
+  if(dataSourceManager.csv.playing){
+    dataSourceManager.pauseCSV();
+    dataSourceManager.playCSV();
+  }
+});
+
+// ================== Mise à jour UI selon mode ==================
+function updateSourceUI(){
+  if(state.mode === 'simulation'){
+    els.simulationPanel.style.display = '';
+    els.csvPanel.style.display = 'none';
+    els.sourceBadge.textContent = 'SOURCE: Simulation';
+    els.sourceBadge.className = 'sourceBadge sim';
+    if(state.initialized && !dataSourceManager.simActive){
+      dataSourceManager.startSimulation();
+    }
+  } else if(state.mode === 'csv'){
+    els.simulationPanel.style.display = 'none';
+    els.csvPanel.style.display = '';
+    els.sourceBadge.textContent = 'SOURCE: CSV';
+    els.sourceBadge.className = 'sourceBadge csv';
+    dataSourceManager.stopSimulation();
+  }
+}
+
+// ================== Initialisation / Reset ==================
+function initModel(){
+  state.mNac = parseFloat(els.massNac.value)||0;
+  state.V0 = parseFloat(els.volInit.value)||0;
+  state.P0 = parseFloat(els.pref.value)||101325;
+  const T0 = parseFloat(els.tempInit.value)||293.15;
+  const Pinit = parseFloat(els.pressInit.value)||state.P0;
+  const gas = els.gas.value;
+  const Rgas = R[gas];
+
+  if(state.V0 <= 0) throw new Error('Volume initial invalide');
+  if(Pinit <= 0) throw new Error('Pression initiale invalide');
+  if(T0 <= 0) throw new Error('Température initiale invalide');
+
+  const rho_gaz0 = Pinit / (Rgas * T0);
+  state.mGas = rho_gaz0 * state.V0;
+  state.initialized = true;
+  state.history = [];
+  state.emaDeltaP = null;
+  setupChart();
+  clearTable();
+}
+
+function resetModel(){
+  state.initialized = false;
+  state.history = [];
+  state.mGas = 0;
+  state.emaDeltaP = null;
+  dataSourceManager.stopSimulation();
+  dataSourceManager.stopCSV();
+  updateDisplays(null);
+  if(forceChart){
+    forceChart.data.labels = [];
+    forceChart.data.datasets[0].data = [];
+    forceChart.update();
+  }
+  clearTable();
+  els.status.textContent = 'Reset effectué. Ré-initialiser pour recommencer.';
+}
+
+// ================== Ingestion ==================
+function ingestSample(sample){
+  const {P, T, timestamp, src} = sample;
+  if(P<=0 || T<=0 || !state.initialized) return;
+  const metrics = computeMetrics(P, T);
+  if(!metrics) return;
+  appendHistory(metrics, timestamp, src || state.mode.toUpperCase());
+  updateDisplays(metrics);
+  updateChart(metrics);
+  updateTable(metrics, timestamp, src || state.mode.toUpperCase());
+}
+
+function computeMetrics(P, T){
+  const gas = els.gas.value;
+  const fluid = els.fluid.value;
+  const Rgas = R[gas];
+
+  let deltaP = P - state.P0;
+  if(els.emaToggle.checked){
+    const alpha = 0.2;
+    state.emaDeltaP = state.emaDeltaP == null ? deltaP : alpha*deltaP + (1-alpha)*state.emaDeltaP;
+    deltaP = state.emaDeltaP;
+  }
+
+  let rho_fluid;
+  if(fluid === 'air'){
+    rho_fluid = P / (R_AIR * T);
+  } else {
+    rho_fluid = 1000;
+  }
+
+  const rho_gaz = P / (Rgas * T);
+  const V = state.mGas / rho_gaz;
+  const rho_glob = (state.mNac + state.mGas) / V;
+  const phi = rho_glob / rho_fluid;
+  const psi = 1 - phi;
+  const F = deltaP * V * psi;
+
+  return {P, T, deltaP, V, rho_glob, rho_fluid, phi, psi, F};
+}
+
+// ================== Historique ==================
+function appendHistory(m, timestamp, src){
+  const maxSize = parseInt(els.histSize.value)||600;
+  state.history.push({...m, ts: timestamp, source: src});
+  if(state.history.length > maxSize){
+    state.history.splice(0, state.history.length - maxSize);
+  }
+}
+
+// ================== Affichage ==================
+function updateDisplays(m){
+  if(!m){
+    ['deltaPVal','volVal','phiVal','psiVal','forceVal'].forEach(id=>els[id].textContent='—');
+    els.phiBar.style.width = '0%';
+    return;
+  }
+  els.deltaPVal.textContent = m.deltaP.toFixed(2);
+  els.volVal.textContent = m.V.toFixed(3);
+  els.phiVal.textContent = m.phi.toFixed(3);
+  els.psiVal.textContent = m.psi.toFixed(3);
+  els.forceVal.textContent = m.F.toExponential(3);
+
+  const phiClamped = Math.max(0, Math.min(m.phi, 2));
+  const pct = (phiClamped/2)*100;
+  els.phiBar.style.width = pct + '%';
+  let color = '#34d399';
+  if(m.phi > 1.05) color = '#ff4d4d'; else if(m.phi > 0.95) color = '#ffb347';
+  els.phiBar.style.background = color;
+
+  let statusTxt = `Source: ${state.mode}`;
+  if(m.psi < 0) statusTxt += ' | ψ < 0 (Surcharge)';
+  els.status.textContent = statusTxt;
+}
+
+// ================== Chart ==================
+function setupChart(){
+  const ctx = document.getElementById('forceChart').getContext('2d');
+  if(forceChart){ forceChart.destroy(); }
+  forceChart = new Chart(ctx, {
+    type:'line',
+    data:{ labels:[], datasets:[{
+      label:'F proxy',
+      data:[],
+      borderColor:'#ffc94d',
+      backgroundColor:'rgba(255,201,77,0.15)',
+      tension:.25,
+      pointRadius:0
+    }]},
+    options:{
+      animation:false,responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{x:{display:true},y:{display:true}}
+    }
+  });
+}
+
+function updateChart(m){
+  if(!forceChart) return;
+  const lbl = new Date().toLocaleTimeString();
+  forceChart.data.labels.push(lbl);
+  forceChart.data.datasets[0].data.push(m.F);
+  if(forceChart.data.labels.length > 600){
+    forceChart.data.labels.shift();
+    forceChart.data.datasets[0].data.shift();
+  }
+  forceChart.update('none');
+}
+
+// ================== Tableau ==================
+function clearTable(){ els.histBody.innerHTML=''; els.rowsInfo.textContent=''; }
+function updateTable(m, ts, src){
+  const tr = document.createElement('tr');
+  const tStr = new Date(ts).toLocaleTimeString();
+  const cell = (v,dec=3)=> (typeof v==='number' ? v.toFixed(dec) : v);
+  tr.innerHTML = `
+    <td class="time">${tStr}</td>
+    <td>${cell(m.P,1)}</td>
+    <td>${cell(m.deltaP,1)}</td>
+    <td>${cell(m.T,2)}</td>
+    <td>${cell(m.V,3)}</td>
+    <td>${cell(m.rho_glob,3)}</td>
+    <td>${cell(m.rho_fluid,3)}</td>
+    <td>${cell(m.phi,3)}</td>
+    <td>${cell(m.psi,3)}</td>
+    <td>${m.F.toExponential(3)}</td>
+    <td>${src||state.mode}</td>
+  `;
+  els.histBody.prepend(tr);
+  const rows = els.histBody.querySelectorAll('tr').length;
+  els.rowsInfo.textContent = rows + ' points';
+}
+
+// ================== Export CSV ==================
+function exportResultsCSV(){
+  if(!state.history.length){
+    alert('Pas de données à exporter.');
+    return;
+  }
+  const header = ['Time','Timestamp','Source','P','DeltaP','T','V','rho_glob','rho_fluid','phi','psi','F'];
+  const lines = [header.join(',')];
+  state.history.forEach(r=>{
+    lines.push([
+      new Date(r.ts).toISOString(),
+      r.ts,
+      r.source,
+      r.P.toFixed(4),
+      r.deltaP.toFixed(4),
+      r.T.toFixed(4),
+      r.V.toFixed(6),
+      r.rho_glob.toFixed(6),
+      r.rho_fluid.toFixed(6),
+      r.phi.toFixed(6),
+      r.psi.toFixed(6),
+      r.F
+    ].join(','));
+  });
+  const blob = new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().replace(/[:T]/g,'-').split('.')[0];
+  a.href = url;
+  a.download = `force_proxy_results_${stamp}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ================== GPS Tracking ==================
+let gpsActive = false;
+let gpsWatchId = null;
+let map = null;
+let gpsMarker = null;
+let gpsPolyline = null;
+let lastGPS = null;
+
+function initMap(){
+  if(map) return;
+  map = L.map('map').setView([0,0], 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,
+    attribution:'© OpenStreetMap'
+  }).addTo(map);
+  gpsMarker = L.marker([0,0]).addTo(map);
+  gpsPolyline = L.polyline([], {color:'#ffc94d', weight:3}).addTo(map);
+}
+
+function toggleGPS(){
+  if(location.protocol !== 'https:'){
+        document.getElementById('gpsStatus').textContent = '⚠️ GPS nécessite HTTPS (site non sécurisé).';
+        return;
+      }
+      if(!navigator.geolocation){
+    document.getElementById('gpsStatus').textContent = 'GPS non supporté.';
+    return;
+  }
+  if(!gpsActive){
+    initMap();
+    gpsActive = true;
+    document.getElementById('gpsToggleBtn').textContent = 'Arrêter GPS';
+    document.getElementById('gpsStatus').textContent = 'Activation GPS...';
+    gpsWatchId = navigator.geolocation.watchPosition(pos=>{
+      const {latitude, longitude} = pos.coords;
+      lastGPS = {lat: latitude, lon: longitude, ts: Date.now()};
+      gpsMarker.setLatLng([latitude, longitude]);
+      gpsPolyline.addLatLng([latitude, longitude]);
+      if(map.getZoom() < 5){
+        map.setView([latitude, longitude], 5);
+      } else {
+        map.panTo([latitude, longitude], {animate:true});
+      }
+      document.getElementById('gpsStatus').textContent =
+        `Lat: ${latitude.toFixed(5)}  Lon: ${longitude.toFixed(5)}`;
+    }, err=>{
+      document.getElementById('gpsStatus').textContent = '⚠️ Erreur GPS : ' + err.message + '. Vérifie autorisation ou capteur.';
+    }, {enableHighAccuracy:true, maximumAge:1000, timeout:10000});
+  } else {
+    gpsActive = false;
+    document.getElementById('gpsToggleBtn').textContent = 'Activer GPS';
+    document.getElementById('gpsStatus').textContent = 'Inactif.';
+    if(gpsWatchId !== null){
+      navigator.geolocation.clearWatch(gpsWatchId);
+      gpsWatchId = null;
+    }
+  }
+}
+
+const gpsBtn = document.getElementById('gpsToggleBtn');
+if(gpsBtn){
+  gpsBtn.addEventListener('click', toggleGPS);
+}
+
+// ================== Démarrage ==================
+updateSourceUI();
+</script>
+</body>
+</html>
