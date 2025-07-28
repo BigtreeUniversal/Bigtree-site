@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>🧭 SynchroLink Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; background: #f0f0f0; padding: 20px; }
+    h1 { text-align: center; color: #333; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: center; }
+    .ok { color: green; font-weight: bold; }
+    .warn { color: orange; font-weight: bold; }
+    .err { color: red; font-weight: bold; }
+    .jsonbox { font-family: monospace; font-size: 0.85em; background: #f9f9f9; border: 1px dashed #ccc; padding: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🛰️ SynchroLink - Panneau de Contrôle</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Module</th>
+        <th>Connexion</th>
+        <th>Dernière Trame</th>
+        <th>Statut</th>
+      </tr>
+    </thead>
+    <tbody id="dashboard">
+      <tr><td colspan="4">Chargement...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    let modules = [];
+
+    function fetchModulesConfig() {
+      return fetch("modules.json")
+        .then(res => res.json())
+        .then(data => { modules = data; })
+        .catch(() => {
+          document.getElementById("dashboard").innerHTML =
+            "<tr><td colspan='4'>❌ Impossible de charger modules.json</td></tr>";
+        });
+    }
+
+    function fetchModule(module) {
+      return fetch(module.url)
+        .then(res => {
+          if (!res.ok) throw new Error("Erreur HTTP");
+          return res.json();
+        })
+        .then(data => {
+          const now = Math.floor(Date.now() / 1000);
+          let last = now;
+          if (module.url.includes("gps") && data.latest) {
+            const clk = parseInt(data.latest.match(/CLK:(\d+)/)?.[1] || "0");
+            last = clk;
+          }
+          const age = now - last;
+          return {
+            name: module.name,
+            status: age < 5 ? "ok" : age < 15 ? "warn" : "err",
+            trame: JSON.stringify(data, null, 2),
+            age: age
+          };
+        })
+        .catch(() => ({
+          name: module.name,
+          status: "err",
+          trame: "⛔ Aucune donnée reçue.",
+          age: null
+        }));
+    }
+
+    function updateDashboard() {
+      Promise.all(modules.map(fetchModule)).then(results => {
+        const tbody = document.getElementById("dashboard");
+        tbody.innerHTML = "";
+        results.forEach(mod => {
+          const row = document.createElement("tr");
+          const statusText = mod.status === "ok" ? "🟢" : mod.status === "warn" ? "🟡" : "🔴";
+          row.innerHTML = `
+            <td>${mod.name}</td>
+            <td class="${mod.status}">${statusText}</td>
+            <td>${mod.age !== null ? `il y a ${mod.age}s` : "—"}</td>
+            <td><button onclick="showTrame(this)">Voir</button><div class='jsonbox' style='display:none;'>${mod.trame}</div></td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+    }
+
+    function showTrame(btn) {
+      const box = btn.nextElementSibling;
+      box.style.display = box.style.display === "none" ? "block" : "none";
+    }
+
+    fetchModulesConfig().then(() => {
+      setInterval(updateDashboard, 2000);
+      updateDashboard();
+    });
+  </script>
+</body>
+</html>
