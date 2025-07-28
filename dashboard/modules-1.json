@@ -1,0 +1,10 @@
+[
+  {
+    "name": "GPS Mobile",
+    "url": "/gps/latest"
+  },
+  {
+    "name": "Sunset Tracker",
+    "url": "/sunmoon"
+  }
+]
