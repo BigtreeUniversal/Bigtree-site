@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>🧪 Client SynchroLink - Test Clock</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    h1 { color: #333; }
+    #trame { font-size: 1.2em; background: #fff; padding: 10px; border: 1px solid #ccc; margin-top: 10px; width: fit-content; }
+    #status { font-weight: bold; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🕒 Client SynchroLink - Test Clock</h1>
+  <div id="status">Connexion au serveur...</div>
+  <div id="trame">Aucune donnée</div>
+
+  <script>
+    function updateClock() {
+      fetch("https://syncrolink-server.onrender.com/clock/latest")
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("trame").textContent = data.trame;
+          document.getElementById("status").textContent = "✅ Synchronisé avec le serveur";
+        })
+        .catch(err => {
+          document.getElementById("status").textContent = "❌ Erreur de connexion au serveur";
+          document.getElementById("trame").textContent = "—";
+        });
+    }
+
+    setInterval(updateClock, 500);
+    updateClock();
+  </script>
+</body>
+</html>
