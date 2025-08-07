@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Carte Azimutale - Soleil & Lune</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: sans-serif;
+      text-align: center;
+    }
+    #map-container {
+      position: relative;
+      width: 1600px;
+      height: 1600px;
+      margin: auto;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .astro {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    #sun { background-color: yellow; }
+    #moon { background-color: white; }
+  </style>
+</head>
+<body>
+  <h1>Carte Azimutale - Position en temps réel</h1>
+  <div id="map-container">
+    <img id="map" src="azimuth-map.jpg" alt="Carte Azimutale">
+    <div id="sun" class="astro" title="Soleil"></div>
+    <div id="moon" class="astro" title="Lune"></div>
+  </div>
+
+  <script>
+    const centerX = 800;
+    const centerY = 800;
+    const radiusMax = 600;   // pour altitude -1 (solstice décembre)
+    const radiusMin = 100;   // pour zénith (hauteur max)
+
+    async function updateAstros() {
+      try {
+        const response = await fetch("https://syncrolink-server.onrender.com/sunmoon");
+        const data = await response.json();
+
+        const sun = convertToXY(data.sunAzimuth, data.sunAltitude);
+        const moon = convertToXY(data.moonAzimuth, data.moonAltitude);
+
+        document.getElementById("sun").style.left = `${sun.x}px`;
+        document.getElementById("sun").style.top = `${sun.y}px`;
+
+        document.getElementById("moon").style.left = `${moon.x}px`;
+        document.getElementById("moon").style.top = `${moon.y}px`;
+
+      } catch (err) {
+        console.error("Erreur API SunMoon:", err);
+      }
+    }
+
+    function convertToXY(azimuthRad, altitudeNorm) {
+      // Altitude [-1, +1] → rayon entre 600 (bord) et 100 (centre)
+      let radius = radiusMax - ((altitudeNorm + 1) / 2) * (radiusMax - radiusMin);
+      radius = Math.max(radiusMin, Math.min(radiusMax, radius));
+
+      // Azimuth (radians) : 180° (π) = midi (vers le bas)
+      const angle = azimuthRad - Math.PI;
+      const x = centerX + radius * Math.sin(angle);
+      const y = centerY + radius * Math.cos(angle);
+      return { x, y };
+    }
+
+    updateAstros();
+    setInterval(updateAstros, 10000); // mise à jour toutes les 10 sec
+  </script>
+</body>
+</html>
