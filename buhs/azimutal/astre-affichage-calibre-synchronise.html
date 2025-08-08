@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Carte Azimutale - Astres calibrés (points + centre)</title>
+  <style>
+    body { background:#000; color:#fff; font-family:sans-serif; margin:0; padding:0; }
+    h1 { text-align:center; margin-top:1em; }
+    #map-container { position:relative; width:1600px; height:1600px; margin:2em auto; }
+    #map { width:100%; height:100%; display:block; }
+    .point { position:absolute; width:12px; height:12px; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; }
+    /* Couleurs correctes */
+    .sun  { background-color: cyan;   box-shadow: 0 0 8px 2px rgba(0,255,255,.7); }
+    .moon { background-color: orange; box-shadow: 0 0 8px 2px rgba(255,165,0,.7); }
+    .interpolated-sun  { width:18px; height:18px; background-color: cyan;   border:2px solid #000; z-index:10; box-shadow: 0 0 14px 4px rgba(0,255,255,.9); }
+    .interpolated-moon { width:18px; height:18px; background-color: orange; border:2px solid #000; z-index:10; box-shadow: 0 0 14px 4px rgba(255,165,0,.9); }
+  </style>
+</head>
+<body>
+  <h1>Carte Azimutale — Soleil & Lune (calibration synchronisée)</h1>
+  <div id="map-container">
+    <img id="map" src="azimuth-map.jpg" alt="Carte Azimutale">
+  </div>
+
+  <script>
+    // --- Constantes carte ---
+    const centerX = 800, centerY = 800;
+    const MAX_R   = 800;              // centre -> bord
+    const TRANCHE = 800 / 12;         // ~66.666... px
+    // --- Calibration appliquée partout (points + marqueur central) ---
+    const SUN_CALIBRATION_BIAS  = TRANCHE;  // +1 tranche vers le sud
+    const MOON_CALIBRATION_BIAS = TRANCHE;  // +1 tranche vers le sud
+
+    const mapContainer = document.getElementById("map-container");
+    const gpsPoints = [];
+
+    function delay(ms){ return new Promise(res => setTimeout(res, ms)); }
+
+    // Décale radialement une position (x,y) de 'biasPx' (positif = plus au sud = vers l'extérieur)
+    function applyRadialBiasXY(x, y, biasPx){
+      const dx = x - centerX, dy = y - centerY;
+      const r  = Math.hypot(dx, dy);
+      if (r === 0) return { x, y };
+      const r2 = Math.max(0, Math.min(MAX_R, r + biasPx));
+      const ux = dx / r, uy = dy / r;
+      return { x: centerX + r2 * ux, y: centerY + r2 * uy };
+    }
+
+    async function loadPointsAndRender(){
+      const points = gpsPoints;
+      const enriched = [];
+
+      for (const pt of points){
+        try {
+          const url = `https://syncrolink-server.onrender.com/sunmoon?lat=${pt.latitude}&lon=${pt.longitude}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          enriched.push({ ...pt, sunAlt: data.sunAltitude, moonAlt: data.moonAltitude });
+        } catch(e){
+          console.warn("Erreur API pour", pt.latitude, pt.longitude, e);
+        }
+        await delay(100);
+      }
+
+      const sunTop  = [...enriched].filter(p => p.sunAlt  > 0).sort((a,b)=>b.sunAlt  - a.sunAlt ).slice(0,4);
+      const moonTop = [...enriched].filter(p => p.moonAlt > 0).sort((a,b)=>b.moonAlt - a.moonAlt).slice(0,4);
+
+      // --- Affiche les 4 points retenus (avec la MEME calibration) ---
+      sunTop.forEach(pt => {
+        const adj = applyRadialBiasXY(pt.x, pt.y, SUN_CALIBRATION_BIAS);
+        const el = document.createElement("div");
+        el.className = "point sun";
+        el.style.left = `${adj.x}px`;
+        el.style.top  = `${adj.y}px`;
+        mapContainer.appendChild(el);
+      });
+      moonTop.forEach(pt => {
+        const adj = applyRadialBiasXY(pt.x, pt.y, MOON_CALIBRATION_BIAS);
+        const el = document.createElement("div");
+        el.className = "point moon";
+        el.style.left = `${adj.x}px`;
+        el.style.top  = `${adj.y}px`;
+        mapContainer.appendChild(el);
+      });
+
+      // Interpolation pondérée (sur les positions déjà calibrées)
+      const interpolate = (pts, key, biasPx) => {
+        let sumX = 0, sumY = 0, sumW = 0;
+        pts.forEach(p => {
+          const adj = applyRadialBiasXY(p.x, p.y, biasPx);
+          const w = Math.max(0, p[key]);
+          sumX += adj.x * w; sumY += adj.y * w; sumW += w;
+        });
+        return sumW > 0 ? { x: sumX / sumW, y: sumY / sumW } : null;
+      };
+
+      const sunInterp  = interpolate(sunTop,  'sunAlt',  SUN_CALIBRATION_BIAS);
+      const moonInterp = interpolate(moonTop, 'moonAlt', MOON_CALIBRATION_BIAS);
+
+      if (sunInterp){
+        const el = document.createElement("div");
+        el.className = "point interpolated-sun";
+        el.style.left = `${sunInterp.x}px`;
+        el.style.top  = `${sunInterp.y}px`;
+        mapContainer.appendChild(el);
+      }
+      if (moonInterp){
+        const el = document.createElement("div");
+        el.className = "point interpolated-moon";
+        el.style.left = `${moonInterp.x}px`;
+        el.style.top  = `${moonInterp.y}px`;
+        mapContainer.appendChild(el);
+      }
+    }
+
+    // Charge les 144 points (lat, lon, x, y) depuis le CSV
+    fetch("points_gps_azimutaux.csv")
+      .then(r => r.text())
+      .then(text => {
+        const lines = text.trim().split("\n").slice(1);
+        for (const line of lines){
+          const [latitude, longitude, x, y, cercle] = line.split(",");
+          gpsPoints.push({
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+            x: parseFloat(x),
+            y: parseFloat(y),
+            cercle: parseInt(cercle)
+          });
+        }
+        loadPointsAndRender();
+      });
+  </script>
+</body>
+</html>
