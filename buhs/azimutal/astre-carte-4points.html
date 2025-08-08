@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Carte Astres - Points GPS sur Azimutale</title>
+  <style>
+    body {
+      background: #000;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin-top: 1em;
+    }
+    #map-container {
+      position: relative;
+      width: 1600px;
+      height: 1600px;
+      margin: 2em auto;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 2px solid #555;
+    }
+    .point {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .sun { background-color: yellow; }
+    .moon { background-color: white; }
+  </style>
+</head>
+<body>
+  <h1>Les 4 points GPS les plus proches (Soleil & Lune)</h1>
+  <div id="map-container">
+    <img id="map" src="azimuth-map.jpg" alt="Carte Azimutale">
+    <!-- Points insérés dynamiquement -->
+  </div>
+
+  <script>
+    const mapContainer = document.getElementById("map-container");
+    const centerX = 800;
+    const centerY = 800;
+    const radiusMap = 800;
+
+    const latitudes = [75, 60, 45, 30, 15, 0];
+    const longitudes = Array.from({ length: 24 }, (_, i) => i * 15);
+    const gpsPoints = [];
+
+    // Convert GPS to XY on azimuthal map (pôle Nord au centre)
+    function latLonToXY(lat, lon) {
+      const r = (90 - lat) / 90 * radiusMap;
+      const angleRad = (lon + 180) * Math.PI / 180;
+      const x = centerX + r * Math.sin(angleRad);
+      const y = centerY + r * Math.cos(angleRad);
+      return { x, y };
+    }
+
+    async function plotTopPoints() {
+      const results = [];
+
+      for (const lat of latitudes) {
+        for (const lon of longitudes) {
+          try {
+            const url = `https://syncrolink-server.onrender.com/sunmoon?lat=${lat}&lon=${lon}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            results.push({
+              lat,
+              lon,
+              sunAlt: data.sunAltitude,
+              moonAlt: data.moonAltitude
+            });
+          } catch (err) {
+            console.warn("Erreur API:", lat, lon);
+          }
+        }
+      }
+
+      const topSun = [...results].sort((a, b) => b.sunAlt - a.sunAlt).slice(0, 4);
+      const topMoon = [...results].sort((a, b) => b.moonAlt - a.moonAlt).slice(0, 4);
+
+      // Ajouter les points Soleil
+      topSun.forEach(pt => {
+        const pos = latLonToXY(pt.lat, pt.lon);
+        const el = document.createElement("div");
+        el.className = "point sun";
+        el.style.left = pos.x + "px";
+        el.style.top = pos.y + "px";
+        el.title = `☀️ ${pt.lat}, ${pt.lon} (Alt: ${pt.sunAlt.toFixed(2)})`;
+        mapContainer.appendChild(el);
+      });
+
+      // Ajouter les points Lune
+      topMoon.forEach(pt => {
+        const pos = latLonToXY(pt.lat, pt.lon);
+        const el = document.createElement("div");
+        el.className = "point moon";
+        el.style.left = pos.x + "px";
+        el.style.top = pos.y + "px";
+        el.title = `🌙 ${pt.lat}, ${pt.lon} (Alt: ${pt.moonAlt.toFixed(2)})`;
+        mapContainer.appendChild(el);
+      });
+    }
+
+    plotTopPoints();
+  </script>
+</body>
+</html>
