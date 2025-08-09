@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ma Radio – [Ton Nom/Label]</title>
+  <meta name="description" content="Lecteur audio moderne avec playlist, jaquettes, partage social et compatibilité HLS/MP3 pour radios et catalogues de titres." />
+  <style>
+    :root{--bg:#0b0d12;--card:#111521;--ring:#2b364e;--muted:#98a3b8;--text:#e8eefc;--accent:#7cc0ff}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 800px at 10% -10%,#0f1626 0%,var(--bg) 40%),linear-gradient(180deg,#0b0d12 0%,#0b0d12 100%);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Inter,Roboto,"Helvetica Neue",Arial}
+    .wrap{max-width:960px;margin:32px auto;padding:0 16px}
+    header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+    header img.logo{width:40px;height:40px;border-radius:10px}
+    h1{margin:0;font-size:clamp(22px,3.2vw,34px)}
+
+    .player{display:grid;grid-template-columns:160px 1fr;gap:18px;background:linear-gradient(180deg,#0f1422,#0b0d12);border:1px solid var(--ring);border-radius:18px;padding:16px;box-shadow:0 10px 22px rgba(0,0,0,.35)}
+    .cover{width:100%;aspect-ratio:1/1;border-radius:14px;background:#0a0f1a;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .cover img{width:100%;height:100%;object-fit:cover}
+    .meta{display:flex;flex-direction:column;gap:6px}
+    .title{font-weight:700;font-size:20px}
+    .artist{color:var(--muted)}
+
+    .controls{display:flex;align-items:center;gap:10px;margin-top:6px}
+    button{appearance:none;border:1px solid var(--ring);background:#131a2a;color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer}
+    button:hover{border-color:#3b4a6a}
+    .progress{height:6px;background:#0f1422;border:1px solid var(--ring);border-radius:999px;overflow:hidden;position:relative;margin:8px 0}
+    .progress>div{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent)}
+    .row{display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .time{font-variant-numeric:tabular-nums;color:var(--muted)}
+
+    .playlist{margin-top:18px;border:1px solid var(--ring);border-radius:16px;overflow:hidden}
+    .playlist h2{margin:0;padding:10px 12px;font-size:14px;color:var(--muted);background:linear-gradient(180deg,#101828,#0d1320)}
+    .tracks{max-height:320px;overflow:auto}
+    .track{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--ring);cursor:pointer}
+    .track:first-child{border-top:0}
+    .track:hover{background:#0f1422}
+    .track .t-title{font-weight:600}
+    .track .t-artist{color:var(--muted);font-size:13px}
+    .badge{font-size:11px;color:#0b0d12;background:var(--accent);padding:2px 8px;border-radius:999px}
+
+    footer{margin:24px 0;color:var(--muted);font-size:14px}
+
+    @media(max-width:640px){.player{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="/logo.png" class="logo" alt="Logo" onerror="this.style.display='none'">
+      <h1>Radio – [Ton Nom / Ton Label]</h1>
+    </header>
+
+    <section class="player" aria-label="Lecteur radio">
+      <div class="cover"><img id="cover" alt="Jaquette" src="https://picsum.photos/400?random=1"></div>
+      <div>
+        <div class="meta">
+          <div class="title" id="title">Titre</div>
+          <div class="artist" id="artist">Artiste</div>
+        </div>
+
+        <div class="controls">
+          <button id="prev" aria-label="Précédent">⏮</button>
+          <button id="play" aria-label="Lecture/Pause">▶️</button>
+          <button id="next" aria-label="Suivant">⏭</button>
+          <span style="flex:1"></span>
+          <label>
+            Volume
+            <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" />
+          </label>
+        </div>
+
+        <div class="progress" id="progress" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="bar"></div>
+        </div>
+        <div class="row">
+          <div class="time" id="cur">0:00</div>
+          <div class="time" id="dur">0:00</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="playlist" aria-label="Playlist">
+      <h2>Playlist</h2>
+      <div class="tracks" id="tracks"></div>
+    </section>
+
+    <footer>
+      <p>Conseil : hébergez vos fichiers audio sur un CDN (HTTPS, CORS autorisé) et fournissez les jaquettes (600–1400px) pour un rendu impeccable. Compatible MP3/AAC/Opus (selon navigateur). Pour un <strong>flux live 24/7</strong>, renseignez <code>type: 'hls'</code> et l’URL <code>.m3u8</code> (voir la config ci‑dessous).</p>
+    </footer>
+  </div>
+
+  <!-- Audio caché -->
+  <audio id="audio" preload="metadata" crossorigin="anonymous"></audio>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    // === 1) CONFIG – remplace par tes morceaux (URLs absolues) ===
+    // type: 'file' pour fichiers individuels; 'hls' pour un stream radio .m3u8 (Icecast/Shoutcast via HLS proxy)
+    const LIB = [
+      {title:'Ton Track 1', artist:'Ton Nom', cover:'https://picsum.photos/seed/cover1/600', url:'https://example.com/audio/track1.mp3', type:'file'},
+      {title:'Ton Track 2', artist:'Ton Nom feat. Guest', cover:'https://picsum.photos/seed/cover2/600', url:'https://example.com/audio/track2.mp3', type:'file'},
+      // Exemple flux HLS (remplacer par ton m3u8), lecture démarre sur action utilisateur
+      // {title:'Ma Radio Live', artist:'[Ton Label]', cover:'https://picsum.photos/seed/live/600', url:'https://example.com/live/stream.m3u8', type:'hls'},
+    ]
+
+    // === 2) Références DOM ===
+    const audio = document.getElementById('audio');
+    const title = document.getElementById('title');
+    const artist = document.getElementById('artist');
+    const cover = document.getElementById('cover');
+    const tracksEl = document.getElementById('tracks');
+    const playBtn = document.getElementById('play');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const vol = document.getElementById('volume');
+    const progress = document.getElementById('progress');
+    const bar = document.getElementById('bar');
+    const cur = document.getElementById('cur');
+    const dur = document.getElementById('dur');
+
+    let idx = 0; let hls = null; let userInteracted=false;
+
+    // === 3) Helpers ===
+    const fmt = s=>{ if(!isFinite(s)) return '0:00'; const m=Math.floor(s/60); const sc=Math.floor(s%60); return `${m}:${String(sc).padStart(2,'0')}` }
+
+    function load(i){
+      idx = (i+LIB.length)%LIB.length;
+      const t = LIB[idx];
+      title.textContent = t.title; artist.textContent = t.artist; cover.src = t.cover;
+      if(hls){hls.destroy(); hls=null}
+      if(t.type==='hls'){
+        if(Hls.isSupported()){
+          hls = new Hls(); hls.loadSource(t.url); hls.attachMedia(audio);
+        }else if(audio.canPlayType('application/vnd.apple.mpegurl')){
+          audio.src = t.url;
+        }else{ alert('HLS non supporté sur ce navigateur'); }
+      }else{
+        audio.src = t.url;
+      }
+      audio.load(); updatePlaylistActive();
+    }
+
+    function play(){ audio.play().catch(()=>{/* autoplay bloqué, attend interaction */}); }
+    function pause(){ audio.pause(); }
+
+    function toggle(){ if(audio.paused){ play(); playBtn.textContent='⏸'; } else { pause(); playBtn.textContent='▶️'; } }
+
+    function next(){ load(idx+1); play(); }
+    function prev(){ load(idx-1); play(); }
+
+    function updateTimes(){ cur.textContent = fmt(audio.currentTime); dur.textContent = fmt(audio.duration); const p = (audio.currentTime||0)/(audio.duration||1)*100; bar.style.width = p+'%'; progress.setAttribute('aria-valuenow', Math.round(p)); }
+
+    function seek(ev){ const rect = progress.getBoundingClientRect(); const x = ev.clientX - rect.left; const p = x/rect.width; audio.currentTime = (audio.duration||0)*p; }
+
+    function updatePlaylistActive(){
+      [...document.querySelectorAll('.track')].forEach((el,i)=>{ el.style.background = (i===idx)?'#0f1422':'transparent'; })
+    }
+
+    // === 4) Construire la playlist visuelle ===
+    function buildList(){
+      tracksEl.innerHTML = '';
+      LIB.forEach((t,i)=>{
+        const el = document.createElement('div');
+        el.className='track'; el.innerHTML = `
+          <span class="badge">${i+1}</span>
+          <div>
+            <div class="t-title">${t.title}</div>
+            <div class="t-artist">${t.artist}</div>
+          </div>
+          <button aria-label="Lire">▶️</button>`;
+        el.addEventListener('click',()=>{ load(i); play(); playBtn.textContent='⏸'; });
+        tracksEl.appendChild(el);
+      });
+    }
+
+    // === 5) Événements ===
+    playBtn.addEventListener('click',()=>{ userInteracted=true; toggle(); });
+    nextBtn.addEventListener('click',next); prevBtn.addEventListener('click',prev);
+    vol.addEventListener('input',()=>{ audio.volume = parseFloat(vol.value) });
+    progress.addEventListener('click',seek);
+    audio.addEventListener('timeupdate',updateTimes);
+    audio.addEventListener('ended',next);
+    audio.addEventListener('loadedmetadata',updateTimes);
+
+    // Start
+    buildList(); load(0); audio.volume = parseFloat(vol.value);
+
+    // Accessibilité clavier
+    document.addEventListener('keydown',e=>{
+      if(e.code==='Space'){ e.preventDefault(); toggle(); }
+      if(e.code==='ArrowRight'){ next(); }
+      if(e.code==='ArrowLeft'){ prev(); }
+    })
+  </script>
+</body>
+</html>
