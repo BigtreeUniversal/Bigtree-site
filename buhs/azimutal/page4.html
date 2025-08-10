@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clockwise by BigTree — Real‑time Azimuthal Visualization</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0a0f1c;--panel:rgba(15,23,42,.85);--text:#d9e6ff;--muted:#9aa7c2;--neon:#6ecbff;--neon2:#9b6eff;--radius:14px;--shadow:0 0 25px rgba(110,203,255,.25)
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Inter',system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(800px at 80% 10%, rgba(155,110,255,.05), transparent),
+        radial-gradient(800px at 20% 90%, rgba(110,203,255,.05), transparent),
+        var(--bg);
+      color:var(--text);line-height:1.6
+    }
+    a{color:var(--neon);text-decoration:none}
+    a:hover{text-decoration:underline}
+    header{position:relative;padding:88px 20px 56px;text-align:center;overflow:hidden}
+    h1{
+      font-family:'Orbitron',sans-serif;font-size:2.3rem;letter-spacing:.6px;
+      background:linear-gradient(90deg,var(--neon),var(--neon2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      text-shadow:0 0 15px rgba(110,203,255,.3);position:relative;z-index:2
+    }
+    .sub{color:var(--muted);max-width:880px;margin:10px auto 0;font-size:1.02rem}
+    .radar{position:absolute;top:50%;left:50%;width:420px;height:420px;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(110,203,255,.15);background:radial-gradient(circle, rgba(110,203,255,.03) 40%, transparent 70%)}
+    .radar::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(110,203,255,.35), transparent 60%);animation:sweep 5s linear infinite}
+    @keyframes sweep{to{transform:rotate(360deg)}}main{max-width:1000px;margin:auto;padding:20px}
+.panel{background:var(--panel);border-radius:var(--radius);padding:22px;margin:0 auto 24px;box-shadow:var(--shadow);border:1px solid rgba(110,203,255,.15);backdrop-filter:blur(8px);animation:fade .7s ease}
+.kicker{display:inline-block;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--neon);font-size:.8rem;margin-bottom:6px}
+h2{font-size:1.35rem;margin-bottom:10px;background:linear-gradient(90deg,var(--neon),var(--neon2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+p{margin-bottom:12px}
+
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:720px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{background:rgba(148,163,184,.06);border:1px solid rgba(110,203,255,.12);border-radius:12px;padding:16px;min-height:140px}
+.card h3{font-size:1rem;margin-bottom:6px;color:#e6f0ff}
+.card p{color:var(--muted);font-size:.95rem}
+
+.callout{border-left:3px solid var(--neon);padding-left:12px;color:var(--muted);font-style:italic}
+
+.cta-wrap{display:flex;justify-content:center;padding:26px 0 40px}
+.cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(90deg,var(--neon),var(--neon2));color:#051021;font-weight:800;border:none;border-radius:999px;padding:14px 22px;font-size:1rem;box-shadow:0 10px 24px rgba(110,203,255,.25), inset 0 0 0 2px rgba(255,255,255,.12);cursor:pointer;transition:transform .12s ease, filter .2s ease}
+.cta:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.cta:active{transform:translateY(0)}
+
+footer{text-align:center;padding:14px 20px 28px;color:var(--muted);font-size:.9rem}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* HUB VIEW */
+.hidden{display:none}
+.hub-intro{color:var(--muted)}
+.hub-grid{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:760px){.hub-grid{grid-template-columns:repeat(4,1fr)}}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;padding:14px 16px;border-radius:12px;border:1px solid rgba(110,203,255,.18);background:rgba(148,163,184,.08);color:#e6f0ff;font-weight:700;letter-spacing:.2px;text-decoration:none}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(0)}
+.btn svg{opacity:.9}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="radar" aria-hidden="true"></div>
+    <h1>BUHS CLOCKWISE — SYNCHRO‑LINK</h1>
+    <p class="sub">A minimal, high‑impact introduction to Clockwise. Designed to tease the experience and protect the core mechanics.</p>
+  </header>  <main>
+    <!-- ==================== LANDING VIEW ==================== -->
+    <section id="landing" aria-label="Landing">
+      <section class="panel" aria-labelledby="vp">
+        <span class="kicker">Real‑time • Azimuthal • Observational</span>
+        <h2 id="vp">See the sky as a system — not a story.</h2>
+        <p>Clockwise is a live window on the Sun and Moon rendered on a classic azimuthal canvas. It blends verified observations with a proprietary synchronization engine to deliver a clean, immediate view of celestial motion — without theoretical detours.</p>
+        <p class="callout">No formulas disclosed. No internals exposed. Just the experience: fast, precise, and verifiable by anyone.</p>
+      </section><section class="panel" aria-labelledby="benefits">
+    <h2 id="benefits">Built for observers, makers, and skeptics</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Live, not simulated</h3>
+        <p>Clockwise privileges present‑tense signals and observational parity. What you see reflects what is — in the moment.</p>
+      </div>
+      <div class="card">
+        <h3>Protected engine</h3>
+        <p>A custom Synchro‑Link core orchestrates data intake and timing. Methods are encapsulated; only outcomes reach the surface.</p>
+      </div>
+      <div class="card">
+        <h3>Azimuthal clarity</h3>
+        <p>A familiar circular frame. Clean orientation. Immediate intuition. Learn the motion by watching it happen.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta-wrap">
+    <a class="cta" href="#enter" id="enterBtn" aria-label="Enter Clockwise">
+      <span>Enter</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="#051021" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ==================== HUB VIEW (DUPLICATED HEADER FEEL) ==================== -->
+<section id="hub" class="hidden" aria-label="Hub">
+  <section class="panel">
+    <span class="kicker">Welcome inside</span>
+    <h2>Choose your view. Start your observation.</h2>
+    <p class="hub-intro">This hub mirrors the landing aesthetics so you keep the same orientation: radar, header, and clean panels. From here you can jump to live webcams around the world, launch Clockwise, or read a short primer before diving in.</p>
+  </section>
+
+  <section class="panel">
+    <div class="hub-grid" role="navigation" aria-label="Primary actions">
+      <!-- Replace the href values with your real URLs -->
+      <a class="btn" href="CLOCKWISE_URL" id="goClockwise">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Clockwise Live</span>
+      </a>
+      <a class="btn" href="WEBCAMS_URL" id="goWebcams">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Global Webcams</span>
+      </a>
+      <a class="btn" href="GUIDE_URL">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Observer’s Guide</span>
+      </a>
+      <a class="btn" href="#" id="backBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 12H5m6 7-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Back to Landing</span>
+      </a>
+    </div>
+  </section>
+</section>
+
+  </main>  <footer>
+    © 2025 BigTree · Synchro‑Link · Clockwise
+  </footer>  <script>
+    // Simple two‑state router using the hash (#enter)
+    const landing = document.getElementById('landing');
+    const hub = document.getElementById('hub');
+    const enterBtn = document.getElementById('enterBtn');
+    const backBtn = document.getElementById('backBtn');
+
+    function showHub(){ landing.classList.add('hidden'); hub.classList.remove('hidden'); }
+    function showLanding(){ hub.classList.add('hidden'); landing.classList.remove('hidden'); }
+
+    // Hash navigation
+    function handleHash(){ location.hash === '#enter' ? showHub() : showLanding(); }
+    window.addEventListener('hashchange', handleHash);
+    handleHash(); // on load
+
+    // Buttons
+    if(enterBtn){ enterBtn.addEventListener('click', function(e){ if(location.hash !== '#enter'){ e.preventDefault(); location.hash = 'enter'; } }); }
+    if(backBtn){ backBtn.addEventListener('click', function(e){ e.preventDefault(); history.pushState('', document.title, window.location.pathname + window.location.search); handleHash(); }); }
+
+    // OPTIONAL: if you prefer a redirect instead of SPA, set real URLs below
+    // document.getElementById('goClockwise').href = 'https://your-clockwise-app.example';
+    // document.getElementById('goWebcams').href   = 'https://your-webcams-page.example';
+  </script></body>
+</html>
