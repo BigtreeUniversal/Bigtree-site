@@ -1,0 +1,61 @@
+<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /><link href="style.css" rel="stylesheet" type="text/css" /><title>Unknown</title></head><body><div class="calibre" id="calibre_link-0">
+	<p class="block_"></p>
+	<p class="block_"></p>
+	<p class="block_"></p>
+	<p class="block_1">Clockwise &mdash; Real-time azimuthal tracking of the Sun &amp; Moon. No theory, just reality.</p>
+	<p class="block_"></p>
+	<p class="block_"></p><hr class="calibre1" /><p class="calibre2"></p>
+	<h2 id="calibre_link-1" class="block_2">Le Clockwise de BigTree</h2>
+	<p class="block_3">Premier module de visualisation azimutale en temps réel au monde</p>
+	<p class="block_4">Je vais lancer ici une série de textes pour suivre l’évolution de mon invention : le module <i class="calibre3">Clockwise</i>, intégré à mon serveur Synchro-Link. Depuis la toute première version 1.0, ce projet m’a happé, aspiré dans une passion qui ne me lâche plus.</p>
+	<p class="block_4">Certains y verront un outil de compréhension, d’autres une curiosité liée au débat sur la Terre plate. Peu importe : mon objectif, c’était de concevoir un module capable de visualiser le Soleil et la Lune tournant autour de la Terre plate selon le modèle azimutal le plus utilisé.</p>
+	<p class="block_"></p><hr class="calibre1" /><p class="calibre2"></p>
+	<h3 id="calibre_link-2" class="block_5">Pourquoi une carte azimutale ?</h3>
+	<p class="block_4">J’ai choisi comme base la carte azimutale, un modèle ancien mais fiable. Pourquoi ? Parce que les projections classiques, comme la Mercator qu’on trouve dans les manuels scolaires, déforment tout : continents disproportionnés (un Groenland aussi gros que l’Afrique !), distances faussées…</p>
+	<p class="block_4">Cette carte azimutale, les pilotes la connaissent, les marins la connaissent, certains décideurs la connaissent, mais la plupart des gens l’ignorent.Ce n’est pas une lubie : c’est un fait.</p>
+	<p class="block_4">J’ai donc repris cette carte telle quelle.</p>
+	<p class="block_4">Après étude et en comparant les distances officielles avec celles issues des vols commerciaux intercontinentaux. Le résultat est concluant dans toutes les directions.</p>
+	<p class="block_"></p><hr class="calibre1" /><p class="calibre2"></p>
+	<h3 id="calibre_link-3" class="block_5">Objectif technique</h3>
+	<p class="block_4">Mon idée : récupérer en temps réel des mesures permettant de localiser la Lune et le Soleil.<br class="calibre4" /> Problème : la majorité des données publiques sont calculées selon le modèle héliocentrique, qui reste un postulat.</p>
+	<p class="block_4">Après plus de 30 ans d’étude, je sais distinguer hypothèse et fait observable. Je ne cherche pas à convaincre qui que ce soit &mdash; je m’en fiche &mdash; mais à partager un outil fiable à ceux qui s’y intéressent.</p>
+	<p class="block_"></p><hr class="calibre1" /><p class="calibre2"></p>
+	<h3 id="calibre_link-4" class="block_5">Comment ça marche</h3>
+	<p class="block_4">J’ai cherché des API de données en temps réel, et j’ai trouvé notamment celles de <i class="calibre3">sunset.org</i>. et d'autres. Avec un petit module JavaScript (<i class="calibre3">SunMoon.js</i>, dispo sur mon GitHub), et grâce à mon serveur Synchro-Link, j’ai pu interroger plusieurs sources publiques.</p>
+	<p class="block_4">À partir d’un point GPS, j’obtiens :</p>
+	<div class="calibre5">
+	<div class="block_6"><span class="bullet_">●&nbsp;</span><span class="calibre6"><b class="calibre7">Altitude</b> (angle de hauteur)</span></div>
+	<div class="block_7"><span class="bullet_">●&nbsp;</span><span class="calibre6"><b class="calibre7">Azimut</b> (angle est-ouest)</span></div>
+</div>
+	<p class="block_4">J’ai placé un point GPS à chaque intersection de longitude et latitude sur ma carte circulaire (Pôle Nord au centre, Pôle Sud sur le bord). Les latitudes sont des cercles concentriques ; les longitudes, des “parts de pizza” correspondant aux fuseaux horaires.</p>
+	<p class="block_4">En tout : <b class="calibre7">288 points GPS</b>, suffisants pour suivre la course du Soleil et de la Lune.</p>
+	<p class="block_4">Toutes les secondes, le serveur envoie des requêtes, récupère les données, et place les astres sur la carte. J’ai réglé le rythme sur mon “heartbeat” Rastafari : environ 60 bpm, soit deux requêtes par seconde.</p>
+	<p class="block_4">Le calculateur retient ensuite les <b class="calibre7">quatre points</b> ayant l’altitude la plus proche de 90° (zénith). À partir de là, on obtient une position approximative mais déjà très précise.</p>
+	<p class="block_"></p><hr class="calibre1" /><p class="calibre2"></p>
+	<h3 id="calibre_link-5" class="block_5">Tests et calibrage</h3>
+	<p class="block_4">J’ai conçu le calculateur pendant la pleine lune du 8&ndash;10 août 2025, moment idéal pour calibrer. Les données réelles (Soleil à 16° N, passant au-dessus du Mexique, Sénégal, sud de l’Inde…) m’ont permis d’ajuster l’angle de hauteur.</p>
+	<p class="block_4">J’ai connecté mon site à des webcams partout dans le monde. Là, j’ai vécu un truc incroyable : la sensation d’être connecté à toute la planète, en temps réel, sans passer par des modèles ou théories &mdash; juste de l’observation pure.</p>
+	<p class="block_"></p><hr class="calibre1" /><p class="calibre2"></p>
+	<h3 id="calibre_link-6" class="block_5">Différence avec mes anciens modules</h3>
+	<p class="block_4">Avant, mes modules simulaient les mouvements des astres selon le modèle plat. C’était intéressant, mais basé sur des calculs prédictifs. Ici, <b class="calibre7">plus de supposition</b> : uniquement du direct, avec données GPS et vérification par webcam.</p>
+	<p class="block_4">Les coordonnées ne mentent pas. Elles ne sont ni “terre plate” ni “terre ronde” : elles sont.</p>
+	<p class="block_"></p><hr class="calibre1" /><p class="calibre2"></p>
+	<h3 id="calibre_link-7" class="block_5">Conclusion</h3>
+	<p class="block_4">Voir ça en direct, c’est un choc, même quand on connaît déjà la théorie. C’est la science du réel : pas d’abstractions, juste des faits observables.</p>
+	<p class="block_4">Ce module, premier calculateur azimutal en temps réel au monde, est gratuit sur mon site. Serveur optimisé : pas de plantage, tout le monde peut se connecter.</p>
+	<p class="block_4">Je sais que ça va faire grincer des dents. Mais aujourd’hui, je souris, assis avec mon plus beau pantalon blanc, un café et la Lune en face de moi.</p>
+	<p class="block_4">J’espère que ce travail inspirera d’autres passionnés à développer et améliorer le module. Pour ma part, j’ai passé des jours entiers collé à l’écran, la carte sur la droite, les webcams sur la gauche. C’est ma plus belle aventure technique, et elle ne fait que commencer.</p>
+	<p class="block_"></p><hr class="calibre1" /><p class="calibre2"></p>
+	<p class="block_4">🚀 <b class="calibre7">Introducing Clockwise by BigTree<br class="calibre4" /></b> <i class="calibre3">The world’s first real-time azimuthal Sun &amp; Moon tracker</i></p>
+	<p class="block_4">Forget theory. Forget guesswork. Clockwise runs on pure, observable reality &mdash; live GPS data + worldwide webcams.<br class="calibre4" /> From my custom-built Synchro-Link server, 288 GPS points track the Sun and Moon in real time, using the classic azimuthal projection (the same geometry pilots and sailors know).</p>
+	<p class="block_4">🌍 Watch the planets move.<br class="calibre4" /> 📡 Check the data yourself.<br class="calibre4" /> 🎯 No models, no politics &mdash; just the science of what’s really there.</p>
+	<p class="block_4">Free. Live. Accessible to everyone.<br class="calibre4" /> <b class="calibre7">This is the science of the real.</b></p>
+	<p class="block_4">▶ See it in action now: [<a href="http://www.bigtreeconnection.com" class="text_">www.bigtreeconnection.com</a>]</p>
+	<p class="block_4"></p>
+	<p class="block_4"></p>
+	<p class="block_4"></p><hr class="calibre1" /><p class="calibre2"></p>
+	<p class="block_4"></p>
+
+</div>
+
+</body></html>
