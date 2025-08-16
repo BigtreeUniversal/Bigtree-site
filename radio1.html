@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ma Musique – Lancement & Radio synchronisée</title>
+  <meta name="description" content="Lecteur audio prêt CDN avec mode radio synchronisé à l'horloge UTC et compte à rebours jusqu'au lancement. Démarrage uniquement au clic utilisateur (pas d'autoplay ni muet)." />
+  <style>
+    :root{
+      --bg-url: url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1920&auto=format&fit=crop');
+      --text:#e9eef8; --muted:#a7b2c9; --accent:#7cc0ff; --ring:#2b364e; --ok:#9ef0a8; --warn:#ffd166;
+      --glass: rgba(255,255,255,0.06); --glass-2: rgba(255,255,255,0.1);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:#0b0d12;color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Inter,Roboto,"Helvetica Neue",Arial}.bg{position:fixed;inset:0;z-index:-1}
+.bg::before{content:"";position:absolute;inset:0;background-image:var(--bg-url);background-size:cover;background-position:center;filter:brightness(.6) saturate(1.05)}
+.bg::after{content:"";position:absolute;inset:0;background:radial-gradient(900px 600px at 8% -10%, rgba(124,192,255,.25), transparent 40%),radial-gradient(900px 600px at 92% 110%, rgba(158,240,168,.18), transparent 40%)}
+
+.wrap{max-width:1000px;margin:24px auto 40px;padding:0 16px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 16px}
+.back{appearance:none;border:1px solid var(--ring);background:linear-gradient(180deg,#19233a,#0f1526);color:var(--text);padding:10px 14px;border-radius:12px;text-decoration:none;font-weight:700}
+.back:hover{border-color:#3b4a6a}
+h1{margin:0;font-size:clamp(22px,3.2vw,34px)}
+.badge{font-size:12px;background:var(--accent);color:#07243a;padding:4px 10px;border-radius:999px;font-weight:800}
+
+.info{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:6px 0 16px}
+.timer{display:inline-flex;gap:8px;align-items:baseline;border:1px solid var(--ring);background:linear-gradient(180deg, rgba(15,20,34,.65), rgba(11,17,28,.65));border-radius:12px;padding:8px 10px}
+.timer strong{font-variant-numeric:tabular-nums}
+.status{font-size:13px;color:var(--muted)}
+
+.card{display:grid;grid-template-columns:220px 1fr;gap:20px;background:linear-gradient(180deg, rgba(15,20,34,.65), rgba(11,17,28,.65));border:1px solid var(--ring);border-radius:20px;padding:18px;backdrop-filter:blur(14px);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+@media(max-width:760px){.card{grid-template-columns:1fr}}
+
+.cover{position:relative;border-radius:16px;overflow:hidden;background:#0a0f1a;border:1px solid var(--glass-2)}
+.cover img{display:block;width:100%;height:auto}
+
+.meta{display:flex;flex-direction:column;gap:8px}
+.title{font-size:20px;font-weight:800}
+.artist{color:var(--muted)}
+
+.controls{display:flex;align-items:center;gap:10px;margin-top:4px}
+button{appearance:none;border:1px solid var(--ring);background:#131a2a;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700}
+button:hover{border-color:#3b4a6a}
+button.primary{background:linear-gradient(180deg,#2a8fff,#1667f5);color:#fff;border-color:rgba(255,255,255,.25)}
+button[disabled]{opacity:.6;cursor:not-allowed}
+
+.progress{height:8px;background:#0f1422;border:1px solid var(--ring);border-radius:999px;overflow:hidden;position:relative;margin:8px 0}
+.progress>div{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent)}
+.row{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.time{font-variant-numeric:tabular-nums;color:var(--muted)}
+
+.playlist{margin-top:14px;border:1px solid var(--ring);border-radius:14px;overflow:hidden}
+.playlist h2{margin:0;padding:8px 12px;font-size:14px;color:var(--muted);background:linear-gradient(180deg,#101828,#0d1320)}
+.tracks{max-height:260px;overflow:auto}
+.track{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--ring);cursor:pointer}
+.track:first-child{border-top:0}
+.track:hover{background:#0f1422}
+.track .t-title{font-weight:700}
+.track .t-artist{color:var(--muted);font-size:13px}
+.num{font-size:11px;color:#0b0d12;background:var(--accent);padding:2px 8px;border-radius:999px}
+
+footer{margin:16px 4px;color:var(--muted);font-size:13px}
+
+  </style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="wrap">
+    <header>
+      <a class="back" id="back" href="#">← Retour au menu</a>
+      <h1>Ma Musique</h1>
+      <span class="badge">lancement programmé</span>
+    </header><div class="info">
+  <div class="timer" id="countdown" aria-live="polite">Décompte…</div>
+  <div class="status" id="status"></div>
+</div>
+
+<section class="card" aria-label="Lecteur audio (démarre au clic, synchronisé à l'horloge)">
+  <div class="cover">
+    <img id="cover" alt="Cover" src="https://picsum.photos/seed/cover-soon/600">
+  </div>
+
+  <div>
+    <div class="meta">
+      <div class="title" id="title">Titre</div>
+      <div class="artist" id="artist">Artiste</div>
+    </div>
+    <div class="controls">
+      <button id="play" class="primary">▶️ Play</button>
+      <button id="prev" aria-label="Précédent">⏮</button>
+      <button id="next" aria-label="Suivant">⏭</button>
+      <span style="flex:1"></span>
+      <label>Volume <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" /></label>
+    </div>
+    <div class="progress" id="progress" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="bar"></div></div>
+    <div class="row"><div class="time" id="cur">0:00</div><div class="time" id="dur">0:00</div></div>
+
+    <div class="playlist" aria-label="Playlist">
+      <h2>Playlist (remplace par tes URLs + durées pour la synchro)</h2>
+      <div class="tracks" id="tracks"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Le lecteur **ne démarre que lorsque l'utilisateur clique sur Play** (pas d'autoplay, pas de muet). La position de lecture est calculée par rapport à l'horloge UTC pour donner un effet "radio" commun à tous. Renseigne les <code>duration</code> de chaque piste pour une synchro précise.</p>
+</footer>
+
+  </div><audio id="audio" preload="metadata" crossorigin="anonymous"></audio>
+
+  <script>
+    // ======== CONFIG ========
+    const BACK_URL = '/';                // lien retour
+    const USE_CLOCK_SYNC = true;         // active la synchro à l'horloge
+    const DAY_OFFSET_SECONDS = 0;        // décalage du cycle (ex: démarrer à 08:00 UTC -> 8*3600)
+    const LAUNCH_UTC = '2025-09-01T18:00:00Z'; // 🔧 date/heure de lancement en UTC
+
+    // Playlist : ajoute TA musique (URLs absolues CDN) + duration en secondes pour synchro
+    const LIB = [
+      {title:'Ex. Track 1', artist:'Ton Nom', cover:'https://picsum.photos/seed/track1/600', url:'https://cdn.example.com/audio/track1.mp3', type:'file', duration:210},
+      {title:'Ex. Track 2', artist:'Ton Nom', cover:'https://picsum.photos/seed/track2/600', url:'https://cdn.example.com/audio/track2.mp3', type:'file', duration:198},
+      // {title:'Radio Live', artist:'Ton Label', cover:'https://picsum.photos/seed/live/600', url:'https://cdn.example.com/live/stream.m3u8', type:'hls'}
+    ];
+
+    // ======== CODE LECTEUR ========
+    const back = document.getElementById('back'); back.href = BACK_URL;
+    const audio = document.getElementById('audio');
+    const title = document.getElementById('title');
+    const artist = document.getElementById('artist');
+    const cover = document.getElementById('cover');
+    const tracksEl = document.getElementById('tracks');
+    const playBtn = document.getElementById('play');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const vol = document.getElementById('volume');
+    const progress = document.getElementById('progress');
+    const bar = document.getElementById('bar');
+    const cur = document.getElementById('cur');
+    const dur = document.getElementById('dur');
+    const countdownEl = document.getElementById('countdown');
+    const statusEl = document.getElementById('status');
+
+    let idx = 0; let hls = null; let started = false;
+
+    function fmt(s){ if(!isFinite(s)) return '0:00'; const m=Math.floor(s/60); const sc=Math.floor(s%60); return `${m}:${String(sc).padStart(2,'0')}` }
+
+    function load(i, startAt=0){
+      if(!LIB.length){ title.textContent='Aucune piste'; artist.textContent='Ajoute tes URLs'; cover.src='https://picsum.photos/seed/empty/600'; audio.removeAttribute('src'); return; }
+      idx = (i+LIB.length)%LIB.length; const t = LIB[idx];
+      title.textContent = t.title; artist.textContent = t.artist; cover.src = t.cover;
+      if(hls){ hls.destroy(); hls=null }
+      if(t.type==='hls'){
+        if(window.Hls && Hls.isSupported()){
+          hls = new Hls(); hls.loadSource(t.url); hls.attachMedia(audio);
+        }else if(audio.canPlayType('application/vnd.apple.mpegurl')){ audio.src=t.url; }
+        else{ alert('HLS non supporté'); }
+      }else{ audio.src = t.url; }
+      audio.load();
+      audio.addEventListener('loadedmetadata',()=>{ if(startAt>0 && audio.seekable.length) audio.currentTime = Math.min(startAt, audio.duration||startAt); }, {once:true});
+      updatePlaylistActive();
+    }
+
+    function play(){ audio.play().then(()=>{ playBtn.textContent='⏸ Pause'; }).catch(()=>{}); started=true; }
+    function pause(){ audio.pause(); playBtn.textContent='▶️ Play'; }
+    function toggle(){ audio.paused?play():pause(); }
+    function next(){ load(idx+1); if(started) play(); }
+    function prev(){ load(idx-1); if(started) play(); }
+    function updateTimes(){ cur.textContent = fmt(audio.currentTime); dur.textContent = fmt(audio.duration); const p=(audio.currentTime||0)/(audio.duration||1)*100; bar.style.width=p+'%'; progress.setAttribute('aria-valuenow',Math.round(p)); }
+    function seek(ev){ const r=progress.getBoundingClientRect(); const x=ev.clientX-r.left; const p=Math.max(0,Math.min(1,x/r.width)); audio.currentTime=(audio.duration||0)*p; }
+
+    function buildList(){
+      tracksEl.innerHTML='';
+      LIB.forEach((t,i)=>{
+        const el=document.createElement('div'); el.className='track';
+        el.innerHTML=`<span class="num">${i+1}</span><div><div class="t-title">${t.title}</div><div class="t-artist">${t.artist}</div></div><button aria-label="Lire">▶️</button>`;
+        el.addEventListener('click',()=>{ load(i); if(started) play(); });
+        tracksEl.appendChild(el);
+      });
+    }
+    function updatePlaylistActive(){[...document.querySelectorAll('.track')].forEach((el,i)=>{ el.style.background=(i===idx)?'#0f1422':'transparent'; });}
+
+    // ======== Synchro à l'horloge ========
+    function computeSyncedPosition(){
+      const total = LIB.reduce((a,t)=>a+(t.duration||0),0);
+      if(!USE_CLOCK_SYNC || total===0) return {index:0, offset:0};
+      const nowUTC = Math.floor(Date.now()/1000);
+      const pos = ((nowUTC - DAY_OFFSET_SECONDS)%total + total)%total;
+      let acc=0; let index=0; let offset=0;
+      for(let i=0;i<LIB.length;i++){ const d=LIB[i].duration||0; if(pos<acc+d){ index=i; offset=pos-acc; break; } acc+=d; }
+      return {index, offset};
+    }
+
+    function startSyncedPlayback(){
+      const {index, offset} = computeSyncedPosition();
+      load(index, offset);
+      play();
+    }
+
+    // ======== Compte à rebours ========
+    const launchTs = Date.parse(LAUNCH_UTC);
+    function updateCountdown(){
+      const now = Date.now();
+      const diff = Math.max(0, launchTs - now);
+      const s = Math.floor(diff/1000);
+      const d = Math.floor(s/86400);
+      const h = Math.floor((s%86400)/3600);
+      const m = Math.floor((s%3600)/60);
+      const sc = s%60;
+      countdownEl.innerHTML = diff>0 ? `Lancement dans <strong>${d}j ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(sc).padStart(2,'0')}s</strong> (UTC)` : `<strong>Radio ouverte</strong> ✅`;
+      if(diff>0){
+        playBtn.disabled = true; statusEl.textContent = 'Le lecteur sera disponible à l\'heure de lancement (aucun autoplay).';
+      } else {
+        playBtn.disabled = false; statusEl.textContent = 'Cliquez sur Play pour démarrer. La position est calée sur l\'horloge UTC.';
+      }
+    }
+
+    // ======== Events ========
+    playBtn.addEventListener('click',()=>{
+      if(Date.now() < launchTs){ return; } // sécurité : pas avant l'heure
+      if(USE_CLOCK_SYNC){ startSyncedPlayback(); }
+      else { load(0); play(); }
+    });
+    nextBtn.addEventListener('click',next); prevBtn.addEventListener('click',prev);
+    vol.addEventListener('input',()=>{ audio.volume=parseFloat(vol.value) });
+    progress.addEventListener('click',seek);
+    audio.addEventListener('timeupdate',updateTimes);
+    audio.addEventListener('ended',next);
+    audio.addEventListener('loadedmetadata',updateTimes);
+
+    // ======== Init ========
+    buildList(); load(0); audio.volume=parseFloat(vol.value); // prêt mais ne joue pas
+    updateCountdown(); setInterval(updateCountdown,1000);
+
+    // Accessibilité clavier
+    document.addEventListener('keydown',e=>{ if(e.code==='Space'){ e.preventDefault(); if(!playBtn.disabled) (audio.paused? (USE_CLOCK_SYNC && !started ? startSyncedPlayback() : play()) : pause()); } if(e.code==='ArrowRight'){ next(); } if(e.code==='ArrowLeft'){ prev(); } })
+  </script>  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script></body>
+</html>

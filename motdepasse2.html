@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>🌟 Portail Écriture Abonné | BigTree</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background-color: #222;
+      color: #fff;
+      padding: 1rem 0;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: #ccc;
+    }
+    .container {
+      padding: 2rem;
+    }
+    .button {
+      display: block;
+      background-color: #333;
+      color: #fff;
+      padding: 1rem;
+      margin: 1rem auto;
+      text-decoration: none;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      transition: background-color 0.3s ease;
+    }
+    .button:hover {
+      background-color: #555;
+    }
+    .button::before {
+      content: "📖 ";
+    }
+    footer {
+      margin-top: 3rem;
+      color: #888;
+    }
+    #unlock-section {
+      margin-top: 2rem;
+    }
+    input[type="password"], button {
+      padding: 0.8rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background-color: orange;
+      color: #000;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none;
+    }
+    #error {
+      color: red;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Portail Écriture</h1>
+    <span class="subtitle">🌟 Abonné – Accès complet aux livres</span>
+  </header>
+
+  <div id="unlock-section">
+    <p>Entrez le mot de passe pour accéder au portail abonné :</p>
+    <input type="password" id="password" placeholder="Mot de passe">
+    <br>
+    <button onclick="checkPassword()">Valider</button>
+    <p id="error">Mot de passe incorrect.</p>
+  </div>
+
+  <div id="content" class="container hidden">
+    <a class="button" href="livres/livre1-complet.pdf" target="_blank">L’Arbre de vie (complet)</a>
+    <a class="button" href="livres/poesie-complet.pdf" target="_blank">Poésie (complet)</a>
+    <a class="button" href="livres/sciences-complet.pdf" target="_blank">Sciences (complet)</a>
+    <a class="button" href="newsletter.html">Newsletter</a>
+    <a class="button" href="tous-les-livres.html">Tous les livres</a>
+  </div>
+
+  <footer>
+    BigTree Universal © 2025
+  </footer>
+
+  <script>
+    function checkPassword() {
+      const input = document.getElementById('password').value;
+      const error = document.getElementById('error');
+      const content = document.getElementById('content');
+      const unlock = document.getElementById('unlock-section');
+
+      if (input === "ARBREDEVIE2025") {
+        content.classList.remove('hidden');
+        unlock.classList.add('hidden');
+        error.style.display = "none";
+      } else {
+        error.style.display = "block";
+      }
+    }
+  </script>
+</body>
+</html>
