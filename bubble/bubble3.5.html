@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Bubble Earth — Image qui s’affiche + sliders qui agissent (MapLibre stable)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet"/>
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<style>
+  html,body{margin:0;height:100%;width:100%;font:500 14px/1.35 system-ui,Segoe UI,Roboto}
+  header{position:fixed;inset:0 0 auto 0;display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:8px 10px;background:#0b1020;color:#e8eefc;z-index:10}
+  header .group{display:flex;align-items:center;gap:8px}
+  input[type="text"],select,button,input[type="range"],input[type="file"]{background:#0e1630;color:#e8eefc;border:1px solid #24305a;border-radius:8px;padding:6px 8px}
+  input[type="text"]{width:360px}
+  #map{position:absolute;inset:104px 0 0 0}
+  .badge{position:fixed;right:10px;bottom:10px;background:#0e1630cc;border:1px solid #24305a;border-radius:8px;color:#e8eefc;padding:6px 10px;z-index:20;font-size:12px}
+  .ok{color:#8ef08e}.err{color:#ff7d7d}.warn{color:#ffd37d}
+</style>
+</head>
+<body>
+<header>
+  <div class="group">🌍 <strong>Bubble Earth</strong></div>
+
+  <div class="group">
+    <label>URL image
+      <input id="imgUrl" type="text" placeholder="ex: assets/azimuth-map.jpg ou https://…" />
+    </label>
+    <input id="fileInput" type="file" accept="image/*"/>
+    <button id="loadBtn">Charger</button>
+    <span id="status" class="warn">Aucune image</span>
+  </div>
+
+  <div class="group">
+    <label>Imagerie
+      <select id="imagerySel">
+        <option value="esri" selected>ESRI</option>
+        <option value="osm">OSM</option>
+      </select>
+    </label>
+    <button id="fitBtn">Recadrer</button>
+    <label><input id="imageOnly" type="checkbox"> Image seule</label>
+  </div>
+
+  <div class="group">
+    <label>Opacité
+      <input id="op" type="range" min="0" max="100" value="70"><span id="opV">70%</span>
+    </label>
+    <label>Lumi
+      <input id="br" type="range" min="0" max="200" value="100"><span id="brV">100%</span>
+    </label>
+    <label>Contraste
+      <input id="ct" type="range" min="50" max="150" value="100"><span id="ctV">100%</span>
+    </label>
+    <label>Seuil (km)
+      <input id="th" type="range" min="200" max="3000" value="1000" step="50"><span id="thV">1000</span>
+    </label>
+    <label>Fondu (km)
+      <input id="bl" type="range" min="50" max="1000" value="300" step="25"><span id="blV">300</span>
+    </label>
+  </div>
+</header>
+
+<div id="map"></div>
+<div class="badge" id="badge">—</div>
+
+<script>
+/* ===================== MapLibre: style de base, JAMAIS reconstruit ===================== */
+const providers={
+  esri:{tiles:['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Tiles © Esri'},
+  osm:{tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OpenStreetMap'}
+};
+function baseStyle(){
+  return {
+    version:8,
+    glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+    sources:{
+      bgsolid:{ type:'raster', tiles:['data:image/png;base64,iVBORw0KGgo='], tileSize:256 }, /* placeholder */
+      im:{ type:'raster', tiles: providers.esri.tiles, tileSize: providers.esri.tileSize, attribution: providers.esri.attribution, minzoom:0, maxzoom:22 }
+      // 'az' sera ajouté dynamiquement
+    },
+    layers:[
+      { id:'bg', type:'background', paint:{'background-color':'#0b1020'} },
+      { id:'im', type:'raster', source:'im', paint:{'raster-opacity':1} }
+      // { id:'az' } sera ajoutée au-dessus de 'im'
+    ]
+  };
+}
+const map=new maplibregl.Map({container:'map', style:baseStyle(), center:[0,25], zoom:2, maxZoom:18});
+map.addControl(new maplibregl.NavigationControl({visualizePitch:true}), 'top-left');
+map.addControl(new maplibregl.ScaleControl({maxWidth:120, unit:'metric'}));
+map.addControl(new maplibregl.AttributionControl({compact:true}));
+
+/* ===================== Utilitaires ===================== */
+const statusEl = document.getElementById('status');
+const imagerySel = document.getElementById('imagerySel');
+const imgUrl = document.getElementById('imgUrl');
+const fileInput = document.getElementById('fileInput');
+const loadBtn = document.getElementById('loadBtn');
+const op = document.getElementById('op'), opV = document.getElementById('opV');
+const br = document.getElementById('br'), brV = document.getElementById('brV');
+const ct = document.getElementById('ct'), ctV = document.getElementById('ctV');
+const th = document.getElementById('th'), thV = document.getElementById('thV');
+const bl = document.getElementById('bl'), blV = document.getElementById('blV');
+const imageOnly = document.getElementById('imageOnly');
+const fitBtn = document.getElementById('fitBtn');
+const badge = document.getElementById('badge');
+
+const EARTH_R=6378137, FOV=0.6435;
+const toRad = d=>d*Math.PI/180;
+function zoomForAltKm(km, lat=0){
+  const h = map.getCanvas().height||800;
+  const visible = km*1000 * 2 * Math.tan(FOV/2);
+  const mpp = visible / h;
+  return Math.log2(Math.cos(toRad(lat)) * 2*Math.PI*EARTH_R / (256*mpp));
+}
+function setImagery(key){
+  const p = providers[key] || providers.esri;
+  const src = map.getSource('im');
+  if(src && src.setTiles){ src.setTiles(p.tiles); }
+  if(map.getStyle()?.sources?.im){ // update attribution if needed
+    // MapLibre n’a pas d’API publique pour attribution dynamique; on s’en passe ici.
+  }
+}
+
+/* ==== Ajout couche image ('az'), en DataURL pour éviter CORS/noir ==== */
+let azLoaded=false;
+async function loadImageToDataURL(url){
+  // charge l’image, puis la dessine sur un canvas pour obtenir un dataURL (PNG)
+  const img = await new Promise((resolve, reject)=>{
+    const im = new Image();
+    im.crossOrigin = 'anonymous';
+    im.onload = ()=> resolve(im);
+    im.onerror = ()=> reject(new Error('load-error'));
+    im.src = url + (url.includes('?')?'&':'?') + 'cb=' + Date.now();
+  });
+  const size = Math.max(img.naturalWidth, img.naturalHeight);
+  const can = document.createElement('canvas'); can.width = can.height = size;
+  const ctx = can.getContext('2d');
+  const scale = Math.min(size / img.naturalWidth, size / img.naturalHeight);
+  const w = img.naturalWidth * scale, h = img.naturalHeight * scale;
+  ctx.drawImage(img, (size - w)/2, (size - h)/2, w, h);
+  return can.toDataURL('image/png');
+}
+async function ensureAz(url){
+  statusEl.textContent = 'Chargement…'; statusEl.className='';
+  try{
+    const dataUrl = await loadImageToDataURL(url);
+    const coords = [[-180,90],[180,90],[180,-90],[-180,-90]];
+    if(!map.getSource('az')){
+      map.addSource('az', { type:'image', url:dataUrl, coordinates:coords });
+      map.addLayer({
+        id:'az', type:'raster', source:'az',
+        paint:{
+          'raster-opacity': Number(op.value)/100,
+          'raster-brightness-min': Number(br.value)/100,
+          'raster-brightness-max': 1,
+          'raster-contrast': (Number(ct.value)-100)/100
+        }
+      }, 'im');
+    } else {
+      map.getSource('az').updateImage({url:dataUrl, coordinates:coords});
+      map.setLayoutProperty('az','visibility','visible');
+    }
+    azLoaded = true;
+    statusEl.innerHTML = 'Image : <span class="ok">chargée ✅</span>';
+    applyBlend(); // applique le fondu initial
+  }catch(e){
+    azLoaded = false;
+    statusEl.innerHTML = 'Image : <span class="err">échec ❌</span> (URL/CORS/fichier)';
+    if(map.getLayer('az')) map.setLayoutProperty('az','visibility','none');
+  }
+}
+
+/* ===================== Sliders & actions (agissent DIRECTEMENT) ===================== */
+function updatePaint(){
+  if(!map.getLayer('az')) return;
+  map.setPaintProperty('az', 'raster-opacity', Number(op.value)/100);
+  map.setPaintProperty('az', 'raster-brightness-min', Number(br.value)/100);
+  map.setPaintProperty('az', 'raster-contrast', (Number(ct.value)-100)/100);
+  opV.textContent = op.value + '%';
+  brV.textContent = br.value + '%';
+  ctV.textContent = ct.value + '%';
+}
+function applyBlend(){
+  thV.textContent = th.value; blV.textContent = bl.value;
+  const zMid = zoomForAltKm(Number(th.value), 0);
+  const zHalf = zoomForAltKm(Number(th.value) - Number(bl.value)/2, 0);
+  const zPlus = zoomForAltKm(Number(th.value) + Number(bl.value)/2, 0);
+
+  if(!map.getLayer('az')){
+    map.setPaintProperty('im', 'raster-opacity', 1);
+    return;
+  }
+  if(!azLoaded){
+    map.setLayoutProperty('az','visibility','none');
+    map.setPaintProperty('im', 'raster-opacity', 1);
+    return;
+  }
+  map.setLayoutProperty('az','visibility','visible');
+
+  const base = Number(op.value)/100;
+  map.setPaintProperty('az', 'raster-opacity',
+    ['interpolate',['linear'],['zoom'], zHalf, base, zMid, base*0.5, zPlus, 0 ]
+  );
+  map.setPaintProperty('im', 'raster-opacity',
+    ['interpolate',['linear'],['zoom'], zHalf, 0, zMid, 0.5, zPlus, 1 ]
+  );
+}
+function toggleImageOnly(){
+  if(!map.getLayer('az')) return;
+  if(imageOnly.checked){
+    map.setLayoutProperty('az','visibility','visible');
+    map.setPaintProperty('im','raster-opacity', 0);
+    // en mode “image seule”, on applique la valeur d’opacité sans fondu
+    map.setPaintProperty('az','raster-opacity', Number(op.value)/100);
+  } else {
+    // on rétablit l’opacité de l’imagerie et le fondu
+    map.setPaintProperty('im','raster-opacity', 1);
+    applyBlend();
+  }
+}
+function fitView(){
+  // recadre large (≈ 3000 km) pour être SÛR de voir l’image
+  map.easeTo({center:[0,0], zoom: zoomForAltKm(3000,0), bearing:0, pitch:0, duration:600});
+}
+
+/* ===================== Événements ===================== */
+map.on('load', ()=>{
+  // imagerie par défaut = ESRI
+  setImagery('esri');
+});
+
+imagerySel.addEventListener('change', ()=> setImagery(imagerySel.value));
+
+loadBtn.addEventListener('click', ()=>{
+  const url = imgUrl.value.trim();
+  if(!url){ statusEl.innerHTML='Image : <span class="err">URL vide</span>'; return; }
+  ensureAz(url);
+});
+
+fileInput.addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return;
+  const url = URL.createObjectURL(f);
+  imgUrl.value = url;
+  ensureAz(url);
+});
+
+[op, br, ct].forEach(el=> el.addEventListener('input', ()=>{
+  updatePaint();
+  if(!imageOnly.checked) applyBlend();
+}));
+[th, bl].forEach(el=> el.addEventListener('input', ()=> { if(!imageOnly.checked) applyBlend(); }));
+imageOnly.addEventListener('change', toggleImageOnly);
+fitBtn.addEventListener('click', fitView);
+
+/* ===================== Badge debug (zoom/alt) ===================== */
+setInterval(()=>{
+  const c=map.getCenter(); const h=map.getCanvas().height||800;
+  const mpp=Math.cos(toRad(c.lat))*2*Math.PI*EARTH_R/(256*Math.pow(2,map.getZoom()));
+  const visible=mpp*h; const alt=visible/(2*Math.tan(FOV/2))/1000;
+  badge.textContent=`zoom ${map.getZoom().toFixed(2)} · alt≈ ${alt.toFixed(0)} km`;
+}, 500);
+
+/* ===================== Valeurs par défaut pratiques ===================== */
+imgUrl.value = 'assets/azimuth-map.jpg'; // mets ton chemin ici si tu veux
+updatePaint(); // initialiser les affichages de %.
+</script>
+</body>
+</html>
