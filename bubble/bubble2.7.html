@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Bubble Earth — Azimutale 1600px + carte image</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet"/>
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<style>
+  :root{--bg:#070c19;--txt:#e8eefc;--accent:#6ee7ff}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--txt);font:500 16px/1.4 system-ui,Segoe UI,Roboto}
+  header{position:fixed;inset:0 0 auto 0;height:60px;display:flex;gap:10px;align-items:center;padding:8px 14px;background:linear-gradient(to bottom,rgba(7,12,25,.92),rgba(7,12,25,.4));z-index:40;backdrop-filter:blur(8px)}
+  .brand{font-weight:800}
+  .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+  input,button,select{color:var(--txt);background:#121a32;border:1px solid #28345f;border-radius:10px;padding:6px 10px}
+  button{cursor:pointer}
+  main{position:absolute;inset:60px 0 0 0;display:grid;place-items:center}
+  /* --- Disque azimutal --- */
+  .stage{position:relative;width:1600px;height:1600px;transform-origin:top left}
+  .fit{transform:scale(var(--s,1))}
+  .disc{position:absolute;inset:0;border-radius:50%;overflow:hidden}
+  canvas#grid{position:absolute;inset:0}
+  .bubble{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:
+    radial-gradient(120% 120% at 30% 35%, rgba(255,255,255,.28), rgba(255,255,255,0) 45%),
+    radial-gradient(35% 30% at 70% 75%, rgba(140, 200, 255, .25), transparent 70%),
+    radial-gradient(circle at 50% 50%, rgba(100,140,255,.12), rgba(50,80,200,.08) 55%, rgba(0,0,0,.08) 100%);
+    border:1.5px solid rgba(150,200,255,.35);box-shadow:inset 0 0 40px rgba(140,200,255,.15), inset 0 0 140px rgba(50,90,200,.10), 0 20px 60px rgba(0,0,0,.45)}
+  .coords{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:rgba(9,12,25,.7);border:1px solid #22305d;border-radius:10px;padding:6px 10px;font-size:12px}
+  .marker{position:absolute;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--accent);box-shadow:0 0 0 4px rgba(110,231,255,.15);transform:translate(-50%,-50%)}
+  /* --- Carte officielle --- */
+  #mapWrap{position:fixed;top:60px;left:0;right:0;bottom:0;opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:100}
+  #mapWrap.active{opacity:1;pointer-events:auto}
+  #map{position:absolute;inset:0}
+  .badge{position:fixed;left:12px;bottom:12px;padding:6px 10px;border-radius:8px;background:#0e162fcb;border:1px solid #22305d;font-size:12px;z-index:120}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Bubble Earth — azimutale 1600px</div>
+  <div class="controls">
+    <input type="file" id="fileInput" accept="image/*">
+    <label style="font-size:13px">Lat <input id="latIn" type="number" step="0.0001" style="width:90px"></label>
+    <label style="font-size:13px">Lon <input id="lonIn" type="number" step="0.0001" style="width:90px"></label>
+    <button id="gotoBtn">Placer</button>
+    <select id="officialSel"><option value="osm">OSM</option><option value="esri" selected>ESRI</option></select>
+  </div>
+</header>
+
+<main>
+  <!-- Disque azimutal -->
+  <div id="stage" class="stage fit">
+    <div class="disc" id="disc">
+      <img id="azMap" src="assets/flat-earth-aeqd.jpg" alt="Carte azimutale"
+           style="position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover"/>
+      <canvas id="grid" width="1600" height="1600"></canvas>
+      <div class="bubble"></div>
+      <div id="marker" class="marker" style="display:none"></div>
+      <div id="coords" class="coords">—</div>
+    </div>
+  </div>
+  <!-- Carte officielle -->
+  <div id="mapWrap">
+    <div id="map"></div>
+    <div id="altBadge" class="badge" style="display:none">—</div>
+  </div>
+</main>
+
+<script>
+const DISC_SIZE=1600,RADIUS=800,CENTER={x:800,y:800};
+const ALT_THRESHOLD_KM=1000,EARTH_RADIUS_M=6378137,FOV_RAD=0.6435;
+function toRad(d){return d*Math.PI/180} function toDeg(r){return r*180/Math.PI}
+function wrap180(d){return ((d+180)%360+360)%360-180}
+function gpsToXY(lat,lon){const φ=toRad(lat),λ=toRad(lon);const c=Math.PI/2-φ;const k=RADIUS/(Math.PI/2);const ρ=k*c;return{x:CENTER.x+ρ*Math.sin(λ),y:CENTER.y-ρ*Math.cos(λ)}}
+function xyToGPS(x,y){const dx=x-CENTER.x,dy=y-CENTER.y;const ρ=Math.hypot(dx,dy);if(ρ>RADIUS)return null;const k=RADIUS/(Math.PI/2);const c=ρ/k;const φ=Math.PI/2-c;const λ=Math.atan2(dx,-dy);return{lat:toDeg(φ),lon:wrap180(toDeg(λ))}}
+
+const grid=document.getElementById('grid'),ctx=grid.getContext('2d');
+function drawGrid(){const cx=CENTER.x,cy=CENTER.y,R=RADIUS;
+  ctx.clearRect(0,0,DISC_SIZE,DISC_SIZE);
+  ctx.strokeStyle='rgba(200,230,255,.35)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(cx,cy,R-1,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='rgba(140,180,255,.28)';ctx.lineWidth=0.8;
+  for(let lat=80;lat>=10;lat-=10){const ρ=(Math.PI/2-toRad(lat))*R/(Math.PI/2);ctx.beginPath();ctx.arc(cx,cy,ρ,0,Math.PI*2);ctx.stroke();}
+  for(let lon=0;lon<360;lon+=15){const ang=toRad(lon);const x=cx+(R-1)*Math.sin(ang);const y=cy-(R-1)*Math.cos(ang);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();}
+}
+drawGrid();
+
+const disc=document.getElementById('disc'),coords=document.getElementById('coords'),marker=document.getElementById('marker');
+function clientToDisc(ev){const rect=disc.getBoundingClientRect();return{x:(ev.clientX-rect.left)/rect.width*DISC_SIZE,y:(ev.clientY-rect.top)/rect.height*DISC_SIZE};}
+disc.addEventListener('mousemove',ev=>{if(mapWrap.classList.contains('active'))return;const p=clientToDisc(ev),gps=xyToGPS(p.x,p.y);coords.textContent=gps?`lon ${gps.lon.toFixed(2)}°, lat ${gps.lat.toFixed(2)}°`:'—';});
+disc.addEventListener('click',ev=>{if(mapWrap.classList.contains('active'))return;const p=clientToDisc(ev),gps=xyToGPS(p.x,p.y);if(!gps)return;placeMarker(p.x,p.y);startTransition(gps.lat,gps.lon);});
+function placeMarker(x,y){marker.style.display='block';marker.style.left=(x/DISC_SIZE*100)+'%';marker.style.top=(y/DISC_SIZE*100)+'%';}
+
+document.getElementById('fileInput').addEventListener('change',e=>{
+  const f=e.target.files[0];if(f){document.getElementById('azMap').src=URL.createObjectURL(f);}
+});
+
+const mapWrap=document.getElementById('mapWrap'),altBadge=document.getElementById('altBadge'),officialSel=document.getElementById('officialSel');
+const providers={osm:{tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OSM'},esri:{tiles:['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'© Esri'}}
+function styleFrom(key){const p=providers[key]||providers.osm;return{version:8,sources:{r:{type:'raster',tiles:p.tiles,tileSize:p.tileSize,attribution:p.attribution}},layers:[{id:'bg',type:'background',paint:{'background-color':'#0b1020'}},{id:'r',type:'raster',source:'r'}]}}
+const map=new maplibregl.Map({container:'map',style:styleFrom(officialSel.value),center:[0,0],zoom:2});
+map.addControl(new maplibregl.NavigationControl(),'top-left');map.addControl(new maplibregl.ScaleControl({maxWidth:120,unit:'metric'}));
+officialSel.addEventListener('change',()=>map.setStyle(styleFrom(officialSel.value)));
+window.addEventListener('resize',()=>map.resize());
+
+function altitudeKm(z,lat){const h=map.getCanvas().height||800;const mpp=Math.cos(toRad(lat))*2*Math.PI*EARTH_RADIUS_M/(256*Math.pow(2,z));return(mpp*h/(2*Math.tan(FOV_RAD/2)))/1000;}
+function zoomForAltKm(aKm,lat){const h=map.getCanvas().height||800;const visible=aKm*1000*2*Math.tan(FOV_RAD/2);const mpp=visible/h;return Math.log2(Math.cos(toRad(lat))*2*Math.PI*EARTH_RADIUS_M/(256*mpp));}
+
+function startTransition(lat,lon){const z1000=zoomForAltKm(ALT_THRESHOLD_KM,lat);map.jumpTo({center:[lon,lat],zoom:z1000});mapWrap.classList.add('active');requestAnimationFrame(()=>map.resize());map.flyTo({center:[lon,lat],zoom:15.5,speed:0.9,curve:1.6,bearing:35,pitch:40,essential:true});}
+setInterval(()=>{if(!mapWrap.classList.contains('active'))return;const c=map.getCenter();const a=altitudeKm(map.getZoom(),c.lat);altBadge.style.display='block';altBadge.textContent=`alt ≈ ${a.toFixed(0)} km`;if(a>ALT_THRESHOLD_KM+50)mapWrap.classList.remove('active');},500);
+</script>
+</body>
+</html>

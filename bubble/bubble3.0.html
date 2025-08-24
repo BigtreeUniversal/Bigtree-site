@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Bubble Earth — 100% MapLibre (azimutale + fade imagerie)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet"/>
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<style>
+  html,body{margin:0;height:100%;width:100%}
+  #map{position:absolute;inset:0}
+  header{position:fixed;top:0;left:0;right:0;height:50px;display:flex;align-items:center;gap:10px;
+         background:rgba(7,12,25,.9);color:white;z-index:10;padding:6px 12px;font-family:sans-serif}
+  select{background:#111;color:white;padding:4px 6px}
+</style>
+</head>
+<body>
+<header>
+  <div>🌍 Bubble Earth</div>
+  <label>Imagerie :
+    <select id="layerSel">
+      <option value="osm">OSM</option>
+      <option value="esri" selected>ESRI</option>
+    </select>
+  </label>
+</header>
+<div id="map"></div>
+<script>
+/* --- sources --- */
+const providers={
+  osm:{tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OpenStreetMap'},
+  esri:{tiles:['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Tiles © Esri'}
+};
+
+function styleWithImagery(key){
+  const prov=providers[key]||providers.osm;
+  return {
+    version:8,
+    sources:{
+      azimuthal:{
+        type:'image',
+        url:'assets/flat-earth-aeqd.jpg', // ← mets ton image ici
+        coordinates:[
+          [-180,90],  // top-left
+          [180,90],   // top-right
+          [180,-90],  // bottom-right
+          [-180,-90]  // bottom-left
+        ]
+      },
+      imagery:{
+        type:'raster',
+        tiles:prov.tiles,
+        tileSize:prov.tileSize,
+        attribution:prov.attribution,
+        minzoom:0,maxzoom:10
+      }
+    },
+    layers:[
+      {
+        id:'azimuthal-layer',
+        type:'raster',
+        source:'azimuthal',
+        paint:{
+          // visible à bas zoom, fade out entre zoom 2 → 5
+          'raster-opacity':[
+            'interpolate',['linear'],['zoom'],
+            0,1,
+            2,1,
+            5,0
+          ]
+        }
+      },
+      {
+        id:'imagery-layer',
+        type:'raster',
+        source:'imagery',
+        paint:{
+          // fade in inverse entre zoom 3 → 6
+          'raster-opacity':[
+            'interpolate',['linear'],['zoom'],
+            3,0,
+            6,1
+          ]
+        }
+      }
+    ]
+  };
+}
+
+const map=new maplibregl.Map({
+  container:'map',
+  style:styleWithImagery('esri'),
+  center:[0,30], // départ centré
+  zoom:2,
+  maxZoom:18
+});
+map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'top-left');
+map.addControl(new maplibregl.ScaleControl({maxWidth:120,unit:'metric'}));
+map.addControl(new maplibregl.AttributionControl({compact:true}));
+
+/* --- sélecteur pour changer d'imagerie --- */
+document.getElementById('layerSel').addEventListener('change',e=>{
+  map.setStyle(styleWithImagery(e.target.value));
+});
+</script>
+</body>
+</html>

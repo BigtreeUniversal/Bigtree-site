@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Bubble Earth — Azimutal “classique” → zoom</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- MapLibre -->
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+  <style>
+    :root{ --bg:#0b1020; --panel:#111830; --accent:#6ee7ff; --txt:#e8eefc; }
+    *{box-sizing:border-box}
+    html,body,#app{height:100%;margin:0;background:#050914;color:var(--txt);font:500 16px/1.4 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+    header{position:fixed;inset:0 0 auto 0;height:58px;display:flex;align-items:center;gap:10px;padding:8px 14px;background:linear-gradient(to bottom,rgba(5,9,20,.9),rgba(5,9,20,.35) 60%,transparent);z-index:40;backdrop-filter:blur(8px)}
+    .brand{font-weight:800;letter-spacing:.2px;display:flex;align-items:center;gap:10px}
+    .dot{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 35% 35%, #9ff, #4ad 60%, #1b4 90%);box-shadow:0 0 10px #4ad}
+    .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+    input,button,select{color:var(--txt);background:#131a33;border:1px solid #25305b;border-radius:10px;padding:8px 10px;box-shadow:0 1px 0 rgba(255,255,255,.05), 0 6px 16px rgba(0,0,0,.35)}
+    button{cursor:pointer}
+    .view{position:absolute;inset:0;transition:.45s ease;will-change:opacity,transform}
+    #domeView{display:grid;place-items:center;z-index:5}
+    #earthView{opacity:0;transform:scale(1.01);pointer-events:none}
+    #earthView.active{opacity:1;transform:none;pointer-events:auto;z-index:10}
+    #domeView.hidden{opacity:0;transform:scale(.985);pointer-events:none}
+    /* Stage */
+    .stage{position:relative;width:min(96vmin,1100px);height:min(96vmin,1100px)}
+    /* Texture (ton image) */
+    .texwrap{position:absolute;inset:0;border-radius:50%;overflow:hidden}
+    #aeqdTex{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:contrast(1.05) saturate(1.05)}
+    /* Graticule polaire (dessin SVG) */
+    svg#grid{position:absolute;inset:0}
+    /* Dôme en verre */
+    .bubble{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:
+        radial-gradient(120% 120% at 30% 35%, rgba(255,255,255,.28), rgba(255,255,255,0) 45%),
+        radial-gradient(35% 30% at 70% 75%, rgba(140, 200, 255, .25), transparent 70%),
+        radial-gradient(circle at 50% 50%, rgba(100,140,255,.12), rgba(50,80,200,.08) 55%, rgba(0,0,0,.08) 100%);
+      border:1.5px solid rgba(150,200,255,.35);
+      box-shadow: inset 0 0 40px rgba(140,200,255,.15), inset 0 0 140px rgba(50,90,200,.10), 0 20px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.05);}
+    .bubble:after{content:"";position:absolute;left:10%;top:7%;right:45%;height:12%;background:linear-gradient(to bottom, rgba(255,255,255,.55), rgba(255,255,255,0));border-radius:40px;filter:blur(2px);transform:rotate(-6deg)}
+    .coords{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);background:rgba(9,12,25,.65);border:1px solid #22305d;border-radius:10px;padding:6px 10px;font-size:12px}
+    .pulse{position:fixed;width:16px;height:16px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 0 4px rgba(110,231,255,.12), 0 0 18px rgba(110,231,255,.75);transform:translate(-50%,-50%) scale(.6);animation:pulse 1.8s ease-out forwards}
+    @keyframes pulse{70%{opacity:.9;transform:translate(-50%,-50%) scale(1.8)} 100%{opacity:0;transform:translate(-50%,-50%) scale(2.3)}}
+    #map{position:absolute;inset:0}
+    .corner{position:fixed;right:12px;bottom:12px;display:flex;gap:8px;z-index:30}
+    .toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#0e162f;border:1px solid #22305d;border-radius:12px;padding:10px 14px;font-size:13px;opacity:.92;z-index:40;display:none}
+    .hint{opacity:.8;font-size:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="dot"></span> Bubble Earth <span class="hint">carte azimutale → plongée</span></div>
+    <div class="controls">
+      <input id="imgUrl" type="text" size="36" placeholder="URL ou chemin de ta carte azimutale…" />
+      <button id="loadImgBtn">Charger</button>
+      <select id="imagerySel">
+        <option value="osm">OSM (raster)</option>
+        <option value="esri" selected>ESRI World Imagery</option>
+      </select>
+      <button id="backBtn" style="display:none">⟵ Retour</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- Vue dôme -->
+    <section id="domeView" class="view">
+      <div class="stage" id="stage">
+        <div class="texwrap">
+          <!-- Mets ton image ici ; par défaut un placeholder radial -->
+          <img id="aeqdTex" alt="Carte azimutale (AEQD) sous le dôme"
+               src=""
+               onerror="this.style.background='radial-gradient(circle at 50% 50%, #0c1f42 0%, #0a1732 60%, #081022 100%)'; this.removeAttribute('src');" />
+          <svg id="grid"></svg>
+        </div>
+        <div class="bubble" aria-hidden="true"></div>
+        <div class="coords" id="coords">—</div>
+      </div>
+    </section>
+
+    <!-- Vue imagerie -->
+    <section id="earthView" class="view">
+      <div id="map"></div>
+      <div class="corner">
+        <button id="styleBtn">Basculer imagerie</button>
+        <button id="backBtn2">⟵ Retour au dôme</button>
+      </div>
+      <div id="toast" class="toast"></div>
+    </section>
+  </main>
+
+  <script>
+  (function(){
+    // ==== Elements
+    const stage = document.getElementById('stage');
+    const grid  = document.getElementById('grid');
+    const domeView = document.getElementById('domeView');
+    const earthView= document.getElementById('earthView');
+    const aeqdTex  = document.getElementById('aeqdTex');
+    const coordsEl = document.getElementById('coords');
+    const loadImgBtn = document.getElementById('loadImgBtn');
+    const imgUrlInp = document.getElementById('imgUrl');
+    const backBtn   = document.getElementById('backBtn');
+    const backBtn2  = document.getElementById('backBtn2');
+    const styleBtn  = document.getElementById('styleBtn');
+    const imagerySel= document.getElementById('imagerySel');
+    const toast     = document.getElementById('toast');
+
+    // ==== Carte azimutale : géométrie
+    let R = 1; // rayon en px (set by resize)
+    function resize(){
+      const w = stage.clientWidth, h = stage.clientHeight;
+      grid.setAttribute('width', w); grid.setAttribute('height', h);
+      R = Math.min(w, h) * 0.5; // rayon du cercle
+      drawPolarGrid();
+    }
+    window.addEventListener('resize', resize, {passive:true});
+
+    // Graticule polaire (lat tous les 10°, lon tous les 15°)
+    function drawPolarGrid(){
+      const w = grid.clientWidth || grid.getAttribute('width');
+      const h = grid.clientHeight || grid.getAttribute('height');
+      const cx = w/2, cy = h/2;
+      grid.innerHTML = '';
+      const svgNS = 'http://www.w3.org/2000/svg';
+
+      // Anneau externe (90S)
+      const ring = document.createElementNS(svgNS,'circle');
+      ring.setAttribute('cx', cx); ring.setAttribute('cy', cy); ring.setAttribute('r', R-1.5);
+      ring.setAttribute('fill','none'); ring.setAttribute('stroke','rgba(200,230,255,.35)'); ring.setAttribute('stroke-width','1.2');
+      grid.appendChild(ring);
+
+      // Latitudes 80..10 (pôle = 90)
+      for(let lat=80; lat>=10; lat-=10){
+        const rho = ( (Math.PI/2 - toRad(lat)) ) * (R/(Math.PI/2));
+        const c = document.createElementNS(svgNS,'circle');
+        c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', rho);
+        c.setAttribute('fill','none'); c.setAttribute('stroke','rgba(140,180,255,.28)'); c.setAttribute('stroke-width','0.6');
+        grid.appendChild(c);
+      }
+      // Longitudes chaque 15°
+      for(let lon=0; lon<360; lon+=15){
+        const ang = toRad(lon);
+        const x = cx + (R-1.5) * Math.sin(ang);
+        const y = cy - (R-1.5) * Math.cos(ang);
+        const line = document.createElementNS(svgNS,'line');
+        line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+        line.setAttribute('x2', x);  line.setAttribute('y2', y);
+        line.setAttribute('stroke','rgba(140,180,255,.28)'); line.setAttribute('stroke-width','0.6');
+        grid.appendChild(line);
+      }
+    }
+
+    function toRad(d){return d*Math.PI/180}
+    function toDeg(r){return r*180/Math.PI}
+
+    // ===== Inversion AEQD (aspect polaire Nord) =====
+    // Hypothèses: texture centrée Pôle Nord, nord en haut, latitude φ ∈ [-90, +90], longitude λ ∈ (-180, 180]
+    // Formules (sphère):
+    // ρ = sqrt(x^2 + y^2), c = ρ / R, φ = π/2 - c, λ = atan2(x, -y)
+    function pixelToLonLat(px, py){
+      const rect = stage.getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top  + rect.height/2;
+      const x = px - cx;
+      const y = py - cy;
+      const rho = Math.hypot(x, y);
+      const maxR = R - 1.5;
+      if(rho > maxR) return null; // hors disque
+      const c = rho / maxR * (Math.PI/2); // (R normalisé → 90° d’angle)
+      const phi = Math.PI/2 - c;
+      const lam = Math.atan2(x, -y);
+      return [wrap180(toDeg(lam)), toDeg(phi)];
+    }
+    function wrap180(d){ let a=((d+180)%360+360)%360-180; return a; }
+
+    // ===== Interaction dôme
+    document.addEventListener('mousemove', (e)=>{
+      const ll = pixelToLonLat(e.clientX, e.clientY);
+      coordsEl.textContent = ll ? `lon ${ll[0].toFixed(2)}°, lat ${ll[1].toFixed(2)}°` : '—';
+    }, {passive:true});
+
+    document.addEventListener('click', (e)=>{
+      // Cliquez “dans la bulle”
+      const ll = pixelToLonLat(e.clientX, e.clientY);
+      if(!ll) return;
+      pulseAt(e.clientX, e.clientY);
+      diveTo(ll[1], ll[0]); // lat, lon
+    });
+
+    function pulseAt(px, py){
+      const dot = document.createElement('div');
+      dot.className='pulse';
+      dot.style.left = px+'px';
+      dot.style.top  = py+'px';
+      document.body.appendChild(dot);
+      setTimeout(()=>dot.remove(), 1700);
+    }
+
+    // Charger ton image
+    loadImgBtn.addEventListener('click', ()=>{
+      const src = imgUrlInp.value.trim();
+      if(!src){ toastMsg("Indique l'URL ou le chemin de ta carte (ex: assets/flat-earth-aeqd.jpg)"); return; }
+      aeqdTex.src = src;
+      toastMsg('Texture azimutale chargée.');
+    });
+
+    // Auto: si tu mets assets/flat-earth-aeqd.jpg à côté, on la prend
+    fetch('assets/flat-earth-aeqd.jpg', {method:'HEAD'}).then(r=>{
+      if(r.ok) aeqdTex.src = 'assets/flat-earth-aeqd.jpg';
+    }).catch(()=>{ /* silencieux */ });
+
+    // ==== MapLibre (vue zoom)
+    const providers = {
+      osm: {
+        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        tileSize: 256,
+        attribution: '© OpenStreetMap'
+      },
+      esri: {
+        tiles: ['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+        tileSize: 256,
+        attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics'
+      }
+    };
+    function rasterStyle(key){
+      const p = providers[key] || providers.osm;
+      return {
+        version: 8,
+        sources: { 'r': { type:'raster', tiles:p.tiles, tileSize:p.tileSize, attribution:p.attribution, minzoom:0, maxzoom: 20 } },
+        layers: [ {id:'bg', type:'background', paint:{'background-color':'#0b1020'} }, {id:'r', type:'raster', source:'r'} ]
+      };
+    }
+    const map = new maplibregl.Map({
+      container:'map',
+      style: rasterStyle(imagerySel.value),
+      center:[0,0], zoom: 2, maxZoom: 20
+    });
+    map.addControl(new maplibregl.NavigationControl({visualizePitch:true}), 'top-left');
+    map.addControl(new maplibregl.ScaleControl({maxWidth:120, unit:'metric'}));
+    map.addControl(new maplibregl.AttributionControl({compact:true}));
+
+    styleBtn.addEventListener('click', ()=>{
+      imagerySel.value = imagerySel.value==='osm' ? 'esri' : 'osm';
+      map.setStyle(rasterStyle(imagerySel.value));
+      map.once('styledata', ()=> toastMsg(`Imagerie: ${imagerySel.options[imagerySel.selectedIndex].text}`));
+    });
+    imagerySel.addEventListener('change', ()=>{
+      map.setStyle(rasterStyle(imagerySel.value));
+      map.once('styledata', ()=> toastMsg(`Imagerie: ${imagerySel.options[imagerySel.selectedIndex].text}`));
+    });
+
+    // Transition
+    function diveTo(lat, lon){
+      earthView.classList.add('active');
+      domeView.classList.add('hidden');
+      backBtn.style.display='inline-block';
+      // Zoom “prononcé”
+      map.flyTo({center:[lon, lat], zoom: 15.5, speed: 0.9, curve: 1.6, essential:true});
+      toastMsg(`Zoom vers lon ${lon.toFixed(4)}°, lat ${lat.toFixed(4)}°`);
+    }
+    function backToDome(){
+      earthView.classList.remove('active');
+      domeView.classList.remove('hidden');
+      backBtn.style.display='none';
+    }
+    backBtn.addEventListener('click', backToDome);
+    backBtn2.addEventListener('click', backToDome);
+
+    function toastMsg(m){
+      toast.textContent = m;
+      toast.style.display = 'block';
+      clearTimeout(toast._t);
+      toast._t = setTimeout(()=> toast.style.display='none', 2400);
+    }
+
+    // Init
+    resize();
+
+  })();
+  </script>
+</body>
+</html>

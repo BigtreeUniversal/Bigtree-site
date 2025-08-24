@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Bubble Earth — Debug image + fade</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet"/>
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<style>
+  html,body{margin:0;height:100%;width:100%;font:500 14px/1.3 system-ui,Segoe UI,Roboto}
+  header{position:fixed;inset:0 0 auto 0;height:78px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+         padding:8px 10px;background:#0b1020;color:#e8eefc;z-index:10}
+  header .row{display:flex;align-items:center;gap:8px}
+  input[type="text"],select,button,input[type="range"]{
+    background:#0e1630;color:#e8eefc;border:1px solid #24305a;border-radius:8px;padding:6px 8px
+  }
+  input[type="text"]{width:360px}
+  #map{position:absolute;inset:78px 0 0 0}
+  .badge{position:fixed;right:10px;bottom:10px;background:#0e1630cc;border:1px solid #24305a;border-radius:8px;
+         color:#e8eefc;padding:6px 10px;z-index:20;font-size:12px}
+  .ok{color:#8ef08e}.err{color:#ff7d7d}
+</style>
+</head>
+<body>
+<header>
+  <div class="row">🌍 <strong>Bubble Earth</strong></div>
+  <div class="row">
+    <label>URL image azimutale
+      <input id="imgUrl" type="text" placeholder="ex: assets/azimuth-map.jpg ou https://…" />
+    </label>
+    <button id="loadBtn">Charger l’image</button>
+    <span id="status" class="err">Aucune image chargée</span>
+  </div>
+  <div class="row">
+    <label>Imagerie
+      <select id="imagerySel">
+        <option value="esri" selected>ESRI</option>
+        <option value="osm">OSM</option>
+      </select>
+    </label>
+    <label>Seuil (km)
+      <input id="threshKm" type="range" min="200" max="3000" value="1000" step="50"><span id="threshVal">1000</span>
+    </label>
+    <label>Fondu (km)
+      <input id="blendKm" type="range" min="50" max="1000" value="300" step="25"><span id="blendVal">300</span>
+    </label>
+    <label>Opacité image
+      <input id="azOpacity" type="range" min="0" max="100" value="50"><span id="azOpacityVal">50%</span>
+    </label>
+  </div>
+</header>
+<div id="map"></div>
+<div class="badge" id="badge">—</div>
+
+<script>
+/* ====== Base ====== */
+const providers={
+  esri:{tiles:['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize:256, attribution:'Tiles © Esri'},
+  osm:{tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize:256, attribution:'© OpenStreetMap'}
+};
+const statusEl = document.getElementById('status');
+const badge = document.getElementById('badge');
+const imgUrlInput = document.getElementById('imgUrl');
+const loadBtn = document.getElementById('loadBtn');
+const imagerySel = document.getElementById('imagerySel');
+const threshR = document.getElementById('threshKm'), blendR = document.getElementById('blendKm');
+const threshVal = document.getElementById('threshVal'), blendVal = document.getElementById('blendVal');
+const azOpacity = document.getElementById('azOpacity'), azOpacityVal = document.getElementById('azOpacityVal');
+
+function makeStyle(imageryKey){
+  const p = providers[imageryKey] || providers.esri;
+  return {
+    version:8,
+    glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+    sources:{
+      // fond imagerie
+      im:{ type:'raster', tiles:p.tiles, tileSize:p.tileSize, attribution:p.attribution, minzoom:0, maxzoom:22 }
+    },
+    layers:[
+      // fond sombre pour éviter l'écran blanc si rien ne charge
+      { id:'bg', type:'background', paint:{'background-color':'#0b1020'} },
+      { id:'im', type:'raster', source:'im', paint:{'raster-opacity':1} }
+      // la couche image "az" sera ajoutée ensuite en JS (après vérif de chargement)
+    ]
+  };
+}
+
+const map = new maplibregl.Map({
+  container:'map',
+  style: makeStyle('esri'),
+  center:[0,25],
+  zoom:2,
+  maxZoom:18
+});
+map.addControl(new maplibregl.NavigationControl({visualizePitch:true}), 'top-left');
+map.addControl(new maplibregl.ScaleControl({maxWidth:120, unit:'metric'}));
+map.addControl(new maplibregl.AttributionControl({compact:true}));
+
+/* ====== Aide: conversions altitude<->zoom (approx WebMercator) ====== */
+const EARTH_R=6378137, FOV=0.6435;
+const toRad = d=>d*Math.PI/180;
+function zoomForAltKm(km, lat=0){
+  const h = map.getCanvas().height||800;
+  const visible = km*1000 * 2 * Math.tan(FOV/2);
+  const mpp = visible / h;
+  return Math.log2( Math.cos(toRad(lat)) * 2*Math.PI*EARTH_R / (256*mpp) );
+}
+
+/* ====== Ajout / mise à jour de la couche image (avec vérification) ====== */
+let azLoaded = false;
+let currentAzUrl = '';
+
+function testImage(url){
+  return new Promise((resolve,reject)=>{
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = ()=> resolve(true);
+    img.onerror = ()=> reject(new Error('load-error'));
+    img.src = url + (url.includes('?')?'&':'?') + 'cachebust=' + Date.now();
+  });
+}
+
+async function addOrUpdateAzLayer(url){
+  currentAzUrl = url;
+  statusEl.textContent = 'Chargement…'; statusEl.className='';
+  try{
+    await testImage(url);
+    const coords = [[-180,90],[180,90],[180,-90],[-180,-90]]; // couvre le globe
+    if(map.getSource('az')){
+      map.getSource('az').updateImage({url, coordinates:coords});
+    }else{
+      map.addSource('az', { type:'image', url, coordinates:coords });
+      map.addLayer({
+        id:'az', type:'raster', source:'az',
+        paint:{
+          'raster-opacity': 0.5,              // opacité test par défaut
+          'raster-contrast': 0.0,
+          'raster-brightness-min': 0.0,
+          'raster-brightness-max': 1.0
+        }
+      }, 'im'); // placer AU-DESSUS de l'imagerie
+    }
+    azLoaded = true;
+    statusEl.innerHTML = 'Image : <span class="ok">chargée ✅</span>';
+    // Appliquer le fondu par zoom après chargement
+    applyBlend();
+    // Appliquer opacité slider
+    updateAzOpacity();
+  }catch(e){
+    azLoaded = false;
+    statusEl.innerHTML = 'Image : <span class="err">échec ❌</span> (URL/CORS/fichier)';
+    // si la couche existait déjà, on la cache pour éviter l’écran blanc
+    if(map.getLayer('az')) map.setLayoutProperty('az','visibility','none');
+  }
+}
+
+/* ====== Fondu par zoom (seuil + largeur) ====== */
+function applyBlend(){
+  const zMid = zoomForAltKm(Number(threshR.value), 0);
+  const zHalf = zoomForAltKm(Number(threshR.value) - Number(blendR.value)/2, 0);
+  const zPlus = zoomForAltKm(Number(threshR.value) + Number(blendR.value)/2, 0);
+  threshVal.textContent = threshR.value;
+  blendVal.textContent  = blendR.value;
+
+  if(!map.getLayer('az')) return;
+
+  // si l’image n’est pas chargée → on met la couche invisible, pas de fondu
+  if(!azLoaded){
+    map.setLayoutProperty('az','visibility','none');
+    return;
+  }
+  map.setLayoutProperty('az','visibility','visible');
+
+  // opacité azimutale en fonction du zoom
+  map.setPaintProperty('az', 'raster-opacity', [
+    'interpolate',['linear'],['zoom'],
+    zHalf, Number(azOpacity.value)/100, // valeur slider au zoom bas
+    zMid,  Number(azOpacity.value)/200, // mi-seuil
+    zPlus, 0
+  ]);
+
+  // imagerie inverse (toujours visible, mais on peut lisser)
+  map.setPaintProperty('im', 'raster-opacity', [
+    'interpolate',['linear'],['zoom'],
+    zHalf, 0,
+    zMid,  0.5,
+    zPlus, 1
+  ]);
+}
+
+function updateAzOpacity(){
+  azOpacityVal.textContent = azOpacity.value + '%';
+  if(map.getLayer('az')){
+    // recalcul du blend pour tenir compte de l’opacité choisie
+    applyBlend();
+  }
+}
+
+/* ====== UI events ====== */
+loadBtn.addEventListener('click', ()=>{
+  const url = imgUrlInput.value.trim();
+  if(!url){ statusEl.innerHTML='Image : <span class="err">URL vide</span>'; return; }
+  addOrUpdateAzLayer(url);
+});
+
+imagerySel.addEventListener('change', ()=>{
+  // reconstruit un style propre (garde l’état de la couche az si possible)
+  const z = map.getZoom(), c = map.getCenter(), b = map.getBearing(), p = map.getPitch();
+  map.setStyle( makeStyle(imagerySel.value) );
+  map.once('styledata', ()=>{
+    map.jumpTo({center:c, zoom:z, bearing:b, pitch:p});
+    if(currentAzUrl) addOrUpdateAzLayer(currentAzUrl);
+    applyBlend();
+  });
+});
+
+threshR.addEventListener('input', applyBlend);
+blendR.addEventListener('input', applyBlend);
+azOpacity.addEventListener('input', updateAzOpacity);
+
+/* ====== Démarrage : met une URL par défaut (modifie ici au besoin) ====== */
+imgUrlInput.value = 'assets/azimuth-map.jpg';  // ← mets ton chemin (ou colle une URL http(s))
+statusEl.textContent = 'Aucune image chargée';
+badge.textContent = 'Astuce: mets une URL publique pour tester.';
+
+map.on('load', ()=>{
+  // optionnel : tester une image publique directement (décommente pour vérifier rapidement)
+  // imgUrlInput.value = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Azimuthal_equidistant_projection_SW.jpg/1024px-Azimuthal_equidistant_projection_SW.jpg';
+  // addOrUpdateAzLayer(imgUrlInput.value);
+});
+</script>
+</body>
+</html>
