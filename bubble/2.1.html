@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Bubble Earth - v2.1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet"/>
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+  <style>
+    html, body {
+      margin: 0; height: 100%;
+      background: radial-gradient(1200px 700px at 65% 20%, #0f1b3d 0%, #0b1020 45%, #050914 100%);
+      font-family: system-ui, sans-serif;
+      color: white;
+    }
+    #domeView, #mapView {
+      position: absolute; inset: 0;
+      transition: opacity 0.8s ease;
+    }
+    .hidden {
+      opacity: 0; pointer-events: none;
+    }
+    .bubble {
+      width: min(90vmin, 600px); height: min(90vmin, 600px);
+      border-radius: 50%;
+      margin: 40px auto;
+      background: radial-gradient(circle at 30% 35%, rgba(255,255,255,0.3), transparent 50%), rgba(100,140,255,.1);
+      border: 2px solid rgba(150,200,255,.4);
+      box-shadow: inset 0 0 60px rgba(140,200,255,.2);
+      display: grid; place-items: center;
+      cursor: pointer;
+    }
+    .bubble h1 {
+      font-size: 1.8em; text-align: center;
+      color: #cfe6ff;
+    }
+    .bubble p {
+      text-align: center;
+      color: #dfecff;
+    }
+    .btn-back {
+      position: fixed; bottom: 20px; left: 20px;
+      background: #1b2c44;
+      border: none; color: white;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      z-index: 10;
+    }
+    #map { position: absolute; inset: 0; }
+  </style>
+</head>
+<body>
+
+<!-- Accueil "cloche Terre" -->
+<section id="domeView">
+  <div class="bubble" id="bubbleClick">
+    <h1>🌍 Bubble Earth</h1>
+    <p>Clique ici pour explorer</p>
+  </div>
+</section>
+
+<!-- Module carte -->
+<section id="mapView" class="hidden">
+  <div id="map"></div>
+  <button class="btn-back" id="backBtn">⟵ Retour au dôme</button>
+</section>
+
+<script>
+  const domeView = document.getElementById('domeView');
+  const mapView = document.getElementById('mapView');
+  const bubble = document.getElementById('bubbleClick');
+  const backBtn = document.getElementById('backBtn');
+
+  const EARTH_RADIUS = 6378137, FOV = 0.6435;
+  const toRad = d => d * Math.PI / 180;
+
+  const esriTiles = ['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'];
+
+  function zoomForAltKm(km) {
+    const h = 800;
+    const visible = km * 1000 * 2 * Math.tan(FOV / 2);
+    const mpp = visible / h;
+    return Math.log2(Math.cos(0) * 2 * Math.PI * EARTH_RADIUS / (256 * mpp));
+  }
+
+  // Data URL de l'image “azimuth-map.jpg”
+  const azimuthDataURL = 'data:image/jpeg;base64,PUTTONIMAGEBASE64HERE';
+
+  const map = new maplibregl.Map({
+    container: 'map',
+    style: {
+      version: 8,
+      sources: {
+        esri: { type: 'raster', tiles: esriTiles, tileSize: 256 },
+        az: { type: 'image', url: azimuthDataURL,
+              coordinates: [[-180, 90], [180, 90], [180, -90], [-180, -90]] }
+      },
+      layers: [
+        { id: 'az', type: 'raster', source: 'az', paint: { 'raster-opacity': 1 } },
+        { id: 'esri', type: 'raster', source: 'esri', paint: { 'raster-opacity': 0 } }
+      ]
+    },
+    center: [0, 20],
+    zoom: zoomForAltKm(3000),
+    maxZoom: 18
+  });
+
+  function updateFade() {
+    const z = map.getZoom();
+    const zStart = zoomForAltKm(3000);
+    const zEnd = zoomForAltKm(50);
+    let t = (z - zStart) / (zEnd - zStart);
+    t = Math.max(0, Math.min(1, t));
+    map.setPaintProperty('az', 'raster-opacity', 1 - t);
+    map.setPaintProperty('esri', 'raster-opacity', t);
+  }
+
+  map.on('load', updateFade);
+  map.on('zoom', updateFade);
+
+  bubble.addEventListener('click', () => {
+    domeView.classList.add('hidden');
+    mapView.classList.remove('hidden');
+    map.easeTo({ center: [0, 20], zoom: zoomForAltKm(3000), duration: 1000 });
+  });
+
+  backBtn.addEventListener('click', () => {
+    mapView.classList.add('hidden');
+    domeView.classList.remove('hidden');
+  });
+</script>
+
+</body>
+</html>
