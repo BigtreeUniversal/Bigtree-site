@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Bubble Earth — Fusion 2.0 + 2.7</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- MapLibre GL -->
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#111830; --accent:#6ee7ff; --txt:#e8eefc;
+      --glass:rgba(180, 210, 255, .12); --glass-edge:rgba(150, 200, 255, .35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:
+      radial-gradient(1200px 700px at 65% 20%, #0f1b3d 0%, #0b1020 45%, #050914 100%);
+      color:var(--txt); font:500 16px/1.4 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    a{color:var(--accent);text-decoration:none}
+    #app{height:100%;width:100%;position:relative;overflow:hidden}
+
+    /* header (hérité de l’esprit 2.0) */
+    header{
+      position:fixed;left:0;right:0;top:0;height:56px;
+      display:flex;align-items:center;gap:14px;padding:10px 16px;
+      background:linear-gradient(to bottom, rgba(5,9,20,.85), rgba(5,9,20,.35) 60%, transparent);
+      z-index:20;backdrop-filter:blur(8px)
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+    .dot{width:10px;height:10px;border-radius:50%; background:radial-gradient(circle at 35% 35%, #9ff, #4ad 60%, #1b4 90%); box-shadow:0 0 10px #4ad}
+    .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid #25305b;border-radius:999px;
+      padding:6px 12px;background:rgba(12,18,40,.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+    .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+    button,select{
+      color:var(--txt);background:#131a33;border:1px solid #25305b;border-radius:10px;padding:8px 12px;
+      cursor:pointer;transition:.15s; box-shadow:0 1px 0 rgba(255,255,255,.05), 0 6px 16px rgba(0,0,0,.35)
+    }
+    button:hover,select:hover{transform:translateY(-1px);border-color:#3a4a80}
+    .ghost{background:transparent}
+    .primary{background:#1a2a6c;border-color:#2c3f99}
+    .success{background:#134e4a;border-color:#1c7a73}
+    .hint{opacity:.8;font-size:12px}
+
+    /* Vues */
+    .view{position:absolute;inset:0;transition:opacity .45s ease, transform .6s ease;will-change:opacity,transform}
+    #domeView{opacity:1;z-index:5;display:grid;place-items:center}
+    #mapWrap{opacity:0;pointer-events:none;z-index:10;transition:opacity .55s ease}
+    #mapWrap.active{opacity:1;pointer-events:auto}
+
+    /* Disque azimutal (version image style 2.7) */
+    .stage{position:relative;width:min(95vmin,1100px); height:min(95vmin,1100px)}
+    .disc{position:absolute;inset:0;border-radius:50%;overflow:hidden}
+    #azMap{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover}
+    canvas#grid{position:absolute;inset:0;width:100%;height:100%}
+    .bubble{
+      position:absolute;inset:0;border-radius:50%;
+      background:
+        radial-gradient(120% 120% at 30% 35%, rgba(255,255,255,.28), rgba(255,255,255,0) 45%),
+        radial-gradient(35% 30% at 70% 75%, rgba(140, 200, 255, .25), transparent 70%),
+        radial-gradient(circle at 50% 50%, rgba(100,140,255,.12), rgba(50,80,200,.08) 55%, rgba(0,0,0,.08) 100%);
+      border:1.5px solid var(--glass-edge);
+      box-shadow:
+        inset 0 0 40px rgba(140,200,255,.15),
+        inset 0 0 140px rgba(50,90,200,.10),
+        0 20px 60px rgba(0,0,0,.45),
+        0 0 0 1px rgba(255,255,255,.05);
+      pointer-events:none;
+    }
+    .label{
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      text-align:center; width:80%; color:#cfe6ff; text-shadow:0 2px 6px rgba(0,0,0,.55)
+    }
+    .label h1{margin:.2rem 0 0;font:800 clamp(20px,4vmin,44px)/1.02 ui-sans-serif}
+    .label p{margin:.35rem 0 0;opacity:.9}
+    .coords{
+      position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+      background:rgba(9,12,25,.65);border:1px solid #22305d;border-radius:10px;padding:6px 10px;font-size:12px
+    }
+
+    /* Carte */
+    #map{position:absolute;inset:0}
+    .corner{position:fixed;right:12px;bottom:12px;display:flex;gap:8px;z-index:30}
+    .toast{
+      position:fixed;left:50%;bottom:16px;transform:translateX(-50%);
+      background:#0e162f;border:1px solid #22305d;border-radius:12px;padding:10px 14px;font-size:13px;opacity:.92;z-index:40
+    }
+    .badge{position:fixed;left:12px;bottom:12px;padding:6px 10px;border-radius:8px;background:#0e162fcb;border:1px solid #22305d;font-size:12px;z-index:120}
+    .attr{font-size:12px;opacity:.75}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="brand"><span class="dot"></span> Bubble Earth <span class="hint">fusion</span></div>
+      <div class="pill attr">Projection azimutale (image) → zoom progressif → ESRI World Imagery</div>
+      <div class="controls">
+        <select id="imagerySel" title="Fond carto">
+          <option value="osm">OSM (raster)</option>
+          <option value="esri" selected>ESRI World Imagery</option>
+        </select>
+        <button id="tiltBtn" class="ghost" title="Basculer inclinaison">Tilt: off</button>
+        <button id="backBtn" class="ghost" style="display:none" title="Retour au dôme">⟵ Retour</button>
+        <a class="pill" href="#" id="aboutBtn">?</a>
+      </div>
+    </header>
+
+    <!-- Vue 1 : disque azimutal (image) -->
+    <section id="domeView" class="view">
+      <div class="stage" id="stage">
+        <div class="disc" id="disc">
+          <!-- tu peux remplacer l’image ci-dessous par la tienne si besoin -->
+          <img id="azMap" alt="Carte azimutale équidistante"
+               src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop" />
+          <canvas id="grid" width="1600" height="1600"></canvas>
+          <div class="bubble" aria-hidden="true"></div>
+          <div class="label">
+            <h1>Bubble Earth</h1>
+            <p>Clique dans la bulle pour plonger en imagerie aérienne.</p>
+          </div>
+          <div class="coords" id="coords">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vue 2 : carte (MapLibre raster) -->
+    <section id="mapWrap" class="view">
+      <div id="map" aria-label="Imagerie aérienne"></div>
+      <div class="corner">
+        <button id="styleBtn" class="primary">Basculer OSM/ESRI</button>
+        <button id="backBtn2" class="success">⟵ Retour au dôme</button>
+      </div>
+      <div class="badge" id="altBadge" style="display:none">—</div>
+      <div class="toast" id="toast" style="display:none"></div>
+    </section>
+  </div>
+
+  <script>
+  (function(){
+    // ===== Constantes & util =====
+    const $ = s => document.querySelector(s);
+    const coordsEl = $('#coords');
+    const domeView = $('#domeView');
+    const mapWrap = $('#mapWrap');
+    const toast = $('#toast');
+    const backBtn = $('#backBtn');
+    const backBtn2 = $('#backBtn2');
+    const styleBtn = $('#styleBtn');
+    const imagerySel = $('#imagerySel');
+    const tiltBtn = $('#tiltBtn');
+    const altBadge = $('#altBadge');
+
+    // Réglages d'immersion (adoucis vs 2.7)
+    const START_ALT_KM = 1400;      // altitude de départ (~ douce)
+    const FINAL_ZOOM   = 12.5;      // zoom cible (raisonnable)
+    const FLY_SPEED    = 0.65;      // vitesse de flyTo
+    const FLY_CURVE    = 1.45;      // courbure de flyTo
+
+    let tiltOn = false;             // pas d’inclinaison par défaut (pas d’angle)
+
+    // ===== Disque azimutal (géométrie AEQD d'après 2.7) =====
+    // (on garde les formules de conversion pour coordonnées live et clic)
+    const DISC_SIZE=1600, RADIUS=800, CENTER={x:800,y:800};
+    const EARTH_RADIUS_M=6378137, FOV_RAD=0.6435; // ~36.9°
+    function toRad(d){return d*Math.PI/180} function toDeg(r){return r*180/Math.PI}
+    function wrap180(d){return ((d+180)%360+360)%360-180}
+    function gpsToXY(lat,lon){
+      const φ=toRad(lat),λ=toRad(lon);
+      const c=Math.PI/2-φ; const k=RADIUS/(Math.PI/2); const ρ=k*c;
+      return {x:CENTER.x+ρ*Math.sin(λ), y:CENTER.y-ρ*Math.cos(λ)};
+    }
+    function xyToGPS(x,y){
+      const dx=x-CENTER.x, dy=y-CENTER.y; const ρ=Math.hypot(dx,dy);
+      if(ρ>RADIUS) return null;
+      const k=RADIUS/(Math.PI/2); const c=ρ/k; const φ=Math.PI/2-c; const λ=Math.atan2(dx,-dy);
+      return {lat:toDeg(φ), lon:wrap180(toDeg(λ))};
+    }
+    function clientToDisc(ev){
+      const rect = $('#disc').getBoundingClientRect();
+      return {
+        x: (ev.clientX-rect.left)/rect.width*DISC_SIZE,
+        y: (ev.clientY-rect.top)/rect.height*DISC_SIZE
+      };
+    }
+
+    // Grille (d’après 2.7)
+    const grid = document.getElementById('grid'), ctx=grid.getContext('2d');
+    function drawGrid(){
+      const cx=CENTER.x, cy=CENTER.y, R=RADIUS;
+      ctx.clearRect(0,0,DISC_SIZE,DISC_SIZE);
+      ctx.strokeStyle='rgba(200,230,255,.35)'; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.arc(cx,cy,R-1,0,Math.PI*2); ctx.stroke();
+      ctx.strokeStyle='rgba(140,180,255,.28)'; ctx.lineWidth=0.8;
+      for(let lat=80; lat>=10; lat-=10){
+        const ρ=(Math.PI/2-toRad(lat))*R/(Math.PI/2);
+        ctx.beginPath(); ctx.arc(cx,cy,ρ,0,Math.PI*2); ctx.stroke();
+      }
+      for(let lon=0; lon<360; lon+=15){
+        const ang=toRad(lon);
+        const x=cx+(R-1)*Math.sin(ang), y=cy-(R-1)*Math.cos(ang);
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(x,y); ctx.stroke();
+      }
+    }
+    drawGrid();
+
+    // Coords live + clic immersion
+    const disc = document.getElementById('disc');
+    disc.addEventListener('mousemove', ev=>{
+      if(mapWrap.classList.contains('active')) return;
+      const p=clientToDisc(ev), gps=xyToGPS(p.x,p.y);
+      coordsEl.textContent = gps ? `lon ${gps.lon.toFixed(2)}°, lat ${gps.lat.toFixed(2)}°` : '—';
+    });
+    disc.addEventListener('click', ev=>{
+      if(mapWrap.classList.contains('active')) return;
+      const p=clientToDisc(ev), gps=xyToGPS(p.x,p.y);
+      if(!gps) return;
+      startTransition(gps.lat, gps.lon);
+    });
+
+    // ===== Carte MapLibre (raster OSM/ESRI comme 2.0 & 2.7) =====
+    const providers = {
+      osm:  { tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize:256, attribution:'© OpenStreetMap' },
+      esri: { tiles:['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize:256, attribution:'Tiles © Esri' }
+    };
+    function styleFrom(key){
+      const p=providers[key]||providers.esri;
+      return {
+        version:8,
+        glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+        sources:{ r:{ type:'raster', tiles:p.tiles, tileSize:p.tileSize, attribution:p.attribution, minzoom:0, maxzoom:19 } },
+        layers:[
+          { id:'bg', type:'background', paint:{'background-color':'#0b1020'} },
+          { id:'r', type:'raster', source:'r', minzoom:0, maxzoom:22 }
+        ]
+      };
+    }
+    const map = new maplibregl.Map({
+      container:'map',
+      style: styleFrom(imagerySel.value),
+      center:[0,0],
+      zoom:2,
+      maxZoom:19,
+      attributionControl:true
+    });
+    map.addControl(new maplibregl.NavigationControl({visualizePitch:true}), 'top-left');
+    map.addControl(new maplibregl.ScaleControl({maxWidth:120, unit:'metric'}));
+    map.addControl(new maplibregl.AttributionControl({compact:true}));
+
+    // UI bascule fonds
+    styleBtn.addEventListener('click', ()=>{
+      imagerySel.value = (imagerySel.value === 'osm') ? 'esri' : 'osm';
+      map.setStyle(styleFrom(imagerySel.value));
+      map.once('styledata', ()=> toastMsg(`Fond: ${imagerySel.value.toUpperCase()}`));
+    });
+    imagerySel.addEventListener('change', ()=>{
+      map.setStyle(styleFrom(imagerySel.value));
+      map.once('styledata', ()=> toastMsg(`Fond: ${imagerySel.value.toUpperCase()}`));
+    });
+
+    // Tilt on/off
+    tiltBtn.addEventListener('click', ()=>{
+      tiltOn = !tiltOn;
+      tiltBtn.textContent = `Tilt: ${tiltOn?'on':'off'}`;
+      toastMsg(tiltOn ? 'Inclinaison activée' : 'Inclinaison désactivée');
+    });
+
+    // petites aides
+    function toastMsg(msg){
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      clearTimeout(toast._t);
+      toast._t = setTimeout(()=> toast.style.display='none', 2200);
+    }
+
+    // Outils altitude/zoom (issus 2.7)
+    function altitudeKm(z,lat){
+      const h=map.getCanvas().height||800;
+      const mpp=Math.cos(toRad(lat))*2*Math.PI*EARTH_RADIUS_M/(256*Math.pow(2,z));
+      return (mpp*h/(2*Math.tan(FOV_RAD/2)))/1000;
+    }
+    function zoomForAltKm(aKm,lat){
+      const h=map.getCanvas().height||800;
+      const visible=aKm*1000*2*Math.tan(FOV_RAD/2);
+      const mpp=visible/h;
+      return Math.log2(Math.cos(toRad(lat))*2*Math.PI*EARTH_RADIUS_M/(256*mpp));
+    }
+
+    // Transition douce (inspirée 2.7 mais adoucie, sans angle par défaut)
+    function startTransition(lat,lon){
+      // étape 1 : on prépare la carte à ~1400km d'altitude
+      const zStart = zoomForAltKm(START_ALT_KM, lat);
+      map.jumpTo({ center:[lon,lat], zoom:zStart, bearing:0, pitch:0 });
+      mapWrap.classList.add('active'); backBtn.style.display='inline-flex';
+      requestAnimationFrame(()=> map.resize());
+
+      // étape 2 : on vole vers un zoom modéré ; angle seulement si tiltOn
+      const bearing = tiltOn ? 18 : 0;
+      const pitch   = tiltOn ? 34 : 0;
+      map.flyTo({ center:[lon,lat], zoom:FINAL_ZOOM, speed:FLY_SPEED, curve:FLY_CURVE, bearing, pitch, essential:true });
+
+      // badge altitude (indicatif)
+      altBadge.style.display='block';
+    }
+
+    // retour
+    function backToDome(){
+      mapWrap.classList.remove('active');
+      backBtn.style.display='none';
+      altBadge.style.display='none';
+    }
+    backBtn.addEventListener('click', backToDome);
+    backBtn2.addEventListener('click', backToDome);
+
+    // Altitude live lorsqu’on est dans la carte
+    setInterval(()=>{
+      if(!mapWrap.classList.contains('active')) return;
+      const c=map.getCenter(); const a=altitudeKm(map.getZoom(), c.lat);
+      altBadge.textContent = `alt ≈ ${a.toFixed(0)} km`;
+    }, 500);
+
+    // “About”
+    $('#aboutBtn').addEventListener('click', (e)=>{
+      e.preventDefault();
+      toastMsg('Clique dans la bulle (disque azimutal) pour plonger en imagerie aérienne ESRI.');
+    });
+
+  })();
+  </script>
+</body>
+</html>
