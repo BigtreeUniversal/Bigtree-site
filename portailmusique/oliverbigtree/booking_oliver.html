@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BigTree – Booking (Reggae Dub)</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+
+  <style>
+    :root{
+      --r: #e53935; /* red */
+      --y: #ffcc00; /* yellow */
+      --g: #2ecc71; /* green */
+      --bg-dark: rgba(10,10,10,.78);
+      --bg-darker: rgba(0,0,0,.82);
+    }
+
+    /* Fullscreen background with gentle zoom */
+    body{
+      min-height: 100vh;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,.4), rgba(0,0,0,.7)),
+        url("https://images.unsplash.com/photo-1544435253-b995b90a3d79?q=80&w=2400&auto=format&fit=crop") center/cover fixed no-repeat;
+      color: #f4f4f4;
+      animation: zoomBg 40s ease-in-out infinite alternate;
+    }
+    @keyframes zoomBg{
+      from{ background-size: cover; }
+      to{ background-size: 110%; }
+    }
+
+    /* Top nav */
+    nav.container-fluid{
+      background: var(--bg-darker);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(4px);
+    }
+    nav a[role="button"], nav a{
+      font-weight: 700;
+    }
+    nav a:hover{ opacity: .9; }
+
+    /* Main card */
+    main.container{
+      background: var(--bg-dark);
+      border-radius: 16px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      margin-top: 2rem;
+    }
+
+    /* Headings in reggae palette */
+    h2{ color: var(--y); letter-spacing: .5px; }
+    h3{ color: #fff; opacity: .92 }
+
+    /* Foreground artist image */
+    figure{
+      margin: 1rem 0 2rem;
+    }
+    .artist{
+      display:block;
+      width: 100%;
+      max-width: 420px;
+      margin-inline: auto;
+      border-radius: 16px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.55);
+      transform: translateZ(0);
+    }
+
+    /* Dub stripe accent */
+    .stripe{
+      height: 6px;
+      width: 120px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--r), var(--y), var(--g));
+      margin: .5rem 0 1rem;
+    }
+
+    /* Buttons */
+    a[role="button"], button{
+      background: linear-gradient(90deg, var(--r), var(--y), var(--g));
+      color: #111 !important;
+      border: none;
+      font-weight: 800;
+      letter-spacing: .3px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.35);
+    }
+
+    /* Contact / subscribe block */
+    section[aria-label="Subscribe example"] article{
+      background: var(--bg-darker);
+      border-radius: 16px;
+      box-shadow: 0 16px 44px rgba(0,0,0,.35);
+    }
+
+    /* Links */
+    a{ color: var(--g); }
+    a:hover{ text-decoration: underline; }
+
+    footer.container{
+      color: rgba(255,255,255,.75);
+      margin-bottom: 3rem;
+    }
+
+    /* Improve negative space on large screens */
+    @media (min-width: 992px){
+      main.container{ padding: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION (required structure) -->
+  <nav class="container-fluid">
+    <ul>
+      <li><strong>BigTree</strong></li>
+    </ul>
+    <ul>
+      <li><a href="#bio">Bio</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="BigTree-EPK.pdf" role="button" download>Télécharger l’EPK</a></li>
+    </ul>
+  </nav>
+
+  <!-- MAIN (required structure) -->
+  <main class="container" id="bio">
+    <div class="grid">
+      <section>
+        <hgroup>
+          <h2>BigTree</h2>
+          <h3>Reggae Dub Artist • Producer • Writer • Inventor</h3>
+        </hgroup>
+
+        <div class="stripe" aria-hidden="true"></div>
+
+        <!-- Foreground photo (replace with a real portrait of BigTree if disponible) -->
+        <figure>
+          <img
+            class="artist"
+            src="https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=1400&auto=format&fit=crop"
+            alt="Reggae/Dub artist portrait style, stage light and atmosphere" />
+          <figcaption>
+            <a href="https://unsplash.com" target="_blank" rel="noopener">Photo inspirée — Unsplash</a>
+          </figcaption>
+        </figure>
+
+        <h3>Biographie</h3>
+        <p>
+          BigTree is a French artist, producer, writer, engineer and inventor whose path bridges music, technology, and literature.
+          Introduced to music at an early age, he learned piano as a child and quickly developed a fascination for emerging technologies.
+          In 1986, his father brought home an Atari 520 ST, the first computer with built-in MIDI ports, which allowed BigTree to
+          experiment with audio/MIDI synchronization. These early experiments planted the seed for “Syncrolink” (2025), a proprietary
+          protocol capable of synchronizing real-time data across advanced technological modules from aeronautics, sound engineering, and other disciplines.
+        </p>
+
+        <h3>Roots &amp; Dub Journey</h3>
+        <p>
+          In the mid-90s, BigTree entered the thriving reggae scene in Toulouse, eventually joining the collective Freedom Fighters as a bassist
+          and beatmaker in the early 2000s. Around the same time, he founded BigTree Connection, a label and production house that became a hub for
+          dozens of artists over the years. His productions are deeply rooted in dub and digital reggae, with a strong connection to the roots movement.
+          After building two recording studios in Toulouse, BigTree relocated to the mountains of Ariège in 2010, producing off-grid with an
+          autonomous energy system. He later settled in the Pyrénées-Orientales (2018) where he revived his productions and launched new collaborations.
+          His album “Respect the Nature” led to a tour in La Réunion with the group Salazians, and since 2020 he has been working closely with the
+          European sound system scene, including collaborations with Salomon Heritage.
+        </p>
+
+        <h3>Au-delà de la musique</h3>
+        <p>
+          Alongside his music career, BigTree is a prolific writer for over 30 years, with a body of work that spans spirituality, vibrational science,
+          poetry, and historical research on ancient civilizations, calendars, and lost knowledge. He considers his literary exploration as deeply
+          connected to his work as an engineer and inventor, fields in which he has developed over thirty inventions and filed more than fifteen patents.
+          Among these, his most significant achievement is what he calls the Tetragram, a rediscovered “canonical equation” from the Ancient World.
+          BigTree describes this as not an invention, but the recovery of a universal code that had been lost for centuries. BigTree’s life’s work is guided
+          by a single mission: to weave a bridge between music, science, and spirituality. Through his reggae productions, literary creations, and
+          technological innovations, he seeks to reveal a universal language that unites people, sounds, cultures, and knowledge.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <!-- CONTACT / SUBSCRIBE (required structure) -->
+  <section aria-label="Subscribe example" id="contact">
+    <div class="container">
+      <article>
+        <hgroup>
+          <h2>Contact &amp; Booking</h2>
+          <h3>Réservations • Collaborations • Presse</h3>
+        </hgroup>
+        <p>
+          📩 <a href="mailto:bigtreebooking@proton.me">bigtreebooking@proton.me</a><br>
+          🌍 <a href="https://www.bigtreeconnection.com" target="_blank" rel="noopener">www.bigtreeconnection.com</a>
+        </p>
+        <form class="grid">
+          <input type="text" id="firstname" name="firstname" placeholder="Votre nom" aria-label="Votre nom" required />
+          <input type="email" id="email" name="email" placeholder="Votre email" aria-label="Votre email" required />
+          <button type="submit" onclick="event.preventDefault()">Envoyer</button>
+        </form>
+      </article>
+    </div>
+  </section>
+
+  <!-- FOOTER (required structure) -->
+  <footer class="container">
+    <small>
+      <a href="https://www.bigtreeconnection.com" target="_blank" rel="noopener">Site officiel</a>
+      •
+      <a href="mailto:bigtreebooking@proton.me">Email booking</a>
+    </small>
+  </footer>
+
+</body>
+</html>
