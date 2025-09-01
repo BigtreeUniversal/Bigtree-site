@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Horloge 24h UTC Minimaliste</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #000;
+      margin: 0;
+      font-family: "Courier New", monospace;
+    }
+    #clock {
+      position: relative;
+      width: 800px;              /* taille du cercle */
+      height: 800px;
+      border-radius: 50%;
+      background: url("clockmap1.jpg") no-repeat center/cover;
+      border: 4px solid gold;
+      box-shadow: 0 0 30px rgba(255,215,0,0.8);
+    }
+    .hand.hour {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;                 /* très fine */
+      height: 400px;              /* rayon = moitié du cercle */
+      background: gold;
+      transform-origin: center bottom; /* centre en bas */
+      transform: translate(-50%, -100%) rotate(0deg); 
+      box-shadow: 0 0 10px gold;
+    }
+    .center {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: gold;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px yellow;
+    }
+    /* Horloge digitale rétro années 90 */
+    #digitalClock {
+      margin-top: 20px;
+      font-size: 2em;
+      background: #111;
+      color: #0f0;
+      padding: 10px 20px;
+      border: 2px solid #0f0;
+      border-radius: 4px;
+      box-shadow: inset 0 0 10px #0f0;
+      letter-spacing: 4px;
+      text-shadow: 0 0 10px #0f0;
+    }
+  </style>
+</head>
+<body>
+  <div id="clock">
+    <div class="hand hour" id="hourHand"></div>
+    <div class="center"></div>
+  </div>
+
+  <!-- Horloge digitale UTC -->
+  <div id="digitalClock"></div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+
+      // Heure UTC
+      const hours = now.getUTCHours();
+      const minutes = now.getUTCMinutes();
+
+      // 24h -> 360° → 15° par heure
+      const hourDeg = (hours % 24) * 15 + minutes * 0.25;
+
+      document.getElementById("hourHand").style.transform =
+        `translate(-50%, -100%) rotate(${hourDeg}deg)`;
+    }
+
+    function updateDigitalClock() {
+      const now = new Date();
+      const utc = now.toISOString().substr(11, 8); // HH:MM:SS
+      document.getElementById("digitalClock").textContent = "UTC " + utc;
+    }
+
+    setInterval(() => {
+      updateClock();
+      updateDigitalClock();
+    }, 1000);
+
+    updateClock();
+    updateDigitalClock();
+  </script>
+</body>
+</html>
