@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Horloge Azimutale avec Boussole</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #000;
+      color: #0f0;
+      font-family: "Courier New", monospace;
+    }
+
+    #compassContainer {
+      position: relative;
+      width: 880px;
+      height: 880px;
+    }
+
+    /* Horloge */
+    #clock {
+      position: absolute;
+      top: 40px;
+      left: 40px;
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      background: url("clockmap1.png") no-repeat center/cover;
+      border: 4px solid gold;
+      box-shadow: 0 0 30px rgba(255,215,0,0.8);
+    }
+
+    .hand.hour {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;
+      height: 400px;
+      background: gold;
+      transform-origin: center bottom;
+      transform: translate(-50%, -100%) rotate(0deg);
+      box-shadow: 0 0 10px gold;
+    }
+
+    .center {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: gold;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px yellow;
+    }
+
+    /* Rose des vents (qui tourne) */
+    #rose {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 880px;
+      height: 880px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .cardinal {
+      position: absolute;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #0f0;
+      text-shadow: 0 0 8px #0f0;
+    }
+    .north { top: 0; left: 50%; transform: translateX(-50%); }
+    .south { bottom: 0; left: 50%; transform: translateX(-50%); }
+    .east  { right: 0; top: 50%; transform: translateY(-50%); }
+    .west  { left: 0; top: 50%; transform: translateY(-50%); }
+
+    /* Horloge digitale */
+    #digitalClock {
+      margin-top: 20px;
+      font-size: 2em;
+      background: #111;
+      color: #0f0;
+      padding: 10px 20px;
+      border: 2px solid #0f0;
+      border-radius: 4px;
+      box-shadow: inset 0 0 10px #0f0;
+      letter-spacing: 4px;
+      text-shadow: 0 0 10px #0f0;
+    }
+
+    /* Infos orientation */
+    #info {
+      margin-top: 10px;
+      font-size: 1.2em;
+      color: #0f0;
+      text-shadow: 0 0 8px #0f0;
+    }
+
+    /* Bouton d’activation */
+    #start {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 1em;
+      font-weight: bold;
+      background: #0f0;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #start:hover {
+      background: #6f6;
+    }
+  </style>
+</head>
+<body>
+  <div id="compassContainer">
+    <div id="rose">
+      <div class="cardinal north">N</div>
+      <div class="cardinal south">S</div>
+      <div class="cardinal east">E</div>
+      <div class="cardinal west">O</div>
+    </div>
+    <div id="clock">
+      <div class="hand hour" id="hourHand"></div>
+      <div class="center"></div>
+    </div>
+  </div>
+
+  <div id="digitalClock"></div>
+  <div id="info">Azimut : --° | Lat : -- | Lon : --</div>
+
+  <button id="start">Activer la boussole</button>
+
+  <script>
+    // --- Mise à jour horloge ---
+    function updateClock() {
+      const now = new Date();
+      const hours = now.getUTCHours();
+      const minutes = now.getUTCMinutes();
+      const hourDeg = (hours % 24) * 15 + minutes * 0.25;
+      document.getElementById("hourHand").style.transform =
+        `translate(-50%, -100%) rotate(${hourDeg}deg)`;
+    }
+
+    function updateDigitalClock() {
+      const now = new Date();
+      const utc = now.toISOString().substr(11, 8);
+      document.getElementById("digitalClock").textContent = "UTC " + utc;
+    }
+
+    setInterval(() => {
+      updateClock();
+      updateDigitalClock();
+    }, 1000);
+
+    updateClock();
+    updateDigitalClock();
+
+    // --- Boussole cross-plateforme ---
+    document.getElementById("start").addEventListener("click", () => {
+      if (typeof DeviceOrientationEvent !== "undefined" &&
+          typeof DeviceOrientationEvent.requestPermission === "function") {
+        // iOS
+        DeviceOrientationEvent.requestPermission().then(response => {
+          if (response === "granted") {
+            window.addEventListener("deviceorientation", handleOrientation, true);
+          } else {
+            alert("Permission refusée");
+          }
+        }).catch(console.error);
+      } else {
+        // Android et autres
+        window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+        window.addEventListener("deviceorientation", handleOrientation, true);
+      }
+
+      // GPS de l'observateur
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          const lat = pos.coords.latitude.toFixed(3);
+          const lon = pos.coords.longitude.toFixed(3);
+          updateInfo(undefined, lat, lon);
+        }, (err) => {
+          console.error(err);
+          updateInfo(undefined, "--", "--");
+        });
+      }
+    });
+
+    function handleOrientation(e) {
+      let heading;
+      if (e.webkitCompassHeading !== undefined) {
+        // iOS
+        heading = e.webkitCompassHeading;
+      } else if (e.alpha !== null) {
+        // Android
+        heading = 360 - e.alpha;
+      }
+      if (heading !== undefined) {
+        document.getElementById("rose").style.transform = `rotate(${-heading}deg)`;
+        updateInfo(heading);
+      }
+    }
+
+    function updateInfo(heading, lat, lon) {
+      const infoDiv = document.getElementById("info");
+      let currentText = infoDiv.textContent.split("|");
+      let azimutText = heading !== undefined ? `Azimut : ${heading.toFixed(1)}°` : currentText[0].trim();
+      let latText = lat !== undefined ? `Lat : ${lat}` : currentText[1]?.trim() || "Lat : --";
+      let lonText = lon !== undefined ? `Lon : ${lon}` : currentText[2]?.trim() || "Lon : --";
+      infoDiv.textContent = `${azimutText} | ${latText} | ${lonText}`;
+    }
+  </script>
+</body>
+</html>
