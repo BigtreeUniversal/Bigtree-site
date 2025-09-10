@@ -1,0 +1,477 @@
+<!doctype html>
+
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>wild Webcams + Horloge + Radio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121931;
+      --text: #e7ecff;
+      --sub: #9fb0ff;
+      --accent: #7aa2ff;
+      --radius: 18px;
+      --gap: 18px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      background: radial-gradient(1200px 800px at 80% -10%, #14214a 0%, var(--bg) 40%, #080c1a 100%);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      max-width: 1200px;
+      margin: 16px auto;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: clamp(20px, 2.8vw, 32px);
+      font-weight: 700;
+    }
+    #radioControls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #toggleRadio {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--accent);
+      border: none;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    #toggleRadio:hover { background: #5c8dff; }
+    .grid {
+      max-width: 1200px;
+      margin: 0 auto 40px;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: var(--gap);
+      flex-grow: 1;
+      width: 100%;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .video-wrap, #clock {
+      width: 100%;
+      max-width: 500px;
+      aspect-ratio: 1;
+      background: #000;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .video-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      background: linear-gradient(180deg, rgba(0,0,0,0.0), rgba(0,0,0,0.08));
+      width: 100%;
+      max-width: 500px;
+    }
+    .title b {
+      font-size: clamp(14px, 2vw, 16px);
+      font-weight: 700;
+    }
+    .title span {
+      color: var(--sub);
+      font-size: 12px;
+    }
+    .clock-digital {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(122,162,255,0.12);
+      border: 1px solid rgba(122,162,255,0.35);
+      color: #dbe5ff;
+    }/* Horloge */
+#clock {
+  border: 3px solid gold;
+  box-shadow: 0 0 15px rgba(255,215,0,0.7);
+  background: url("clockmap1.jpg") no-repeat center/cover;
+}
+.hand.hour {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 50%;
+  background: gold;
+  transform-origin: center bottom;
+  transform: translate(-50%, -100%) rotate(0deg);
+  box-shadow: 0 0 6px gold;
+}
+.center {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: gold;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px yellow;
+}
+
+  
+/* === Enhancements: responsive 16:9 videos + 2x2 desktop grid + sun dot on the clock === */
+
+/* Make videos 16:9 (webcam-friendly) */
+.video-wrap {
+  aspect-ratio: 16 / 9 !important;
+  max-width: none !important;
+}
+
+/* Keep the clock perfectly square */
+#clock {
+  aspect-ratio: 1 !important;
+}
+
+/* Let cards use full width of their grid cell */
+.meta, .video-wrap {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Grid: 1 column on mobile, 2 columns on desktop for a 2x2 layout */
+.grid {
+  max-width: none !important; /* allow full width */
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* "Sun" halfway along the hour hand, with a soft glow */
+.hand.hour::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 50%; /* halfway along the hand from the center */
+  transform: translate(-50%, 50%); /* center the dot on that point */
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffd400 0%, #ffe873 55%, rgba(255, 255, 0, 0.15) 75%, rgba(255,255,0,0) 85%);
+  box-shadow:
+    0 0 25px rgba(255, 215, 0, 0.9),
+    0 0 60px rgba(255, 215, 0, 0.45),
+    0 0 120px rgba(255, 200, 0, 0.25);
+  pointer-events: none;
+}
+
+  
+/* Big perimeter sunlight overlay (radius = 1/2 du rayon de l'horloge) */
+#clock::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  /* The gradient center follows the sun via --sun-x / --sun-y */
+  background:
+    radial-gradient(
+      circle at var(--sun-x, 50%) var(--sun-y, 50%),
+      rgba(255, 236, 140, 0.55) 0%,
+      rgba(255, 236, 140, 0.42) var(--sun-radius-soft, 18%),
+      rgba(255, 236, 140, 0.18) var(--sun-radius, 25%),
+      rgba(255, 236, 140, 0.00) calc(var(--sun-radius, 25%) + 1%)
+    );
+  /* brighten rather than darken */
+  mix-blend-mode: screen;
+}
+
+  
+/* === YouTube Music playlist controls === */
+.ytm-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+#ytmId {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: inherit;
+  width: 220px;
+  max-width: 100%;
+}
+#ytmToggle {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(122,162,255,0.22);
+  color: inherit;
+  cursor: pointer;
+}
+#ytmToggle:hover { background: rgba(122,162,255,0.34); }
+
+  
+/* === World time chips === */
+.tz-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+  margin: .5rem 0 0;
+}
+.tz-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .35rem .6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  font-size: .9rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+.tz-chip b { opacity: .85; font-weight: 600; }
+.tz-time { font-variant-numeric: tabular-nums; letter-spacing: .02em; opacity: .95; }
+
+  </style>
+</head>
+<body>
+</header>  <main class="grid" id="grid">
+<!-- Horloge UTC -->
+<section class="card" data-tz="UTC" data-label="Horloge UTC">
+  <div id="clock">
+    <div class="hand hour" id="hourHand"></div>
+    <div class="center"></div>
+  </div>
+  <div class="meta">
+    <div class="title">
+      <b>UTC Clock</b>
+      <span>Horloge mondiale</span>
+    </div>
+    <div id="digitalClock" class="clock-digital">--:--:--</div>
+  </div>
+</section>
+
+<!-- Webcams mutées -->
+<section class="card" data-tz="America/Cayman" data-label="Cayman">
+  <div class="video-wrap">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/5uZa3-RMFos?si=I209FpSA2bm-3kip" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  </div>
+  <div class="meta">
+    <div class="title"><b></b></div>
+    <div class="clock-digital">--:--:--</div>
+  </div>
+</section>
+
+<section class="card" data-tz="" data-label="Rio">
+  <div class="video-wrap">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/6QoLEltTzIM?si=PmFWHsxToA2UWlNt" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  </div>
+  <div class="meta">
+    <div class="title"><b></b></div>
+    <div class="clock-digital">--:--:--</div>
+  </div>
+</section>
+
+<section class="card" data-tz="America/New_York" data-label="">
+  <div class="video-wrap">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/n5Ja0_q2Cos?si=vFkhxIb8z9DcovT_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  </div>
+  <div class="meta">
+    <div class="title"><b></b></div>
+    <div class="clock-digital">--:--:--</div>
+  </div>
+</section>
+
+  
+<section class="card" data-label="YouTube Music">
+  <div class="video-wrap">
+    <div id="ytmPlayer" title="YouTube Music playlist"></div>
+  </div>
+  <div class="meta">
+    <div class="title">
+      <b>Playlist YouTube Musique</b>
+      <span>Pré-remplie : PL9D-qI9DCdyqvsQVojo33NGcMW7mRRuSF</span>
+    </div>
+    <div class="ytm-controls">
+      <input id="ytmId" type="text" value="PL9D-qI9DCdyo5zA9ip_PUOswT5utKMP63&si=AN7h8JXI2FK3YUro" placeholder="PLxxxxxxxxxxxxxxxx" aria-label="ID de playlist YouTube">
+      <button id="ytmToggle">🎵 Lancer</button>
+    </div>
+  </div>
+</section>
+
+</main>  
+
+
+<script>
+// ===== HORLOGE 24H (fluide, auto-démarrage fiable) =====
+function updateClock() {
+  const now = new Date();
+  const h = now.getUTCHours();
+  const m = now.getUTCMinutes();
+  const s = now.getUTCSeconds();
+  const ms = now.getUTCMilliseconds();
+  const hoursFloat = (h % 24) + m/60 + s/3600 + ms/3600000;
+  const hourDeg = hoursFloat * 15; // 360°/24h
+  const hh = document.getElementById("hourHand");
+  if (hh) {
+    hh.style.transform = `translate(-50%, -100%) rotate(${hourDeg}deg)`;
+  }
+  const clockEl = document.getElementById("clock");
+  if (clockEl) {
+    const theta = hourDeg * Math.PI / 180;
+    const rFrac = 0.5;
+    const x = 50 + Math.sin(theta) * rFrac * 50;
+    const y = 50 - Math.cos(theta) * rFrac * 50;
+    clockEl.style.setProperty("--sun-x", x + "%");
+    clockEl.style.setProperty("--sun-y", y + "%");
+    clockEl.style.setProperty("--sun-radius", "25%");
+    clockEl.style.setProperty("--sun-radius-soft", "18%");
+  }
+}
+
+let __clockRaf = null;
+let __clockInterval = null;
+function startClockLoops(){
+  try { updateClock(); } catch(e){}
+  if (__clockRaf) cancelAnimationFrame(__clockRaf);
+  const step = () => { try { updateClock(); } catch(e){}; __clockRaf = requestAnimationFrame(step); };
+  __clockRaf = requestAnimationFrame(step);
+  if (__clockInterval) clearInterval(__clockInterval);
+  __clockInterval = setInterval(() => { try { updateClock(); } catch(e){} }, 1000);
+}
+function stopClockLoops(){
+  if (__clockRaf) cancelAnimationFrame(__clockRaf), __clockRaf = null;
+  if (__clockInterval) clearInterval(__clockInterval), __clockInterval = null;
+}
+
+// Lancer immédiatement, et aussi au DOM prêt (double filet de sécurité)
+startClockLoops();
+document.addEventListener("DOMContentLoaded", startClockLoops, { once: true });
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) startClockLoops();
+});
+
+// ===== YOUTUBE MUSIC (IFrame API, pas de plein écran) =====
+let ytmPlayer = null;
+let ytmReady = false;
+function normalizePlaylistInput(raw) {
+  let s = (raw || "").trim().replace(/^["']|["']$/g, "");
+  try { const u = new URL(s); const list = u.searchParams.get("list"); if (list) s = list; } catch(e){}
+  s = s.split("&")[0].split("?")[0];
+  const m = s.match(/^PL[-_A-Za-z0-9]+/);
+  return m ? m[0] : s.replace(/[^A-Za-z0-9_-]/g, "");
+}
+function buildYTPlayer(playlistId) {
+  ytmPlayer = new YT.Player("ytmPlayer", {
+    width: "320",
+    height: "180",
+    playerVars: { listType: "playlist", list: playlistId, playsinline: 1, rel: 0, fs: 0, modestbranding: 1, iv_load_policy: 3 },
+    events: {
+      onReady: () => { ytmReady = true; },
+      onStateChange: (e) => {
+        const btn = document.getElementById("ytmToggle");
+        if (!btn) return;
+        if (e.data === YT.PlayerState.PLAYING) btn.textContent = "⏸️ Pause";
+        if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) btn.textContent = "🎵 Lancer";
+      }
+    }
+  });
+}
+window.onYouTubeIframeAPIReady = function() {
+  // On crée le lecteur au premier clic utilisateur pour maximiser les chances de lecture
+};
+
+function initYouTubeMusic() {
+  const btn = document.getElementById("ytmToggle");
+  const input = document.getElementById("ytmId");
+  if (!btn || !input) return;
+  let created = false;
+  btn.addEventListener("click", () => {
+    const id = normalizePlaylistInput(input.value);
+    if (!id) { input.focus(); return; }
+    if (!created) {
+      buildYTPlayer(id);
+      created = true;
+      setTimeout(() => { try { ytmPlayer.loadPlaylist({ list: id }); ytmPlayer.playVideo(); } catch(e){} }, 300);
+      btn.textContent = "⏸️ Pause";
+    } else if (ytmReady) {
+      const st = ytmPlayer.getPlayerState();
+      if (st !== YT.PlayerState.PLAYING) { try { ytmPlayer.playVideo(); } catch(e){}; btn.textContent = "⏸️ Pause"; }
+      else { try { ytmPlayer.pauseVideo(); } catch(e){}; btn.textContent = "🎵 Lancer"; }
+    }
+  });
+}
+initYouTubeMusic();
+</script>
+
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+
+<script>
+(function(){
+  const fmt = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+  function updateWorldTimes(){
+    const now = new Date();
+    document.querySelectorAll('.tz-chip').forEach(chip => {
+      const zone = chip.getAttribute('data-zone') || 'UTC';
+      const node = chip.querySelector('.tz-time');
+      if (!node) return;
+      try {
+        node.textContent = new Intl.DateTimeFormat(undefined, { ...fmt, timeZone: zone }).format(now);
+      } catch (e) {
+        // Fallback sans Intl (rare)
+        const tzNow = new Date(now.toLocaleString('en-US', { timeZone: zone }));
+        const pad = n => String(n).padStart(2, '0');
+        node.textContent = pad(tzNow.getHours()) + ':' + pad(tzNow.getMinutes()) + ':' + pad(tzNow.getSeconds());
+      }
+    });
+  }
+  updateWorldTimes();
+  setInterval(updateWorldTimes, 1000);
+})();
+</script>
+
+
+</body>
+</html>
