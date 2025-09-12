@@ -291,10 +291,10 @@
   </div>
 </section>
 
-<!-- Webcams mutées -->
+<!-- Webcams mutÃ©es -->
 <section class="card" data-tz="America/Cayman" data-label="Cayman">
   <div class="video-wrap">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/fGsJsJvDgF4?si=faQznyi-wLFGOsL9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+   <iframe width="560" height="315" src="https://www.youtube.com/embed/zMK-S8vXZpU?si=C4JO7qbzW1-mWUUC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
   </div>
   <div class="meta">
     <div class="title"><b></b></div>
@@ -313,7 +313,7 @@
 
 <section class="card" data-tz="America/New_York" data-label="">
   <div class="video-wrap">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/e-dnXa7yruU?si=x5JQiAG2MJHkrhfd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/5-31MVekskY?si=13YVxcCE02ehtW3P" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
   </div>
   <div class="meta">
     <div class="title"><b></b></div>
@@ -329,7 +329,7 @@
   <div class="meta">
     <div class="title">
       <b>Playlist YouTube Musique</b>
-      <span>Pré-remplie : PL9D-qI9DCdyqvsQVojo33NGcMW7mRRuSF</span>
+      <span>PrÃ©-remplie : PL9D-qI9DCdyqvsQVojo33NGcMW7mRRuSF</span>
     </div>
     <div class="ytm-controls">
       <input id="ytmId" type="text" value="PL9D-qI9DCdyqvsQVojo33NGcMW7mRRuSF" placeholder="PLxxxxxxxxxxxxxxxx" aria-label="ID de playlist YouTube">
@@ -342,7 +342,7 @@
 
 
 <script>
-// ===== HORLOGE 24H (fluide, auto-démarrage fiable) =====
+// ===== HORLOGE 24H (fluide, auto-dÃ©marrage fiable) =====
 function updateClock() {
   const now = new Date();
   const h = now.getUTCHours();
@@ -350,7 +350,7 @@ function updateClock() {
   const s = now.getUTCSeconds();
   const ms = now.getUTCMilliseconds();
   const hoursFloat = (h % 24) + m/60 + s/3600 + ms/3600000;
-  const hourDeg = hoursFloat * 15; // 360°/24h
+  const hourDeg = hoursFloat * 15; // 360Â°/24h
   const hh = document.getElementById("hourHand");
   if (hh) {
     hh.style.transform = `translate(-50%, -100%) rotate(${hourDeg}deg)`;
@@ -383,14 +383,14 @@ function stopClockLoops(){
   if (__clockInterval) clearInterval(__clockInterval), __clockInterval = null;
 }
 
-// Lancer immédiatement, et aussi au DOM prêt (double filet de sécurité)
+// Lancer immÃ©diatement, et aussi au DOM prÃªt (double filet de sÃ©curitÃ©)
 startClockLoops();
 document.addEventListener("DOMContentLoaded", startClockLoops, { once: true });
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) startClockLoops();
 });
 
-// ===== YOUTUBE MUSIC (IFrame API, pas de plein écran) =====
+// ===== YOUTUBE MUSIC (IFrame API, pas de plein Ã©cran) =====
 let ytmPlayer = null;
 let ytmReady = false;
 function normalizePlaylistInput(raw) {
@@ -417,7 +417,7 @@ function buildYTPlayer(playlistId) {
   });
 }
 window.onYouTubeIframeAPIReady = function() {
-  // On crée le lecteur au premier clic utilisateur pour maximiser les chances de lecture
+  // On crÃ©e le lecteur au premier clic utilisateur pour maximiser les chances de lecture
 };
 
 function initYouTubeMusic() {
@@ -494,4 +494,5 @@ initYouTubeMusic();
 
 
 </body>
+
 </html>
