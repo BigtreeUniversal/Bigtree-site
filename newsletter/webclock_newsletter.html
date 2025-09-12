@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard 4 fenêtres</title>
+  <style>
+    :root {
+      --bg1: #0c1630;
+      --bg2: #0b1a3c;
+      --card: #111b33;
+      --muted: rgba(255,255,255,.6);
+      --text: #e8eefc;
+      --accent: #ffd400;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 50% -10%, #13213f, transparent),
+                  linear-gradient(180deg, var(--bg1), var(--bg2));
+    }
+    header { padding: 16px 16px 0; }
+    h1 { margin: 0; font-size: 18px; font-weight: 700; opacity: .9; }
+    main { padding: 16px; }
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .card {
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+      overflow: hidden;
+    }
+    .card .content { padding: 12px; }
+    .titlebar {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 10px 12px 0; gap: 8px;
+    }
+    .titlebar b { font-weight: 700; }
+    .titlebar .sub { color: var(--muted); font-size: 12px; }
+    .meta-row { display: flex; align-items: center; gap: 10px; padding: 0 12px 10px; }
+    .chip { border: 1px solid rgba(255,255,255,.14); padding: 6px 10px; border-radius: 999px; font-size: 12px; color: var(--muted); }
+    .video-wrap, .news-wrap { width: 100%; aspect-ratio: 16/9; position: relative; overflow: hidden; }
+    .news-wrap { aspect-ratio: 16/10; }
+    .video-wrap iframe, .news-wrap iframe, .video-wrap > div { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 14px; }
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px 12px; }
+    .controls input[type="text"] {
+      padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06); color: var(--text); min-width: 220px; flex: 1 1 auto;
+    }
+    .controls button {
+      padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.18);
+      background: rgba(122,162,255,.22); color: var(--text); cursor: pointer;
+    }
+    .controls button:hover { background: rgba(122,162,255,.36); }
+
+    /* --- Clock --- */
+    #clockPane { padding: 12px; }
+    #clock {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 18px;
+      overflow: hidden;
+      background: url('clockmap1.jpg') center/cover no-repeat;
+      outline: 2px solid rgba(255, 212, 0, .9);
+      box-shadow: 0 0 0 3px rgba(255,212,0,.4), 0 0 40px rgba(255,212,0,.25);
+    }
+    .hand.hour {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 2px; height: 50%;
+      background: var(--accent);
+      transform-origin: center bottom;
+      transform: translate(-50%, -100%) rotate(0deg);
+      box-shadow: 0 0 6px var(--accent);
+    }
+    .hand.hour::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 50%;
+      transform: translate(-50%, 50%);
+      width: 16px; height: 16px; border-radius: 50%;
+      background: radial-gradient(circle, #ffd400 0%, #ffe873 55%, rgba(255,255,0,0.15) 75%, rgba(255,255,0,0) 85%);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), 0 0 60px rgba(255, 215, 0, 0.45), 0 0 120px rgba(255, 200, 0, 0.25);
+      pointer-events: none;
+    }
+    #clock::before {
+      content: "";
+      position: absolute; inset: 0; border-radius: 18px; pointer-events: none;
+      background: radial-gradient(circle at var(--sun-x, 50%) var(--sun-y, 50%),
+        rgba(255,236,140,.55) 0%,
+        rgba(255,236,140,.42) 18%,
+        rgba(255,236,140,.18) 25%,
+        rgba(255,236,140,0) 26%);
+      mix-blend-mode: screen;
+    }
+    .digital { font-variant-numeric: tabular-nums; letter-spacing: .02em; font-size: 14px; color: var(--muted); }
+  
+/* === Bigger newsletter pane on desktop === */
+@media (min-width: 900px) {
+  .card[aria-label="Newsletter"] { grid-column: 1 / -1; }
+  .card[aria-label="Newsletter"] .news-wrap { aspect-ratio: auto; height: 70vh; }
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bigtree Chill Newsletter</h1>
+  </header>
+  <main>
+    <div class="grid">
+
+      <!-- 1) UTC Clock -->
+      <section class="card" aria-label="Horloge UTC">
+        <div class="titlebar"><b>Horloge UTC</b><span class="sub">24h</span></div>
+        <div id="clockPane">
+          <div id="clock">
+            <div class="hand hour" id="hourHand"></div>
+          </div>
+        </div>
+        <div class="meta-row"><span class="chip">UTC <span id="digitalUTC" class="digital">--:--:--</span></span></div>
+      </section>
+
+      <!-- 2) YouTube Webcam (muted) -->
+      <section class="card" aria-label="YouTube Webcam (muted)">
+        <div class="titlebar"><b>YouTube Webcam</b><span class="sub">muet</span></div>
+        <div class="controls">
+          <input id="camInput" type="text" value="5uZa3-RMFos" placeholder="ID ou URL YouTube (webcam)" />
+          <button id="camToggle">🎥 Charger / Lecture</button>
+        </div>
+        <div class="video-wrap">
+          <div id="camPlayer"></div>
+        </div>
+      </section>
+
+      <!-- 3) YouTube Music / Vidéo (identique) -->
+      <section class="card" aria-label="YouTube Musique / Vidéo">
+        <div class="titlebar"><b>YouTube Musique / Vidéo</b><span class="sub">playlist ou vidéo</span></div>
+        <div class="controls">
+          <input id="ytInput" type="text" value="PL9D-qI9DCdyqvsQVojo33NGcMW7mRRuSF" placeholder="Playlist ID (PL...) ou ID/URL vidéo" />
+          <button id="ytToggle">🎵 Charger / Lecture</button>
+        </div>
+        <div class="video-wrap">
+          <div id="ytPlayer"></div>
+        </div>
+      </section>
+
+      <!-- 4) Newsletter -->
+      <section class="card" aria-label="Newsletter">
+        <div class="titlebar"><b>Newsletter</b><span class="sub">bigtreeconnection.com</span></div>
+        <div class="news-wrap">
+          <iframe src="https://bigtreeconnection.com/newsletter/index.html" title="Newsletter" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    // ===== Horloge UTC fluide =====
+    function updateClock() {
+      const now = new Date();
+      const h = now.getUTCHours();
+      const m = now.getUTCMinutes();
+      const s = now.getUTCSeconds();
+      const ms = now.getUTCMilliseconds();
+      const hoursFloat = (h % 24) + m/60 + s/3600 + ms/3600000;
+      const hourDeg = hoursFloat * 15;
+      const hh = document.getElementById("hourHand");
+      if (hh) hh.style.transform = `translate(-50%, -100%) rotate(${hourDeg}deg)`;
+      const clockEl = document.getElementById("clock");
+      if (clockEl) {
+        const theta = hourDeg * Math.PI / 180;
+        const rFrac = 0.5;
+        const x = 50 + Math.sin(theta) * rFrac * 50;
+        const y = 50 - Math.cos(theta) * rFrac * 50;
+        clockEl.style.setProperty("--sun-x", x + "%");
+        clockEl.style.setProperty("--sun-y", y + "%");
+      }
+      // Digital UTC
+      const pad = n => String(n).padStart(2,'0');
+      const digital = document.getElementById('digitalUTC');
+      if (digital) digital.textContent = pad(h)+":"+pad(m)+":"+pad(s);
+    }
+    // Boucles robustes
+    let __raf = null, __iv = null;
+    function startClock() {
+      if (__raf) cancelAnimationFrame(__raf);
+      if (__iv) clearInterval(__iv);
+      const step = () => { try { updateClock(); } catch(e){}; __raf = requestAnimationFrame(step); };
+      __raf = requestAnimationFrame(step);
+      __iv = setInterval(() => { try { updateClock(); } catch(e){} }, 1000);
+    }
+    startClock();
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) startClock(); });
+
+    // ===== YouTube helpers =====
+    let camPlayer = null, ytPlayer = null;
+    let ytApiReady = false;
+    window.onYouTubeIframeAPIReady = function(){ ytApiReady = true; };
+
+    function parseYouTube(input) {
+      if (!input) return {};
+      let s = input.trim().replace(/^["']|["']$/g, "");
+      try {
+        const u = new URL(s);
+        const list = u.searchParams.get("list");
+        const v = u.searchParams.get("v");
+        if (list) return { type: "playlist", id: list };
+        if (v) return { type: "video", id: v };
+        // share url youtu.be/<id>
+        if (u.hostname.includes("youtu.be")) {
+          return { type: "video", id: u.pathname.replace("/", "") };
+        }
+      } catch(e) {}
+      if (/^PL[-_A-Za-z0-9]+$/.test(s)) return { type: "playlist", id: s };
+      if (/^[A-Za-z0-9_-]{8,}$/i.test(s)) return { type: "video", id: s };
+      return {};
+    }
+
+    function buildPlayer(targetId, opts) {
+      return new YT.Player(targetId, {
+        width: "320", height: "180",
+        playerVars: {
+          playsinline: 1, rel: 0, fs: 0, modestbranding: 1, iv_load_policy: 3, controls: 1
+        },
+        events: opts.events || {}
+      });
+    }
+
+    // Webcam (muted)
+    (function(){
+      const input = document.getElementById("camInput");
+      const btn = document.getElementById("camToggle");
+      if (!input || !btn) return;
+      let created = false;
+
+      btn.addEventListener("click", () => {
+        if (!ytApiReady) return;
+        const parsed = parseYouTube(input.value);
+        if (!parsed.id) { input.focus(); return; }
+        if (!created) {
+          camPlayer = buildPlayer("camPlayer", {
+            events: {
+              onReady: () => {
+                try { camPlayer.mute(); } catch(e){}
+                if (parsed.type === "playlist") camPlayer.loadPlaylist({ list: parsed.id });
+                else camPlayer.loadVideoById(parsed.id);
+                try { camPlayer.playVideo(); } catch(e){}
+              }
+            }
+          });
+          created = true;
+          btn.textContent = "⏸️ Pause";
+        } else {
+          const st = camPlayer.getPlayerState();
+          if (st !== YT.PlayerState.PLAYING) { try { camPlayer.playVideo(); camPlayer.mute(); } catch(e){}; btn.textContent = "⏸️ Pause"; }
+          else { try { camPlayer.pauseVideo(); } catch(e){}; btn.textContent = "▶️ Lecture"; }
+        }
+      });
+    })();
+
+    // YouTube Music / Vidéo (identique)
+    (function(){
+      const input = document.getElementById("ytInput");
+      const btn = document.getElementById("ytToggle");
+      if (!input || !btn) return;
+      let created = false;
+
+      btn.addEventListener("click", () => {
+        if (!ytApiReady) return;
+        const parsed = parseYouTube(input.value);
+        if (!parsed.id) { input.focus(); return; }
+        if (!created) {
+          ytPlayer = buildPlayer("ytPlayer", {
+            events: {
+              onReady: () => {
+                if (parsed.type === "playlist") ytPlayer.loadPlaylist({ list: parsed.id });
+                else ytPlayer.loadVideoById(parsed.id);
+                try { ytPlayer.playVideo(); } catch(e){}
+              }
+            }
+          });
+          created = true;
+          btn.textContent = "⏸️ Pause";
+        } else {
+          const st = ytPlayer.getPlayerState();
+          if (st !== YT.PlayerState.PLAYING) { try { ytPlayer.playVideo(); } catch(e){}; btn.textContent = "⏸️ Pause"; }
+          else { try { ytPlayer.pauseVideo(); } catch(e){}; btn.textContent = "▶️ Lecture"; }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
