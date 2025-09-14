@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BUHS — Horloge + Radio + Vidéo + News (ludique)</title>
+<style>
+  :root{
+    --bg:#0b0c10; --panel:#0e1118; --ink:#e5e7eb; --muted:#9aa0a6; --line:#1f2a3a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:system-ui,Segoe UI,Roboto,Arial}
+  header{padding:14px 16px; border-bottom:1px solid var(--line); background:rgba(8,11,18,.85); position:sticky; top:0; z-index:5}
+  h1{margin:0; font-size:1.15rem}
+  p.sub{margin:.25rem 0 0; color:var(--muted)}
+  .wrap{max-width:1280px; margin:12px auto; padding:0 16px; display:grid; gap:14px}
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden;
+    box-shadow:0 10px 24px rgba(0,0,0,.25);
+  }
+  .card > header{
+    position:relative; background:transparent; border:0; padding:10px 12px; display:flex; align-items:center; gap:10px;
+  }
+  .title{font-weight:700; font-size:.95rem}
+  .muted{color:var(--muted); font-size:.9rem}
+  .body{padding:10px}
+  iframe{
+    display:block; width:100%; border:0; background:#000;
+    aspect-ratio: 16 / 9;
+  }
+  .clock-frame{ width:100%; border:0; background:#000; height: 860px; }
+  .row{display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+  .note{padding:8px 10px; background:#0b1220; border:1px dashed #26324a; border-radius:8px; color:#c8d1dd}
+  .open-link{color:#8dd0ff; text-decoration:none}
+  .open-link:hover{text-decoration:underline}
+  .grid-2{display:grid; grid-template-columns:1fr; gap:14px}
+  @media (min-width: 1100px){ .grid-2{ grid-template-columns:1.4fr .6fr } }
+</style>
+
+<header>
+  <h1>BUHS — Horloge + Radio + Vidéo + News</h1>
+  <p class="sub">Horloge client (bague autonome) + vidéo YouTube + playlist (radio) + index newsletter (ouverture en nouvel onglet).</p>
+</header>
+
+<main class="wrap">
+  <!-- 1) HORLOGE CLIENT -->
+  <section class="card">
+    <header><div class="title">Horloge (client)</div><div class="muted">bague autonome • phase/latitudes pilotées par la page serveur</div></header>
+    <div class="body">
+      <iframe class="clock-frame" src="BUHS_client_simple-2.html" title="Horloge BUHS (client)"></iframe>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <!-- 2) VIDEO YOUTUBE -->
+    <section class="card">
+      <header><div class="title">Vidéo YouTube</div><div class="muted">lecture dans une fenêtre dédiée</div></header>
+      <div class="body">
+        <iframe
+          src="https://www.youtube.com/embed/5uZa3-RMFos?si=I209FpSA2bm-3kip"
+          title="YouTube video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+          referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+    </section>
+
+    <!-- 3) PLAYLIST (RADIO) -->
+    <section class="card">
+      <header><div class="title">Radio (playlist YouTube)</div><div class="muted">joue en continu, pendant que vous lisez la newsletter</div></header>
+      <div class="body">
+        <iframe
+          src="https://www.youtube.com/embed/videoseries?list=PL9D-qI9DCdyrFcEX9YGOebv9gty2xQ0_I"
+          title="Playlist YouTube (Radio)"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+          referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <div class="note" style="margin-top:8px">
+          Conseil : l’autoplay audio est parfois bloqué ; lancez la lecture manuellement si besoin.
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- 4) NEWSLETTER -->
+  <section class="card">
+    <header class="row">
+      <div>
+        <div class="title">Newsletter (index)</div>
+        <div class="muted">les clics ouvrent dans un nouvel onglet pour ne pas couper la musique</div>
+      </div>
+      <a class="open-link" href="https://bigtreeconnection.com/newsletter/index.html" target="_blank" rel="noopener">Ouvrir l’index dans un nouvel onglet ↗</a>
+    </header>
+    <div class="body">
+      <iframe
+        src="https://bigtreeconnection.com/newsletter/index.html"
+        title="Newsletter index"
+        referrerpolicy="no-referrer-when-downgrade"
+        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+
+      <details class="note" style="margin-top:8px">
+        <summary>Astuce : forcer l’ouverture de tous les liens de la newsletter dans un nouvel onglet</summary>
+        Ajoutez ce script dans votre <code>newsletter/index.html</code> (avant <code>&lt;/body&gt;</code>) :
+        <pre style="white-space:pre-wrap; line-height:1.35; margin:8px 0 0">
+&lt;script&gt;
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('a[href]').forEach(a =&gt; {
+      a.setAttribute('target','_blank');
+      a.setAttribute('rel','noopener');
+    });
+  });
+&lt;/script&gt;</pre>
+      </details>
+    </div>
+  </section>
+</main>
+
+</html>
