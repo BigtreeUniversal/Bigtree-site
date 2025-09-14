@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BUHS — Client (Affichage) : Horloge + Lune + Latitudes (bague autonome)</title>
+<style>
+  :root { --size: 720px; --ringGlow: 0 0 16px rgba(255,255,255,.15); }
+  *{box-sizing:border-box}
+  html, body{height:100%}
+  body{margin:0; background:#0b0c10; color:#e5e7eb; font-family:system-ui,Segoe UI,Roboto,Arial}
+  .wrap{max-width:1200px; margin:16px auto; padding:0 16px; display:grid; gap:16px}
+  h1{font-size:1.15rem; margin:8px 0 0}
+  .sub{color:#9aa0a6; font-size:.95rem; margin:0 0 10px}
+
+  .dial{
+    width:var(--size); height:var(--size); margin:auto; position:relative;
+    border-radius:50%; overflow:hidden; background:#0d1117;
+    box-shadow:0 0 0 2px #222a35, 0 20px 50px rgba(0,0,0,.5);
+    user-select:none; touch-action:none;
+  }
+  .layer{position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; pointer-events:none}
+  .map{filter:contrast(1.1) saturate(1.05)}
+  .ring{mix-blend-mode:screen; box-shadow:var(--ringGlow)}
+  .mask{position:absolute; inset:0; border-radius:50%; box-shadow:inset 0 0 0 6px #2a3446, inset 0 0 120px rgba(0,0,0,.65)}
+
+  .hand.hour, .hand.moon{
+    position:absolute; top:50%; left:50%;
+    width:2px; height:45%;
+    transform-origin:center bottom;
+    transform:translate(-50%, -100%) rotate(0deg);
+    z-index:10;
+  }
+  .hand.hour{ background:gold; box-shadow:0 0 10px gold; }
+  .hand.moon{ background:deepskyblue; box-shadow:0 0 10px deepskyblue; z-index:9; }
+  .hand.diameter{
+    position:absolute; top:50%; left:50%; width:2px; height:100%;
+    transform-origin:center center; transform:translate(-50%, -50%) rotate(0deg);
+    background:#ff3b3b; box-shadow:0 0 6px #ff3b3b; z-index:8;
+  }
+  .center {position:absolute; width:16px; height:16px; background:gold;
+    border-radius:50%; top:50%; left:50%;
+    transform:translate(-50%, -50%); box-shadow:0 0 8px yellow; z-index:11;}
+
+  #rose {position:absolute; inset:0; border-radius:50%; pointer-events:none; z-index:7;}
+  .cardinal {position:absolute; font-size:1.2em; font-weight:bold; color:#0f0; text-shadow:0 0 8px #0f0;}
+  .north { top:0; left:50%; transform:translateX(-50%); }
+  .south { bottom:0; left:50%; transform:translateX(-50%); }
+  .east  { right:0; top:50%; transform:translateY(-50%); }
+  .west  { left:0; top:50%; transform:translateY(-50%); }
+
+  /* Markers riding on hands, radius controlled by latitude sliders (read-only here) */
+  .markerWrap{ position:absolute; top:50%; left:50%; width:0; height:0; transform-origin:center center; z-index:12; pointer-events:none; }
+  .marker{ position:absolute; left:50%; transform:translate(-50%, 0); width:16px; height:16px; border-radius:50%; }
+  .marker.sun { background:radial-gradient(circle, #ffd400 0%, #ffe873 55%, rgba(255,255,0,0.15) 75%, rgba(255,255,0,0) 85%);
+                box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), 0 0 60px rgba(255, 215, 0, 0.45), 0 0 120px rgba(255, 200, 0, 0.25); }
+  .marker.moon{ background:radial-gradient(circle, #53b6ff 0%, #a6dbff 55%, rgba(83,182,255,0.15) 75%, rgba(83,182,255,0) 85%);
+                box-shadow: 0 0 20px rgba(83, 182, 255, 0.8), 0 0 50px rgba(83, 182, 255, 0.4); }
+
+  .legend{display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center}
+  .legend > div{background:#0e1118; border:1px dashed #273042; border-radius:10px; padding:6px 8px}
+  .badge{display:inline-block; padding:4px 8px; border-radius:999px; background:#0b2a20; border:1px solid #1b684f; color:#a9ffd7; font:600 12px/1 ui-monospace,monospace}
+  .muted{color:#9aa0a6}
+
+  .hud{ display:grid; gap:10px; grid-template-columns:1fr; align-items:center;
+    background:#0e1118; border:1px solid #1c2433; border-radius:12px; padding:12px; max-width:980px; margin:0 auto;}
+  .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center}
+  input[type="range"]{width:320px}
+  .btn{border:1px solid #2a3446; background:#151b25; color:#e5e7eb; padding:6px 10px; border-radius:8px; cursor:pointer}
+
+  @media (max-width: 700px){
+    :root { --size: 88vw; }
+    input[type="range"]{width:240px}
+  }
+</style>
+<body>
+<div class="wrap">
+  <h1>BUHS — Page d'affichage (bague autonome)</h1>
+  <p class="sub">La <b>bague</b> est contrôlée localement sur cette page. <b>Phase</b> & <b>latitudes</b> restent pilotées par la page serveur (via localStorage).</p>
+
+  <div id="dial" class="dial">
+    <img id="map" class="layer map" src="clockmap1.jpg" alt="Carte azimutale">
+    <img id="ring" class="layer ring" src="ring.jpg" alt="Bague fuseaux">
+
+    <div id="rose">
+      <div class="cardinal north">N</div>
+      <div class="cardinal south">S</div>
+      <div class="cardinal east">E</div>
+      <div class="cardinal west">O</div>
+    </div>
+
+    <div class="hand hour" id="hourHand"></div>
+    <div class="hand moon" id="moonHand"></div>
+    <div class="hand diameter" id="diameterHand"></div>
+    <div class="center"></div>
+
+    <div class="markerWrap" id="sunMarkerWrap"><div class="marker sun"></div></div>
+    <div class="markerWrap" id="moonMarkerWrap"><div class="marker moon"></div></div>
+
+    <div class="mask"></div>
+  </div>
+
+  <div class="legend">
+    <div>Visibilité Lune : <span class="badge" id="visibilityVal">0%</span> <span class="muted">(100 % quand Jaune↔Bleu = 180°)</span></div>
+  </div>
+
+  <!-- Bague autonome (local-only) -->
+  <div class="hud">
+    <div class="row">
+      <button class="btn" id="prev">◀</button>
+      <input id="step" type="range" min="0" max="23" step="1" value="0" />
+      <button class="btn" id="next">▶</button>
+      <div>Position : <b id="pos">0</b> / 23 • Rotation bague : <b id="deg">0°</b></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ===== Constants =====
+  const MS=1, SEC=1000*MS, MIN=60*SEC, H=60*MIN, DAY=24*H;
+  const SYNODIC_MONTH = 29.530588853 * DAY;
+
+  // Keys shared with server (read-only here)
+  const keys = { K_PHASE: 'BUHS_PHASE_PCT', K_LAT_SUN: 'BUHS_LAT_SUN_DEG', K_LAT_MOON: 'BUHS_LAT_MOON_DEG' };
+
+  // DOM
+  const ringEl = document.getElementById('ring');
+  const hourHand = document.getElementById('hourHand');
+  const moonHand = document.getElementById('moonHand');
+  const diameterHand = document.getElementById('diameterHand');
+  const visibilityVal = document.getElementById('visibilityVal');
+  const sunMarkerWrap = document.getElementById('sunMarkerWrap');
+  const moonMarkerWrap = document.getElementById('moonMarkerWrap');
+
+  // Local bague controls
+  const stepEl = document.getElementById('step');
+  const posEl  = document.getElementById('pos');
+  const degEl  = document.getElementById('deg');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+
+  // Helpers
+  const toRad = d => d*Math.PI/180;
+  const norm180 = a => ((a + 540) % 360) - 180;
+  function sunAngleDeg(now){
+    const hu=now.getUTCHours(), mu=now.getUTCMinutes(), su=now.getUTCSeconds(), msu=now.getUTCMilliseconds();
+    return (hu%24)*15 + mu*0.25 + su*(0.25/60) + msu*(0.25/60000);
+  }
+  function getPhasePct(){ const v = Number(localStorage.getItem(keys.K_PHASE) ?? '0'); return isFinite(v)? Math.max(0, Math.min(100, v)) : 0; }
+  function getSunLat(){ const v = Number(localStorage.getItem(keys.K_LAT_SUN) ?? '0'); return isFinite(v)? Math.max(-30, Math.min(30, v)) : 0; }
+  function getMoonLat(){ const v = Number(localStorage.getItem(keys.K_LAT_MOON) ?? '0'); return isFinite(v)? Math.max(-30, Math.min(30, v)) : 0; }
+
+  function moonAngleDeg(now){
+    const t = now.getTime();
+    const sun = sunAngleDeg(now);
+    const phaseOffsetMs = - SYNODIC_MONTH * (getPhasePct()/100);
+    const rel = - (((t + phaseOffsetMs) % SYNODIC_MONTH + SYNODIC_MONTH) % SYNODIC_MONTH) / SYNODIC_MONTH * 360;
+    return sun + rel;
+  }
+
+  function radiusFracFromLat(deg){
+    const BASE = 0.50, SPAN = 0.20, MAXD = 30;
+    const f = Math.max(-MAXD, Math.min(MAXD, deg)) / MAXD;
+    return BASE - f * SPAN;
+  }
+
+  // Local bague state (autonome)
+  const stepCount = 24, stepDeg = 360/stepCount;
+  let pos = 0;
+  function setStep(i){
+    pos = (i % stepCount + stepCount) % stepCount;
+    const visualDeg = - pos * stepDeg;
+    ringEl.style.transform = `rotate(${visualDeg}deg)`;
+    posEl.textContent = pos;
+    degEl.textContent = (Math.round(visualDeg*10)/10)+'°';
+  }
+  prevBtn.addEventListener('click', ()=> setStep(pos-1));
+  nextBtn.addEventListener('click', ()=> setStep(pos+1));
+  stepEl.addEventListener('input', ()=> setStep(+stepEl.value));
+
+  // Render loop
+  function update(){
+    const now = new Date();
+    const sun = sunAngleDeg(now);
+    const moon = moonAngleDeg(now);
+
+    hourHand.style.transform = `translate(-50%,-100%) rotate(${sun}deg)`;
+    diameterHand.style.transform = `translate(-50%,-50%) rotate(${sun+90}deg)`;
+    moonHand.style.transform = `translate(-50%,-100%) rotate(${moon}deg)`;
+
+    // Visibilité (pourcentage)
+    const delta = norm180(moon - sun);
+    const illum = (1 - Math.cos(toRad(delta))) * 50; // 0..100
+    visibilityVal.textContent = Math.round(illum) + '%';
+
+    // Markers en fonction des latitudes (lues depuis le serveur via localStorage)
+    const R = document.querySelector('.dial').clientWidth/2;
+    const sunR = R * radiusFracFromLat(getSunLat());
+    const moonR = R * radiusFracFromLat(getMoonLat());
+    sunMarkerWrap.style.transform = `translate(-50%,-50%) rotate(${sun}deg)`;
+    sunMarkerWrap.querySelector('.marker').style.transform = `translate(-50%, ${-sunR}px)`;
+    moonMarkerWrap.style.transform = `translate(-50%,-50%) rotate(${moon}deg)`;
+    moonMarkerWrap.querySelector('.marker').style.transform = `translate(-50%, ${-moonR}px)`;
+  }
+
+  // Storage events: if server changes phase/latitudes, we update automatically
+  window.addEventListener('storage', (ev)=>{
+    if (ev.key === keys.K_PHASE || ev.key === keys.K_LAT_SUN || ev.key === keys.K_LAT_MOON) {
+      // nothing else needed; update loop reads current values
+    }
+  });
+
+  // Init
+  setStep(0);
+  setInterval(update, 1000/10);
+  update();
+})();
+</script>
+</body>
+</html>
