@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>BUHS — Horloge (client) + 2 webcams</title>
+<title>BUHS — SMART-CLOCK UTC + 2 webcams</title>
 <meta name="theme-color" content="#0b0c10">
 <style>
   :root{
@@ -56,8 +56,8 @@
 <body>
 
 <header class="top">
-  <h1>BUHS — Horloge (client) + Webcams</h1>
-  <p class="sub">L’horloge ci-dessous est la <b>version client</b> (bague autonome). Les <b>phases & latitudes</b> sont pilotées par votre page “serveur/contrôle”.</p>
+  <h1>BUHS — SMART-CLOCK UTC + Webcams</h1>
+  <p class="sub"><b></b> <b></b> </p>
 </header>
 
 <main class="wrap">
@@ -65,8 +65,8 @@
   <!-- CLOCK -->
   <section class="card">
     <div class="head">
-      <div class="title">Horloge — Client</div>
-      <div class="hint">bague autonome • phase/latitudes reçues</div>
+      <div class="title">SMART-CLOCK UTC</div>
+      <div class="hint"></div>
     </div>
     <div class="body">
       <!-- IMPORTANT : laissez ce src pointer vers votre page client (même origine) -->
@@ -78,8 +78,7 @@
       </div>
 
       <div class="note">
-        Conseil : ouvrez la page de <b>contrôle</b> dans un autre onglet (même site) pour régler la phase & les latitudes,
-        ou partagez un lien du client avec paramètres (ex. <code>?phase=37&amp;sunlat=12&amp;moonlat=-5</code>).
+        <code>?phase=37&amp;sunlat=12&amp;moonlat=-5</code>).
       </div>
     </div>
   </section>
@@ -96,30 +95,18 @@
     <div class="body">
       <div class="webcams" id="webcams">
         <!-- Remplacez les src par vos iframes de webcams (YouTube, Flowplayer, fournisseur webcam, etc.) -->
-        <iframe class="webcamFrame"
-          src="https://www.youtube.com/embed/5uZa3-RMFos"
-          title="Webcam #1 (exemple)"
-          loading="lazy"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen></iframe>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/jshwkG1ZpP8?si=Qmp_-zepLFxDKihL" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-        <iframe class="webcamFrame"
-          src="https://www.youtube.com/embed/videoseries?list=PL9D-qI9DCdyrFcEX9YGOebv9gty2xQ0_I"
-          title="Webcam #2 (playlist exemple)"
-          loading="lazy"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen></iframe>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/6QoLEltTzIM?si=uAmOf2eV5mERTzX8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
 
       <div class="note">
-        Astuce : ouvrez les webcams dans un <b>nouvel onglet</b> si vous souhaitez garder la lecture audio pendant que vous naviguez ailleurs.
+        
       </div>
     </div>
   </section>
 
-  <div class="foot">Design responsive pensé pour une future PWA (ajoutez manifest + service worker quand vous serez prêt).</div>
+  <div class="foot">Design responsive pensé pour une future PWA </div>
 
 </main>
 
