@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BUHS — Horloge (client) + 2 webcams</title>
+<meta name="theme-color" content="#0b0c10">
+<style>
+  :root{
+    --bg:#0b0c10; --panel:#0e1118; --ink:#e5e7eb; --muted:#9aa0a6; --line:#1f2a3a;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+  header.top{
+    position:sticky; top:0; z-index:5; background:rgba(8,11,18,.85);
+    backdrop-filter: blur(6px);
+    border-bottom:1px solid var(--line); padding:12px 16px;
+  }
+  h1{margin:0; font-size:1.05rem}
+  .sub{margin:.25rem 0 0; color:var(--muted); font-size:.95rem}
+  main.wrap{max-width:1200px; margin:12px auto; padding:0 16px; display:grid; gap:14px}
+
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+    box-shadow:0 12px 28px rgba(0,0,0,.28);
+  }
+  .card > .head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 12px; border-bottom:1px solid var(--line);
+  }
+  .title{font-weight:700; font-size:.95rem}
+  .hint{color:var(--muted); font-size:.9rem}
+  .body{padding:10px}
+  .note{margin-top:8px; padding:8px 10px; border:1px dashed #26324a; border-radius:10px; color:#c6d1e0; background:#0b1220}
+
+  /* CLOCK: square and responsive */
+  .clockWrap{ width:100%; aspect-ratio: 1 / 1; background:#000; border-radius:12px; overflow:hidden; }
+  .clockWrap > iframe{ width:100%; height:100%; display:block; border:0; }
+
+  /* WEBCAMS grid */
+  .webcams{ display:grid; grid-template-columns:1fr; gap:14px; }
+  @media (min-width: 960px){
+    .webcams{ grid-template-columns:1fr 1fr; }
+  }
+  .webcamFrame{ width:100%; aspect-ratio: 16 / 9; border:0; background:#000; border-radius:12px; display:block; }
+  .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .btn{appearance:none; border:1px solid #2a3446; background:#151b25; color:var(--ink); padding:6px 10px; border-radius:10px; cursor:pointer; text-decoration:none}
+  .btn:hover{background:#111927}
+  .muted{color:#9aa0a6}
+
+  .foot{color:#95a3b8; font-size:.9rem; text-align:center; padding:10px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>BUHS — Horloge (client) + Webcams</h1>
+  <p class="sub">L’horloge ci-dessous est la <b>version client</b> (bague autonome). Les <b>phases & latitudes</b> sont pilotées par votre page “serveur/contrôle”.</p>
+</header>
+
+<main class="wrap">
+
+  <!-- CLOCK -->
+  <section class="card">
+    <div class="head">
+      <div class="title">Horloge — Client</div>
+      <div class="hint">bague autonome • phase/latitudes reçues</div>
+    </div>
+    <div class="body">
+      <!-- IMPORTANT : laissez ce src pointer vers votre page client (même origine) -->
+      <div class="clockWrap">
+        <iframe
+          src="BUHS_client_simple_urls.html"
+          title="Horloge BUHS (client)">
+        </iframe>
+      </div>
+
+      <div class="note">
+        Conseil : ouvrez la page de <b>contrôle</b> dans un autre onglet (même site) pour régler la phase & les latitudes,
+        ou partagez un lien du client avec paramètres (ex. <code>?phase=37&amp;sunlat=12&amp;moonlat=-5</code>).
+      </div>
+    </div>
+  </section>
+
+  <!-- WEBCAMS -->
+  <section class="card">
+    <div class="head">
+      <div class="title">Webcams (2 fenêtres)</div>
+      <div class="row">
+        <a class="btn" href="#" onclick="swapLayout();return false;">Basculer 1×2 / 2×1</a>
+        <span class="hint">Responsive : côte à côte (desktop) · empilé (mobile)</span>
+      </div>
+    </div>
+    <div class="body">
+      <div class="webcams" id="webcams">
+        <!-- Remplacez les src par vos iframes de webcams (YouTube, Flowplayer, fournisseur webcam, etc.) -->
+        <iframe class="webcamFrame"
+          src="https://www.youtube.com/embed/5uZa3-RMFos"
+          title="Webcam #1 (exemple)"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen></iframe>
+
+        <iframe class="webcamFrame"
+          src="https://www.youtube.com/embed/videoseries?list=PL9D-qI9DCdyrFcEX9YGOebv9gty2xQ0_I"
+          title="Webcam #2 (playlist exemple)"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen></iframe>
+      </div>
+
+      <div class="note">
+        Astuce : ouvrez les webcams dans un <b>nouvel onglet</b> si vous souhaitez garder la lecture audio pendant que vous naviguez ailleurs.
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">Design responsive pensé pour une future PWA (ajoutez manifest + service worker quand vous serez prêt).</div>
+
+</main>
+
+<script>
+// Option : bascule rapide de layout (1×2 / 2×1) en desktop
+function swapLayout(){
+  const grid = document.getElementById('webcams');
+  if(!grid) return;
+  const current = getComputedStyle(grid).gridTemplateColumns;
+  if(current.split(' ').length > 1){
+    grid.style.gridTemplateColumns = '1fr';
+  }else{
+    grid.style.gridTemplateColumns = '1fr 1fr';
+  }
+}
+</script>
+
+</body>
+</html>
