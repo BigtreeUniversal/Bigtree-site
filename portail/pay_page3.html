@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support My Work</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body, html {
+            height: 100%;
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #121212;
+        }
+
+        .background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url('YOUR_IMAGE.jpg') no-repeat center center/cover;
+            z-index: -1;
+            filter: brightness(0.5);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            border-radius: 24px;
+            text-align: center;
+            color: white;
+            width: 95%;
+            max-width: 450px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        h1 { margin-bottom: 0.5rem; font-size: 1.8rem; }
+        p { margin-bottom: 2rem; color: #ddd; }
+
+        .donation-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn-option {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-option:hover { background: white; color: black; }
+
+        /* Payment Methods Area */
+        #payment-methods {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .pay-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .paypal { background: #0070ba; color: white; }
+        .stripe { background: #635bff; color: white; }
+        .crypto { background: #f7931a; color: white; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+
+        .qr-box { display: none; margin-top: 15px; background: white; padding: 10px; border-radius: 10px; color: black; }
+        .qr-box img { width: 130px; }
+        
+        .back-btn { font-size: 0.8rem; color: #aaa; cursor: pointer; margin-top: 10px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <div class="background"></div>
+
+    <div class="container">
+        <h1>Support Ecosystem</h1>
+        <p>Choose an option to contribute</p>
+
+        <div id="main-menu" class="donation-grid">
+            <button class="btn-option" onclick="selectAmount(2)">☕ coffee ($2)</button>
+            <button class="btn-option" onclick="selectAmount(5)">🎁 Support ($5)</button>
+            <button class="btn-option" onclick="showManual()">✨ Custom Amount</button>
+        </div>
+
+        <div id="manual-area" style="display:none;">
+            <input type="number" id="custom-amount" placeholder="Enter amount ($)" min="1">
+            <input type="email" id="user-email" placeholder="Your email (for a thank you note)">
+            <button class="btn-option" style="width:100%" onclick="validateManual()">Confirm</button>
+            <span class="back-btn" onclick="resetAll()">← Back</span>
+        </div>
+
+        <div id="payment-methods">
+            <h2 id="summary-text">Amount: $0</h2>
+            <button class="pay-btn stripe" onclick="handleStripe()">Credit Card (Stripe)</button>
+            <button class="pay-btn paypal" onclick="toggleQR('paypal-qr')">PayPal</button>
+            <button class="pay-btn crypto" onclick="toggleQR('crypto-qr')">Crypto Wallet</button>
+            
+            <div id="paypal-qr" class="qr-box">
+                <p>Scan to pay with PayPal</p>
+                <img src="YOUR_PAYPAL_QR.png" alt="PayPal QR">
+            </div>
+
+            <div id="qr-crypto" class="qr-box">
+                <p>Scan for Crypto</p>
+                <img src="YOUR_CRYPTO_QR.png" alt="Crypto QR">
+                <p style="font-size:0.7rem; margin-top:5px;">0xYourWalletAddressGoesHere</p>
+            </div>
+            
+            <span class="back-btn" onclick="resetAll()">← Back to options</span>
+        </div>
+    </div>
+
+    <script>
+        let selectedAmount = 0;
+
+        function selectAmount(amt) {
+            selectedAmount = amt;
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('payment-methods').style.display = 'block';
+            document.getElementById('summary-text').innerText = "Amount: $" + amt;
+        }
+
+        function showManual() {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('manual-area').style.display = 'block';
+        }
+
+        function validateManual() {
+            let amt = document.getElementById('custom-amount').value;
+            let email = document.getElementById('user-email').value;
+            
+            if(amt >= 1) {
+                selectedAmount = amt;
+                document.getElementById('manual-area').style.display = 'none';
+                document.getElementById('payment-methods').style.display = 'block';
+                document.getElementById('summary-text').innerText = "Amount: $" + amt;
+                // Note: You can store the email or send it via the payment link metadata
+            } else {
+                alert("Please enter a valid amount.");
+            }
+        }
+
+        function resetAll() {
+            document.getElementById('main-menu').style.display = 'grid';
+            document.getElementById('manual-area').style.display = 'none';
+            document.getElementById('payment-methods').style.display = 'none';
+            hideQRs();
+        }
+
+        function toggleQR(id) {
+            hideQRs();
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function hideQRs() {
+            document.getElementById('paypal-qr').style.display = 'none';
+            document.getElementById('qr-crypto').style.display = 'none';
+        }
+
+        function handleStripe() {
+            // For manual amounts > 5, make sure you use a Stripe Link 
+            // that allows "Customer chooses amount"
+            window.open('https://buy.stripe.com/YOUR_LINK', '_blank');
+        }
+    </script>
+</body>
+</html>
