@@ -18,30 +18,35 @@
 <body>
     <div id="bg-layer"></div>
 
-    <script>
-        // --- CONFIGURATION ---
-        const RENDER_URL = "https://real-time-smart-clock.onrender.com"; 
-        const BTG_ADDR = "0x14e732bbba1cd07685d2081869ca5062ac32463a";
+   
+        <script>
+    // --- CONFIGURATION ---
+    const RENDER_URL = "https://real-time-smart-clock.onrender.com"; 
+    const BTG_ADDR = "0x14e732bbba1cd07685d2081869ca5062ac32463a";
 
-        async function updateSnapshot() {
-            console.log("Tentative de mise à jour de l'image...");
-            const bgLayer = document.getElementById('bg-layer');
-            const newImgUrl = `${RENDER_URL}/latest-image?t=${Date.now()}`;
-            
-            const tempImg = new Image();
-            tempImg.src = newImgUrl;
-            tempImg.onload = () => {
-                bgLayer.style.backgroundImage = `url('${newImgUrl}')`;
-                console.log("Image mise à jour avec succès !");
-            };
-            tempImg.onerror = () => {
-                console.error("Erreur de chargement : Le serveur Render est peut-être encore en train de démarrer.");
-            };
-        }
+    async function updateSnapshot() {
+        console.log("Tentative de mise à jour de l'image...");
+        const bgLayer = document.getElementById('bg-layer');
+        // Utilisation correcte du template literal avec backticks
+        const newImgUrl = `${RENDER_URL}/latest-image?t=${Date.now()}`;
+        
+        const tempImg = new Image();
+        tempImg.src = newImgUrl;
+        tempImg.onload = () => {
+            // Utilisation correcte des backticks pour la propriété CSS
+            bgLayer.style.backgroundImage = `url("${newImgUrl}")`;
+            console.log("Image mise à jour avec succès !");
+        };
+        tempImg.onerror = () => {
+            console.error("Erreur de chargement de l'image.");
+        };
+    }
 
-        // Lancement immédiat et répétition toutes les 5 minutes
-        updateSnapshot();
-        setInterval(updateSnapshot, 300000);
+    // Lancement immédiat
+    updateSnapshot();
+    // Rafraîchissement toutes les 5 minutes
+    setInterval(updateSnapshot, 300000);
+
     </script>
 </body>
 </html>
