@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BUHS — SMART CLOCK (Mobile)</title>
+
+<!-- Leaflet & Fullscreen -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css" />
+
+<style>
+  :root { --size: 560px; --ringGlow: 0 0 16px rgba(255,255,255,.15); }
+  *{box-sizing:border-box}
+  html, body{height:100%}
+  body{margin:0; background:#0b0c10; color:#e5e7eb; font-family:system-ui,Segoe UI,Roboto,Arial}
+  .wrap{max-width:1100px; margin:12px auto; padding:0 12px; display:grid; gap:14px}
+  h1{font-size:1.05rem; margin:6px 0 0}
+
+  /* Cadran rond */
+  .dial{
+    width:var(--size); height:var(--size); margin:auto; position:relative;
+    border-radius:50%; overflow:hidden; background:#0d1117;
+    box-shadow:0 0 0 2px #222a35, 0 20px 50px rgba(0,0,0,.5);
+    user-select:none; touch-action:none;
+  }
+  .layer{position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; pointer-events:none}
+  .map{filter:contrast(1.1) saturate(1.05)}
+  .ring{mix-blend-mode:screen; box-shadow:var(--ringGlow)}
+  .mask{position:absolute; inset:0; border-radius:50%; box-shadow:inset 0 0 0 6px #2a3446, inset 0 0 120px rgba(0,0,0,.65)}
+
+  /* Aiguilles */
+  .hand.hour, .hand.moon{
+    position:absolute; top:50%; left:50%;
+    width:2px; height:45%;
+    transform-origin:center bottom;
+    transform:translate(-50%, -100%) rotate(0deg);
+    z-index:10;
+  }
+  .hand.hour{ background:gold; box-shadow:0 0 10px gold; }
+  .hand.moon{ background:deepskyblue; box-shadow:0 0 10px deepskyblue; z-index:9; }
+  .hand.diameter{
+    position:absolute; top:50%; left:50%; width:2px; height:100%;
+    transform-origin:center center; transform:translate(-50%, -50%) rotate(0deg);
+    background:#ff3b3b; box-shadow:0 0 6px #ff3b3b; z-index:8;
+  }
+  .center {position:absolute; width:16px; height:16px; background:gold;
+    border-radius:50%; top:50%; left:50%;
+    transform:translate(-50%, -50%); box-shadow:0 0 8px yellow; z-index:11;}
+
+  /* Rose des vents */
+  #rose {position:absolute; inset:0; border-radius:50%; pointer-events:none; z-index:7;}
+  .cardinal {position:absolute; font-size:1.2em; font-weight:bold; color:#0f0; text-shadow:0 0 8px #0f0;}
+  .north { top:0; left:50%; transform:translateX(-50%); }
+  .south { bottom:0; left:50%; transform:translateX(-50%); }
+  .east  { right:0; top:50%; transform:translateY(-50%); }
+  .west  { left:0; top:50%; transform:translateY(-50%); }
+
+  /* Horloge digitale */
+  .clock{background:rgba(0,0,0,.45); border:1px solid #1f2a3a; border-radius:10px; padding:6px 8px;
+    box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 0 12px rgba(0,0,0,.25); display:inline-block;}
+  .clock-out{ position:static; margin:6px auto 0; }
+  .seg{ font-family:ui-monospace,monospace; font-weight:700; line-height:1.05; text-align:center;
+    text-shadow:0 0 6px rgba(75,255,170,.35); color:#9af7be;}
+  .seg.big{font-size:18px}
+  .seg.small{font-size:12px; color:#89d1fa; text-shadow:0 0 6px rgba(0,180,255,.35)}
+  .clock .lab{font-size:10px; color:#9aa0a6; display:block; margin-bottom:2px; text-align:center}
+
+  /* HUD */
+  .hud{ display:grid; gap:8px; grid-template-columns:1fr; align-items:center;
+    background:#0e1118; border:1px solid #1c2433; border-radius:12px; padding:10px;}
+  .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+  input[type="range"]{width:260px}
+  .btn{border:1px solid #2a3446; background:#151b25; color:#e5e7eb; padding:8px 10px; border-radius:10px; cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  select{border:1px solid #2a3446; background:#0f1420; color:#e5e7eb; padding:6px 8px; border-radius:8px}
+  .legend{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+  .legend > div{background:#0e1118; border:1px dashed #273042; border-radius:10px; padding:6px 8px}
+  .badge{display:inline-block; padding:4px 8px; border-radius:999px; background:#0b2a20; border:1px solid #1b684f; color:#a9ffd7; font:600 12px/1 ui-monospace,monospace}
+  .muted{color:#9aa0a6}
+
+  /* Carte */
+  #mapContainer{width:95%; height:52vh; max-height:520px; margin:8px auto; border:2px solid #0f0; border-radius:8px;}
+  #info{margin-top:4px; font-size:1.05em; color:#0f0; text-shadow:0 0 8px #0f0; text-align:center}
+
+  /* Mobile tweaks */
+  @media (max-width: 640px){
+    :root { --size: 86vw; }
+    .seg.big{font-size:16px}
+  }
+</style>
+
+<body>
+<div class="wrap">
+  <h1>SMARTCLOCK - UTC</h1>
+
+  <!-- Cadran -->
+  <div id="dial" class="dial">
+    <img id="map" class="layer map" src="clockmap1.jpg" alt="Carte azimutale">
+    <img id="ring" class="layer ring" src="ring.jpg" alt="Bague fuseaux">
+
+    <!-- Rose des vents -->
+    <div id="rose">
+      <div class="cardinal north">N</div>
+      <div class="cardinal south">S</div>
+      <div class="cardinal east">E</div>
+      <div class="cardinal west">O</div>
+    </div>
+
+    <!-- Aiguilles -->
+    <div class="hand hour" id="hourHand"></div>
+    <div class="hand moon" id="moonHand"></div>
+    <div class="hand diameter" id="diameterHand"></div>
+    <div class="center"></div>
+
+    <div class="mask"></div>
+  </div>
+
+  <!-- Horloge digitale -->
+  <div class="clock clock-out">
+    <span class="lab">UTC</span>
+    <div class="seg big" id="utcClock">00:00:00</div>
+    <span class="lab">UTC<span id="offLab">+0</span></span>
+    <div class="seg small" id="locClock">00:00:00</div>
+  </div>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="row">
+      <button class="btn" id="prev">◀</button>
+      <input id="step" type="range" min="0" max="23" step="1" value="0" />
+      <button class="btn" id="next">▶</button>
+      <button class="btn" id="start">Activer boussole/GPS</button>
+      <button class="btn" id="locate">📍 Recentrer</button>
+      <button class="btn" id="fsMap">⛶ Plein écran carte</button>
+    </div>
+    <div class="legend">
+      <div>Position : <b id="pos">0</b> / 23</div>
+      <div>Rotation : <b id="deg">0°</b></div>
+      <div>Offset : <b id="offTxt">UTC+0</b></div>
+      <div>Visibilité Lune : <span class="badge" id="visibilityVal">0%</span> <span class="muted">(100 % quand Jaune↔Bleu = 180°)</span></div>
+    </div>
+    <div class="row">
+      <button class="btn" id="offMinus">−</button>
+      <select id="offset" title="Décalage horaire UTC"></select>
+      <button class="btn" id="offPlus">+</button>
+      <button class="btn" id="snap0">Remettre à 0°</button>
+      <label for="moonPhase">Phase Lune :</label>
+      <input id="moonPhase" type="range" min="0" max="100" step="1" value="0" />
+      <span id="moonPhaseVal">0%</span>
+    </div>
+  </div>
+
+  <!-- Carte -->
+  <div id="info">Azimut : --° | Lat : -- | Lon : --</div>
+  <div id="mapContainer"></div>
+</div>
+
+<!-- JS libs -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
+
+<script>
+(() => {
+  // --- Constantes temps ---
+  const MS=1, SEC=1000*MS, MIN=60*SEC, H=60*MIN, DAY=24*H;
+  const SYNODIC_MONTH = 29.530588853 * DAY;   // 29,53 j
+  // Offset de phase via slider (ms)
+  let synodicOffsetMs = 0;
+
+  // --- Eléments DOM ---
+  const ringEl = document.getElementById('ring');
+  const stepEl = document.getElementById('step');
+  const posEl  = document.getElementById('pos');
+  const degEl  = document.getElementById('deg');
+  const utcClock = document.getElementById('utcClock');
+  const locClock = document.getElementById('locClock');
+  const offLab   = document.getElementById('offLab');
+  const offTxt   = document.getElementById('offTxt');
+  const hourHand = document.getElementById('hourHand');
+  const moonHand = document.getElementById('moonHand');
+  const diameterHand = document.getElementById('diameterHand');
+  const offsetEl = document.getElementById('offset');
+  const offMinus = document.getElementById('offMinus');
+  const offPlus  = document.getElementById('offPlus');
+  const moonPhase = document.getElementById('moonPhase');
+  const moonPhaseVal = document.getElementById('moonPhaseVal');
+  const visibilityVal = document.getElementById('visibilityVal');
+  const infoDiv = document.getElementById('info');
+  const fsBtn = document.getElementById('fsMap');
+  const locateBtn = document.getElementById('locate');
+
+  // --- Etat ---
+  const stepCount = 24, stepDeg = 360/stepCount;
+  let pos = 0, offset = 0;
+  let map, marker, watchId=null, lastCoords=null;
+
+  // --- Utils ---
+  const toRad = d => d*Math.PI/180;
+  const norm180 = a => ((a + 540) % 360) - 180;
+  const pad = n => (n<10?'0':'')+n;
+  const fmt = (h,m,s)=> `${pad(h)}:${pad(m)}:${pad(s)}`;
+
+  // --- Angles Soleil/Lune ---
+  function sunAngleDeg(now){
+    const hu=now.getUTCHours(), mu=now.getUTCMinutes(), su=now.getUTCSeconds(), msu=now.getUTCMilliseconds();
+    return (hu%24)*15 + mu*0.25 + su*(0.25/60) + msu*(0.25/60000);
+  }
+  function moonAngleDeg(now){
+    // lune = soleil + dérive synodique (29,53 j) ⇒ jour lunaire ≈ 24,84 h
+    const t = now.getTime();
+    const sun = sunAngleDeg(now);
+    const rel = - (((t + synodicOffsetMs) % SYNODIC_MONTH + SYNODIC_MONTH) % SYNODIC_MONTH) / SYNODIC_MONTH * 360;
+    return sun + rel;
+  }
+
+  function updateScene(){
+    const now = new Date();
+
+    // Soleil (jaune)
+    const sun = sunAngleDeg(now);
+    hourHand.style.transform = `translate(-50%,-100%) rotate(${sun}deg)`;
+
+    // Lune (bleue)
+    const moon = moonAngleDeg(now);
+    moonHand.style.transform = `translate(-50%,-100%) rotate(${moon}deg)`;
+
+    // Diamètre rouge (perpendiculaire au Soleil)
+    diameterHand.style.transform = `translate(-50%,-50%) rotate(${sun+90}deg)`;
+
+    // Visibilité
+    const delta = norm180(moon - sun);
+    const illum = (1 - Math.cos(toRad(delta))) * 50; // 0..100
+    visibilityVal.textContent = Math.round(illum) + '%';
+  }
+
+  // --- Horloges digitales ---
+  function updateClocks(){
+    const now = new Date();
+    utcClock.textContent = fmt(now.getUTCHours(),now.getUTCMinutes(),now.getUTCSeconds());
+    const t = new Date(now.getTime() + offset*3600*1000);
+    locClock.textContent = fmt(t.getUTCHours(),t.getUTCMinutes(),t.getUTCSeconds());
+  }
+
+  // --- Bague / fuseaux ---
+  function setStep(i){
+    pos = (i % stepCount + stepCount) % stepCount;
+    const visualDeg = - pos * stepDeg;
+    ringEl.style.transform = `rotate(${visualDeg}deg)`;
+    posEl.textContent = pos;
+    degEl.textContent = (Math.round(visualDeg*10)/10)+'°';
+    // synchro offset avec la bague (comme v1.6)
+    let o = (pos <= 14) ? pos : (pos - 24);
+    if (o < -12) o = -12; if (o > 14) o = 14;
+    setOffset(o);
+  }
+  function setOffset(o){
+    offset = Math.max(-12, Math.min(14, o));
+    offsetEl.value = String(offset);
+    offLab.textContent = (offset>=0?`+${offset}`:`${offset}`);
+    offTxt.textContent = `UTC${(offset>=0?`+${offset}`:`${offset}`)}`;
+    updateClocks();
+  }
+
+  // --- UI events ---
+  document.getElementById('prev').onclick = () => setStep(pos-1);
+  document.getElementById('next').onclick = () => setStep(pos+1);
+  document.getElementById('snap0').onclick = () => setStep(0);
+  stepEl.oninput = () => setStep(+stepEl.value);
+  offMinus.addEventListener('click', ()=> setOffset(offset-1));
+  offPlus .addEventListener('click', ()=> setOffset(offset+1));
+  offsetEl.addEventListener('change', ()=> setOffset(+offsetEl.value));
+  moonPhase.addEventListener('input', ()=> {
+    const pct = +moonPhase.value;
+    moonPhaseVal.textContent = pct + '%';
+    synodicOffsetMs = - SYNODIC_MONTH * (pct/100);
+    updateScene();
+  });
+
+  // --- Init fuseaux options ---
+  for (let h=-12; h<=14; h++){
+    const o = document.createElement('option');
+    o.value = h; o.textContent = (h>=0?`+${h}`:`${h}`);
+    offsetEl.appendChild(o);
+  }
+
+    // --- Boussole corrigée ---
+  function handleOrientation(e){
+    let heading = null;
+    if (e.webkitCompassHeading !== undefined) {
+      heading = e.webkitCompassHeading;
+    } else if (e.alpha !== null) {
+      heading = 360 - e.alpha; 
+    }
+
+    if (heading !== null) {
+      document.getElementById("rose").style.transform = `rotate(${-heading}deg)`;
+      updateInfo(heading, lastCoords?.lat, lastCoords?.lon);
+    }
+  }
+
+  // --- GPS + Info ---
+  function updateInfo(heading, lat, lon){
+    let a = heading !== undefined ? `Azimut : ${Math.round(heading)}°` : 'Azimut : --°';
+    let la = lat !== undefined ? `Lat : ${lat}` : 'Lat : --';
+    let lo = lon !== undefined ? `Lon : ${lon}` : 'Lon : --';
+    infoDiv.textContent = `${a} | ${la} | ${lo}`;
+  }
+
+  function initMap(lat, lon){
+    if(!map){
+      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'});
+      const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'});
+      map = L.map('mapContainer',{center:[lat,lon],zoom:10,layers:[osm]});
+      marker = L.marker([lat,lon]).addTo(map);
+      L.control.layers({"OSM":osm,"Satellite":esriSat}).addTo(map);
+      if (L.Control.Fullscreen) map.addControl(new L.Control.Fullscreen());
+    } else {
+      map.setView([lat,lon]);
+      marker.setLatLng([lat,lon]);
+    }
+  }
+
+  // --- Activation Unique (Boussole + GPS) ---
+  document.getElementById('start').addEventListener('click', () => {
+    // 1. Demande Boussole (iOS/Android)
+    if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+      DeviceOrientationEvent.requestPermission().then(r => {
+        if (r === "granted") window.addEventListener("deviceorientation", handleOrientation, true);
+      }).catch(err => console.error(err));
+    } else {
+      window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+      window.addEventListener("deviceorientation", handleOrientation, true);
+    }
+
+    // 2. Activation GPS
+    if ("geolocation" in navigator){
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+      watchId = navigator.geolocation.watchPosition(p => {
+        const lat = +p.coords.latitude.toFixed(3);
+        const lon = +p.coords.longitude.toFixed(3);
+        lastCoords = {lat, lon};
+        updateInfo(undefined, lat, lon); 
+        initMap(lat, lon);
+      }, err => console.warn(err), {enableHighAccuracy:true});
+    }
+    
+    // Feedback visuel
+    document.getElementById('start').textContent = "Capteurs Actifs ✅";
+    document.getElementById('start').style.background = "#0b2a20";
+  });
+
+
+
+
+
+
+
+
+
+
+
+  // --- GPS + Leaflet ---
+  function updateInfo(heading, lat, lon){
+    let parts = infoDiv.textContent.split("|");
+    let a = heading!==undefined ? `Azimut : ${heading.toFixed(1)}°` : (parts[0]||'Azimut : --°').trim();
+    let la= lat!==undefined ? `Lat : ${lat}` : (parts[1]||'Lat : --').trim();
+    let lo= lon!==undefined ? `Lon : ${lon}` : (parts[2]||'Lon : --').trim();
+    infoDiv.textContent = `${a} | ${la} | ${lo}`;
+  }
+  function initMap(lat, lon){
+    if(!map){
+      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'});
+      const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'});
+      const esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'});
+      map = L.map('mapContainer',{center:[lat,lon],zoom:10,layers:[osm]});
+      marker = L.marker([lat,lon]).addTo(map);
+      L.control.layers({"OpenStreetMap":osm,"Esri Satellite":esriSat,"Esri Topo":esriTopo}).addTo(map);
+
+      // Contrôle plein écran (plugin v2.1)
+      if (L.Control.Fullscreen) {
+        map.addControl(new L.Control.Fullscreen());
+      }
+    } else {
+      map.setView([lat,lon], map.getZoom()||10);
+      marker.setLatLng([lat,lon]);
+    }
+  }
+
+  // Bouton plein écran manuel si besoin
+  fsBtn.addEventListener('click', ()=>{
+    const el = document.getElementById('mapContainer');
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      if (el.requestFullscreen) el.requestFullscreen();
+    }
+  });
+
+  // Recentrer
+  locateBtn.addEventListener('click', ()=>{
+    if (lastCoords && map) {
+      map.setView([lastCoords.lat,lastCoords.lon], 12);
+      marker.setLatLng([lastCoords.lat,lastCoords.lon]);
+    } else if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(p=>{
+        const lat=+p.coords.latitude.toFixed(3), lon=+p.coords.longitude.toFixed(3);
+        lastCoords = {lat, lon};
+        updateInfo(undefined, lat, lon); initMap(lat,lon);
+      });
+    }
+  });
+
+  // Activer capteurs + GPS
+  document.getElementById('start').addEventListener('click', () => {
+    // Orientation permissions iOS
+    if (typeof DeviceOrientationEvent !== "undefined" &&
+        typeof DeviceOrientationEvent.requestPermission === "function") {
+      DeviceOrientationEvent.requestPermission().then(r=>{
+        if (r === "granted") window.addEventListener("deviceorientation", handleOrientation, true);
+      }).catch(()=>{});
+    } else {
+      window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+      window.addEventListener("deviceorientation", handleOrientation, true);
+    }
+    // Geoloc
+    if ("geolocation" in navigator){
+      if (watchId!==null) navigator.geolocation.clearWatch(watchId);
+      watchId = navigator.geolocation.watchPosition(p=>{
+        const lat=+p.coords.latitude.toFixed(3), lon=+p.coords.longitude.toFixed(3);
+        lastCoords = {lat, lon};
+        updateInfo(undefined, lat, lon); initMap(lat,lon);
+      }, err=>{console.warn(err)}, {enableHighAccuracy:true, maximumAge:5000, timeout:10000});
+    }
+  });
+
+  // --- Boucle ---
+  setInterval(()=>{ updateClocks(); updateScene(); }, 1000/10);
+
+  // --- Init ---
+  setOffset(0); setStep(0); updateScene(); updateClocks();
+  moonPhase.value = "0"; moonPhaseVal.textContent = "0%";
+})();
+</script>
+</body>
+</html>
