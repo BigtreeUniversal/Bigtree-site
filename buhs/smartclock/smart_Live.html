@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BUHS — SMART CLOCK v1.0 LIVE</title>
+
+  <style>
+    :root { 
+      --clock-size: min(90vw, 500px); 
+    }
+    
+    *{box-sizing:border-box}
+    
+    body {
+      margin:0; 
+      background:#0b0c10; 
+      color:#e5e7eb; 
+      font-family:system-ui, sans-serif; 
+      display:flex; 
+      flex-direction:column; 
+      align-items:center; 
+      justify-content: center;
+      padding:10px; 
+      min-height:100vh;
+      overflow-x: hidden;
+    }
+    
+    .dial {
+      width: var(--clock-size); 
+      height: var(--clock-size); 
+      position:relative;
+      border-radius:50%; 
+      overflow:hidden; 
+      background:#0d1117;
+      box-shadow:0 0 0 2px #222a35, 0 10px 30px rgba(0,0,0,.8);
+    }
+
+    .layer {
+      position:absolute; inset:0; display:block; 
+      width:100%; height:100%; object-fit:cover; pointer-events:none;
+    }
+
+    /* Rotation 180° pour l'image du serveur */
+    #map {
+      transform: rotate(180deg);
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .ring { mix-blend-mode:screen; transition: transform 0.3s ease-out; }
+    
+    .mask {
+      position:absolute; inset:0; border-radius:50%; 
+      box-shadow:inset 0 0 0 6px #2a3446, inset 0 0 60px rgba(0,0,0,.7);
+    }
+
+    .hand.hour, .hand.moon {
+      position:absolute; top:50%; left:50%;
+      width:2px; height:45%;
+      transform-origin:center bottom;
+      z-index:10;
+    }
+    
+    .hand.hour { background:gold; box-shadow:0 0 8px gold; }
+    .hand.moon { background:deepskyblue; box-shadow:0 0 8px deepskyblue; z-index:9; }
+    
+    .hand.diameter {
+      position:absolute; top:50%; left:50%; width:1px; height:100%;
+      transform-origin:center center;
+      background:rgba(255, 59, 59, 0.6); box-shadow:0 0 4px #ff3b3b; z-index:8;
+    }
+
+    .center {
+      position:absolute; width:12px; height:12px; background:gold;
+      border-radius:50%; top:50%; left:50%;
+      transform:translate(-50%, -50%); box-shadow:0 0 8px yellow; z-index:11;
+    }
+
+    .clock-val { 
+      font-family: monospace; font-size: 1.2rem; color: #9af7be; 
+      margin-top: 15px; font-weight: bold;
+    }
+
+    #moonStatus {
+      margin-top: 5px; font-family: monospace; color: #3498db;
+      font-size: 0.9rem; border: 1px solid #3498db;
+      padding: 4px 12px; border-radius: 4px; background: rgba(0,0,0,0.3);
+    }
+
+    .controls {
+      background: #151b25; border: 1px solid #2a3446; border-radius: 12px;
+      padding: 15px; margin-top: 20px; width: var(--clock-size);
+    }
+    
+    .control-group { display: flex; flex-direction: column; gap: 5px; }
+    .control-group label { font-size: 11px; color: #9aa0a6; text-transform: uppercase; letter-spacing: 1px; }
+    
+    input[type="range"] { 
+      width: 100%; cursor: pointer; height: 25px; accent-color: #3498db;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="dial">
+    <img id="map" class="layer map" src="http://83.228.222.219/index.jpg" alt="Carte Live">
+    <img id="ring" class="layer ring" src="ring.jpg" alt="Bague">
+    
+    <div class="hand hour" id="hourHand"></div>
+    <div class="hand moon" id="moonHand"></div>
+    <div class="hand diameter" id="diameterHand"></div>
+    <div class="center"></div>
+    <div class="mask"></div>
+  </div>
+
+  <div class="clock-val" id="utcClock">00:00:00 UTC</div>
+  <div id="moonStatus">LUNE: --%</div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>Rotation Bague (Fuseau) : <span id="ringVal">0°</span></label>
+      <input id="ringStep" type="range" min="0" max="23" step="1" value="0" />
+    </div>
+  </div>
+
+<script>
+(() => {
+  const SYNODIC_MONTH = 29.530588853 * 24 * 60 * 60 * 1000;
+  const REF_NEW_MOON = new Date(Date.UTC(2026, 2, 17, 12, 1)).getTime();
+
+  const ringEl = document.getElementById('ring');
+  const ringStep = document.getElementById('ringStep');
+  const ringVal = document.getElementById('ringVal');
+  const hourHand = document.getElementById('hourHand');
+  const moonHand = document.getElementById('moonHand');
+  const diameterHand = document.getElementById('diameterHand');
+  const utcClock = document.getElementById('utcClock');
+  const moonStatus = document.getElementById('moonStatus');
+  const mapImg = document.getElementById('map');
+
+  const pad = n => (n < 10 ? '0' : '') + n;
+
+  function update() {
+    const now = new Date();
+    const t = now.getTime();
+    
+    const hu = now.getUTCHours(), mu = now.getUTCMinutes(), su = now.getUTCSeconds();
+    const sun = (hu % 24) * 15 + mu * 0.25 + su * (0.25 / 60);
+    
+    let diff = t - REF_NEW_MOON;
+    let phase = (diff % SYNODIC_MONTH) / SYNODIC_MONTH;
+    if (phase < 0) phase += 1;
+
+    const moon = sun - (phase * 360);
+    let vis = phase <= 0.5 ? phase * 2 : (1 - phase) * 2;
+
+    hourHand.style.transform = `translate(-50%,-100%) rotate(${sun}deg)`;
+    moonHand.style.transform = `translate(-50%,-100%) rotate(${moon}deg)`;
+    diameterHand.style.transform = `translate(-50%,-50%) rotate(${sun + 90}deg)`;
+
+    utcClock.textContent = `${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}:${pad(now.getUTCSeconds())} UTC`;
+    moonStatus.textContent = `LUNE: ${(vis * 100).toFixed(1)}%`;
+  }
+
+  function refreshLiveMap() {
+    const timestamp = new Date().getTime();
+    mapImg.src = "http://83.228.222.219/index.jpg?t=" + timestamp;
+    console.log("Image rafraîchie à : " + new Date().toLocaleTimeString());
+  }
+
+  ringStep.oninput = () => {
+    const pos = parseInt(ringStep.value);
+    const deg = - pos * (360 / 24);
+    ringEl.style.transform = `rotate(${deg}deg)`;
+    ringVal.textContent = `${deg}°`;
+  };
+
+  setInterval(update, 1000);
+  setInterval(refreshLiveMap, 300000); // 5 minutes
+  
+  update();
+})();
+</script>
+
+</body>
+</html>
