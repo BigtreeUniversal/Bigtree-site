@@ -1,0 +1,24 @@
+{
+  "name": "BUHS RADAR CLOCK",
+  "short_name": "Radar Clock",
+  "description": "Smart Clock Fusion avec affichage radar et phase lunaire en temps réel.",
+  "start_url": "./Smart_Clock_Fusion.html",
+  "display": "standalone",
+  "background_color": "#0b0c10",
+  "theme_color": "#ffd700",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

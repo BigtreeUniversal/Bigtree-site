@@ -1,0 +1,28 @@
+const CACHE_NAME = 'buhs-radar-clock-v1';
+const ASSETS_TO_CACHE = [
+  './Smart_Clock_Fusion.html',
+  './manifest.json',
+  './ring.jpg',
+  './icon-192.png',
+  './icon-512.png'
+];
+
+// Installation : on met en cache les fichiers statiques (interface)
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
+  );
+});
+
+// Stratégie de Network First : on cherche d'abord sur le réseau 
+// (très important pour ton image index.jpg qui change toutes les 5 min)
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
+    })
+  );
+});
+
