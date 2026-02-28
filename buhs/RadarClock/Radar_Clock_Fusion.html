@@ -75,7 +75,7 @@
 </head>
 <body>
 
-<h1 class="clock-title">BUHS RADAR v1.0 by BigTree 🌟 Enjoy & Install </h1>
+<h1 class="clock-title">BUHS RADAR CLOCK FUSION v1.0 by BigTree 🌟 Enjoy & Install </h1>
 
 <div class="dial">
     <img id="map" class="layer map" src="https://images.weserv.nl/?url=83.228.222.219/index.jpg" alt="Carte Live">
@@ -96,7 +96,7 @@
       <label style="font-size:11px; color:#9aa0a6;">FUSEAU : <span id="ringVal">0°</span></label>
       <input id="ringStep" type="range" min="0" max="23" step="1" value="0" />
     </div>
-    <button id="radarBtn" class="btn-radar">BUHS RADAR ACTIVATION</button>
+    <button id="radarBtn" class="btn-radar">📡BUHS RADAR ACTIVATION</button>
   </div>
 
 <script>
@@ -145,7 +145,7 @@
 
   elements.radarBtn.onclick = () => {
     const active = elements.radarBtn.classList.toggle('active');
-    elements.radarBtn.textContent = active ? "HAVE A GOOD DAY 🌟" : "📡RADAR ACTIVATION";
+    elements.radarBtn.textContent = active ? "HAVE A GOOD DAY 🌟 ENJOY" : "📡RADAR ACTIVATION";
     elements.hands.forEach(h => h.classList.toggle('hidden', active));
     elements.radarSweep.classList.toggle('radar-active', active);
   };
