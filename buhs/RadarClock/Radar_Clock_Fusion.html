@@ -1,0 +1,167 @@
+
+<!doctype html>
+<html lang="fr">
+<head>
+<meta name="theme-color" content="#0b0c10">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BUHS — BUHS RADAR CLOCK v1.0 FUSION</title>
+
+  <link rel="manifest" href="manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log("Service Worker Enregistré"));
+    }
+  </script>
+
+  <style>
+    :root { --clock-size: min(90vw, 500px); }
+    *{box-sizing:border-box}
+    body {
+      margin:0; background:#0b0c10; color:#e5e7eb; font-family:system-ui, sans-serif;
+      display:flex; flex-direction:column; align-items:center; justify-content: center;
+      padding:10px; min-height:100vh; overflow-x: hidden;
+    }
+    .dial {
+      width: var(--clock-size); height: var(--clock-size); position:relative;
+      border-radius:50%; overflow:hidden; background:#0d1117;
+      box-shadow:0 0 0 2px #222a35, 0 10px 30px rgba(0,0,0,.8);
+    }
+    .layer { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; pointer-events:none; }
+    
+    /* Image Live avec Flip 180° */
+    #map { transform: rotate(180deg); transition: opacity 0.5s ease-in-out; }
+    .ring { mix-blend-mode:screen; transition: transform 0.3s ease-out; }
+    .mask { position:absolute; inset:0; border-radius:50%; box-shadow:inset 0 0 0 6px #2a3446, inset 0 0 60px rgba(0,0,0,.7); }
+
+    /* Aiguilles */
+    .hand.hour, .hand.moon { position:absolute; top:50%; left:50%; width:2px; height:45%; transform-origin:center bottom; z-index:10; }
+    .hand.hour { background:gold; box-shadow:0 0 8px gold; }
+    .hand.moon { background:deepskyblue; box-shadow:0 0 8px deepskyblue; z-index:9; }
+    .hand.diameter { position:absolute; top:50%; left:50%; width:1px; height:100%; transform-origin:center center; background:rgba(255, 59, 59, 0.6); box-shadow:0 0 4px #ff3b3b; z-index:8; }
+    .center { position:absolute; width:12px; height:12px; background:gold; border-radius:50%; top:50%; left:50%; transform:translate(-50%, -50%); box-shadow:0 0 8px yellow; z-index:11; }
+    .hidden { display: none !important; }
+
+    /* Faisceau Radar */
+    .radar-sweep {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(154, 247, 190, 0.4) 0deg, transparent 90deg);
+      z-index: 5; pointer-events: none; display: none;
+    }
+    .radar-active { display: block !important; animation: sweep 4s linear infinite; }
+    @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* UI */
+    .clock-val { font-family: monospace; font-size: 1.2rem; color: #9af7be; margin-top: 15px; font-weight: bold; }
+    #moonStatus { margin-top: 5px; font-family: monospace; color: #3498db; font-size: 0.9rem; border: 1px solid #3498db; padding: 4px 12px; border-radius: 4px; background: rgba(0,0,0,0.3); }
+    .controls { background: #151b25; border: 1px solid #2a3446; border-radius: 12px; padding: 15px; margin-top: 20px; width: var(--clock-size); display: flex; flex-direction: column; gap: 15px; }
+    .btn-radar { background: #2a3446; color: #9af7be; border: 1px solid #3498db; border-radius: 6px; padding: 8px; font-size: 11px; cursor: pointer; text-transform: uppercase; }
+    .btn-radar.active { background: #3498db; color: white; }
+
+.clock-title {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 150px;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  text-align: center;
+}
+
+  </style>
+</head>
+<body>
+
+<h1 class="clock-title">BUHS RADAR v1.0 beta by BigTree 🌟 Enjoy & Install </h1>
+
+<div class="dial">
+    <img id="map" class="layer map" src="https://images.weserv.nl/?url=83.228.222.219/index.jpg" alt="Carte Live">
+    <img id="ring" class="layer ring" src="ring.jpg" alt="Bague">
+    <div id="radarSweep" class="radar-sweep"></div>
+    <div class="hand hour" id="hourHand"></div>
+    <div class="hand moon" id="moonHand"></div>
+    <div class="hand diameter" id="diameterHand"></div>
+    <div class="center"></div>
+    <div class="mask"></div>
+  </div>
+
+  <div class="clock-val" id="utcClock">00:00:00 UTC</div>
+  <div id="moonStatus">LUNE: --%</div>
+
+  <div class="controls">
+    <div style="display:flex; flex-direction:column; gap:5px;">
+      <label style="font-size:11px; color:#9aa0a6;">FUSEAU : <span id="ringVal">0°</span></label>
+      <input id="ringStep" type="range" min="0" max="23" step="1" value="0" />
+    </div>
+    <button id="radarBtn" class="btn-radar">BIGTREE CLOCK MODE RADAR ACTIVATION</button>
+  </div>
+
+<script>
+(() => {
+  const SYNODIC_MONTH = 29.530588853 * 24 * 60 * 60 * 1000;
+  const REF_NEW_MOON = new Date(Date.UTC(2026, 2, 17, 12, 1)).getTime();
+
+  const elements = {
+    ring: document.getElementById('ring'),
+    ringStep: document.getElementById('ringStep'),
+    ringVal: document.getElementById('ringVal'),
+    hands: [document.getElementById('hourHand'), document.getElementById('moonHand'), document.getElementById('diameterHand')],
+    utc: document.getElementById('utcClock'),
+    moon: document.getElementById('moonStatus'),
+    map: document.getElementById('map'),
+    radarBtn: document.getElementById('radarBtn'),
+    radarSweep: document.getElementById('radarSweep')
+  };
+
+  function update() {
+    const now = new Date();
+    const t = now.getTime();
+    const hu = now.getUTCHours(), mu = now.getUTCMinutes(), su = now.getUTCSeconds();
+    const sun = (hu % 24) * 15 + mu * 0.25 + su * (0.25 / 60);
+    
+    let phase = ((t - REF_NEW_MOON) % SYNODIC_MONTH) / SYNODIC_MONTH;
+    if (phase < 0) phase += 1;
+
+    elements.hands[0].style.transform = `translate(-50%,-100%) rotate(${sun}deg)`;
+    elements.hands[1].style.transform = `translate(-50%,-100%) rotate(${sun - (phase * 360)}deg)`;
+    elements.hands[2].style.transform = `translate(-50%,-50%) rotate(${sun + 90}deg)`;
+    
+    elements.utc.textContent = `${(now.getUTCHours()+'').padStart(2,'0')}:${(now.getUTCMinutes()+'').padStart(2,'0')}:${(now.getUTCSeconds()+'').padStart(2,'0')} UTC`;
+    elements.moon.textContent = `LUNE: ${( (phase <= 0.5 ? phase * 2 : (1 - phase) * 2) * 100 ).toFixed(1)}%`;
+  }
+
+  function refreshMap() {
+    const uniqueId = new Date().getTime();
+    // CORRECTION : Le cache buster est mis sur l'URL de l'image source elle-même
+    // pour forcer Weserv à la retélécharger.
+    const sourceUrl = encodeURIComponent("83.228.222.219/index.jpg?t=" + uniqueId);
+    elements.map.src = "https://images.weserv.nl/?url=" + sourceUrl;
+    
+    console.log("Image actualisée via Weserv à : " + new Date().toLocaleTimeString());
+  }
+
+  elements.radarBtn.onclick = () => {
+    const active = elements.radarBtn.classList.toggle('active');
+    elements.radarBtn.textContent = active ? "MODE RADAR : ON" : "MODE RADAR : OFF";
+    elements.hands.forEach(h => h.classList.toggle('hidden', active));
+    elements.radarSweep.classList.toggle('radar-active', active);
+  };
+
+  elements.ringStep.oninput = () => {
+    const deg = -elements.ringStep.value * 15;
+    elements.ring.style.transform = `rotate(${deg}deg)`;
+    elements.ringVal.textContent = `${deg}°`;
+  };
+
+  setInterval(update, 1000);
+  setInterval(refreshMap, 300000); // 5 minutes
+  
+  update();
+  refreshMap(); // Appel immédiat au démarrage
+})();
+</script>
+</body>
+</html>
