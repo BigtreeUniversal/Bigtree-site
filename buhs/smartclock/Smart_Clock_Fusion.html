@@ -96,42 +96,50 @@
     const t = now.getTime();
     const hu = now.getUTCHours(), mu = now.getUTCMinutes(), su = now.getUTCSeconds();
     const sun = (hu % 24) * 15 + mu * 0.25 + su * (0.25 / 60);
+    
     let phase = ((t - REF_NEW_MOON) % SYNODIC_MONTH) / SYNODIC_MONTH;
     if (phase < 0) phase += 1;
 
+    // Rotation des aiguilles
     elements.hands[0].style.transform = `translate(-50%,-100%) rotate(${sun}deg)`;
     elements.hands[1].style.transform = `translate(-50%,-100%) rotate(${sun - (phase * 360)}deg)`;
     elements.hands[2].style.transform = `translate(-50%,-50%) rotate(${sun + 90}deg)`;
+    
+    // Affichage texte
     elements.utc.textContent = `${(now.getUTCHours()+'').padStart(2,'0')}:${(now.getUTCMinutes()+'').padStart(2,'0')}:${(now.getUTCSeconds()+'').padStart(2,'0')} UTC`;
     elements.moon.textContent = `LUNE: ${( (phase <= 0.5 ? phase * 2 : (1 - phase) * 2) * 100 ).toFixed(1)}%`;
   }
 
   function refreshMap() {
-    // On génère un nombre unique (timestamp)
     const uniqueId = new Date().getTime();
-    
+    // Utilisation du Cache Buster (&cb=) pour weserv.nl
     elements.map.src = "https://images.weserv.nl/?url=83.228.222.219/index.jpg&cb=" + uniqueId;
-    
     console.log("Image serveur actualisée : " + new Date().toLocaleTimeString());
   }
 
+  // Gestion du bouton Radar
   elements.radarBtn.onclick = () => {
     const active = elements.radarBtn.classList.toggle('active');
-    elements.radarBtn.textContent = active ? "MODE RADAR : OFF" : "MODE RADAR : ON";
+    elements.radarBtn.textContent = active ? "MODE RADAR : ON" : "MODE RADAR : OFF";
+    
+    // Cache les aiguilles et lance l'animation
     elements.hands.forEach(h => h.classList.toggle('hidden', active));
     elements.radarSweep.classList.toggle('radar-active', active);
   };
 
+  // Rotation de la bague
   elements.ringStep.oninput = () => {
     const deg = -elements.ringStep.value * 15;
     elements.ring.style.transform = `rotate(${deg}deg)`;
     elements.ringVal.textContent = `${deg}°`;
   };
 
+  // Lancement des boucles
   setInterval(update, 1000);
-  setInterval(refreshMap, 300000);
-  update();
-})();
+  setInterval(refreshMap, 300000); // 5 minutes
+  
+  update(); // Premier appel immédiat
+})(); // Fermeture de la fonction auto-exécutante
 </script>
 </body>
 </html>
