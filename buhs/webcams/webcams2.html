@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>World Cam Explorer - Live</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121931;
+      --text: #e7ecff;
+      --sub: #9fb0ff;
+      --accent: #7aa2ff;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      /* Suppression du overflow hidden pour permettre le scroll si nécessaire sur très petit écran */
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Bouton Retour en haut à gauche */
+    .back-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      color: white;
+      text-decoration: none;
+      font-size: 0.8rem;
+    }
+
+    .viewer-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      justify-content: center;
+    }
+
+    .cam-card {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* Ratio 16:9 */
+      background: #000;
+    }
+
+    iframe {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      border: 0;
+    }
+
+    .meta-bar {
+      padding: 12px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .cam-info b { font-size: 1rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cam-info span { color: var(--sub); font-size: 0.8rem; }
+    #clock { font-family: monospace; font-size: 0.9rem; color: var(--accent); }
+
+    /* Contrôles fixés en bas sur mobile */
+    .controls {
+      padding: 15px;
+      background: var(--card);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes égales */
+      gap: 8px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    button {
+      padding: 12px 5px;
+      border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: rgba(122,162,255,0.1);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    #autoBtn.active {
+      background: #e62117;
+      border-color: #ff4d4d;
+    }
+
+    /* Optimisation spécifique Mobile */
+    @media (max-width: 600px) {
+      .viewer-container { justify-content: flex-start; padding-top: 50px; }
+      .meta-bar { padding: 8px 10px; }
+      .cam-info b { font-size: 0.9rem; max-width: 150px; }
+      button { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="https://bigtreeconnection.com/buhs/RadarClock/Smart_Clock_Fusion.html" class="back-btn">❮ HORLOGE</a>
+
+  <div class="viewer-container">
+    <div class="cam-card">
+      <div class="video-wrap" id="videoWrapper">
+        </div>
+      <div class="meta-bar">
+        <div class="cam-info">
+          <b id="camTitle">Chargement...</b>
+          <span id="camLocation">Patientez</span>
+        </div>
+        <div id="clock">00:00:00</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="changeCam(-1)">Précédent</button>
+    <button id="autoBtn" onclick="toggleAuto()">AUTO: OFF</button>
+    <button onclick="changeCam(1)">Suivant</button>
+  </div>
+
+<script>
+  const cams = [
+    { id: "K_FOP7_wGPE", title: "The Windmill Bar", loc: "St.John, USVI" },
+    { id: "ydYDqZQpim8", title: "African Desert", loc: "Namibia" },
+    { id: "CXYr04BWvmc", title: "Oakland Bay Bridge", loc: "San Francisco" },
+    { id: "qx7gry390YA", title: "Niagara Falls", loc: "Canada / USA" },
+    { id: "cWR8KGKftUw", title: "Statue of Liberty", loc: "New York, NY" },
+    { id: "rnXIjl_Rzy4", title: "Times Square 4K", loc: "New York City, NY" },
+    { id: "_5zWp0bMgcI", title: "National Aquarium", loc: "Baltimore, MD" }
+  ];
+
+  let index = 0;
+  let autoTimer = null;
+
+  function updateDisplay() {
+    const cam = cams[index];
+    const wrapper = document.getElementById('videoWrapper');
+    wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    document.getElementById('camTitle').innerText = cam.title;
+    document.getElementById('camLocation').innerText = cam.loc;
+  }
+
+  function changeCam(dir) {
+    index = (index + dir + cams.length) % cams.length;
+    updateDisplay();
+    if (autoTimer) resetAutoTimer();
+  }
+
+  function toggleAuto() {
+    const btn = document.getElementById('autoBtn');
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+      btn.innerText = "AUTO: OFF";
+      btn.classList.remove('active');
+    } else {
+      btn.innerText = "AUTO: ON";
+      btn.classList.add('active');
+      autoTimer = setInterval(() => changeCam(1), 30000);
+    }
+  }
+
+  function resetAutoTimer() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => changeCam(1), 30000);
+  }
+
+  setInterval(() => {
+    document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+  }, 1000);
+
+  updateDisplay();
+</script>
+
+</body>
+</html>
