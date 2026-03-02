@@ -1,81 +1,211 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Collection de Webcams</title>
-    <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        #viewer { flex-grow: 1; width: 100%; position: relative; }
-        /* On force l'iFrame à remplir tout l'écran, peu importe sa taille d'origine */
-        #viewer iframe { width: 100% !important; height: 100% !important; border: none; }
-        .controls { background: #222; padding: 15px; display: flex; justify-content: center; align-items: center; gap: 20px; }
-        button { padding: 10px 20px; cursor: pointer; font-size: 1.2rem; border-radius: 5px; border: none; }
-        .btn-nav { background: #444; color: white; }
-        .btn-auto { background: #28a745; color: white; }
-        .btn-auto.active { background: #dc3545; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>World Cam Explorer - Live</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121931;
+      --text: #e7ecff;
+      --sub: #9fb0ff;
+      --accent: #7aa2ff;
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: radial-gradient(1200px 800px at 80% -10%, #14214a 0%, var(--bg) 40%, #080c1a 100%);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Zone du Lecteur */
+    .viewer-container {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+    }
+
+    .cam-card {
+      width: 100%;
+      max-width: 1100px;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+
+    .video-wrap {
+      aspect-ratio: 16 / 9;
+      background: #000;
+      position: relative;
+    }
+
+    iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* Barre d'infos sous la vidéo */
+    .meta-bar {
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .cam-info b { font-size: 1.2rem; display: block; }
+    .cam-info span { color: var(--sub); font-size: 0.9rem; }
+
+    /* Contrôles */
+    .controls {
+      padding: 20px;
+      background: rgba(18, 25, 49, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    button {
+      padding: 12px 24px;
+      border-radius: 12px;
+      border: 1px solid var(--accent);
+      background: rgba(122,162,255,0.1);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+
+    button:hover { background: rgba(122,162,255,0.25); }
+    button:active { transform: scale(0.95); }
+
+    #autoBtn.active {
+      background: #e62117;
+      border-color: #ff4d4d;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0px rgba(230, 33, 23, 0.4); }
+      70% { box-shadow: 0 0 0 15px rgba(230, 33, 23, 0); }
+      100% { box-shadow: 0 0 0 0px rgba(230, 33, 23, 0); }
+    }
+
+    @media (max-width: 600px) {
+      .meta-bar { flex-direction: column; text-align: center; gap: 10px; }
+      button { padding: 10px 15px; font-size: 0.9rem; }
+    }
+  </style>
 </head>
 <body>
 
-<div id="viewer">
+  <div class="viewer-container">
+    <div class="cam-card">
+      <div class="video-wrap" id="videoWrapper">
+        </div>
+      <div class="meta-bar">
+        <div class="cam-info">
+          <b id="camTitle">Chargement...</b>
+          <span id="camLocation">Initialisation</span>
+        </div>
+        <div style="font-family: monospace; font-weight: bold; color: var(--accent);" id="clock">00:00:00</div>
+      </div>
     </div>
+  </div>
 
-<div class="controls">
-    <button class="btn-nav" onclick="prev()">❮ Gauche</button>
-    <div id="info">Caméra 1</div>
-    <button class="btn-nav" onclick="next()">Droite ❯</button>
-    <button id="autoBtn" class="btn-auto" onclick="toggleAuto()">AUTO: OFF</button>
-</div>
+  <div class="controls">
+    <button onclick="changeCam(-1)">❮ Précédent</button>
+    <button id="autoBtn" onclick="toggleAuto()">MODE AUTO : OFF</button>
+    <button onclick="changeCam(1)">Suivant ❯</button>
+  </div>
 
 <script>
-    // COLLE TES IFRAMES ENTIÈRES ICI
-    // Attention : utilise des ' (apostrophes simples) autour du code
-    const list = [
-        '<iframe width="573" height="322" src="https://www.youtube.com/embed/K_FOP7_wGPE" title="The Windmill Bar -  St. John, USVI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
-        '<<iframe width="573" height="322" src="https://www.youtube.com/embed/ydYDqZQpim8" title="Namibia: Live stream in the Namib Desert" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
-        '<iframe width="560" height="315" src="https://www.youtube.com/embed/XCMRy1oxDpc?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>',
-        '<iframe width="560" height="315" src="https://www.youtube.com/embed/ibEJVqozfn0?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>',
-        '<iframe width="560" height="315" src="https://www.youtube.com/embed/CFrFymhHsRM?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>',
-        '<iframe width="560" height="315" src="https://www.youtube.com/embed/3di416roDcU?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>'
-    ];
+  // Ta liste de liens valides avec titres
+  const cams = [
+    { id: "qx7gry390YA", title: "Niagara Falls", loc: "Canada / USA" },
+    { id: "cWR8KGKftUw", title: "Statue of Liberty", loc: "New York, NY" },
+    { id: "iHqqkh_Lths", title: "Terminal Tower Cam", loc: "Cleveland, OH" },
+    { id: "YEAhxXd-TiY", title: "Anglins Pier", loc: "Lauderdale-By-The-Sea, FL" },
+    { id: "O0UGT7AT3aw", title: "Chicago Skydeck", loc: "Chicago, IL" },
+    { id: "_rmUXOHSf0w", title: "Allegiant Stadium", loc: "Las Vegas, NV" },
+    { id: "skM8DTCx3gM", title: "Fort Myers Beach", loc: "Fort Myers, FL" },
+    { id: "PMhVgTcDd1o", title: "Tamariu Beach", loc: "Spain" },
+    { id: "2_PDaUJbfuI", title: "SUMMIT One Vanderbilt", loc: "New York City, NY" },
+    { id: "rnXIjl_Rzy4", title: "Times Square 4K", loc: "New York City, NY" },
+    { id: "_5zWp0bMgcI", title: "National Aquarium", loc: "Baltimore, MD" }
+  ];
 
-    let index = 0;
-    let autoTimer = null;
-    const viewer = document.getElementById('viewer');
-    const info = document.getElementById('info');
+  let index = 0;
+  let autoTimer = null;
+  const timerDuration = 30000; // 30 secondes
 
-    function update() {
-        viewer.innerHTML = list[index];
-        info.innerText = `Caméra ${index + 1} / ${list.length}`;
+  function updateDisplay() {
+    const cam = cams[index];
+    const wrapper = document.getElementById('videoWrapper');
+    
+    // On recrée l'iframe proprement à chaque fois
+    // autoplay=1 et mute=1 sont essentiels pour le zap automatique
+    wrapper.innerHTML = `
+      <iframe 
+        src="https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1&rel=0&modestbranding=1" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        allowfullscreen>
+      </iframe>`;
+    
+    document.getElementById('camTitle').innerText = cam.title;
+    document.getElementById('camLocation').innerText = cam.loc;
+  }
+
+  function changeCam(dir) {
+    index = (index + dir + cams.length) % cams.length;
+    updateDisplay();
+    if (autoTimer) resetAutoTimer();
+  }
+
+  function toggleAuto() {
+    const btn = document.getElementById('autoBtn');
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+      btn.innerText = "MODE AUTO : OFF";
+      btn.classList.remove('active');
+    } else {
+      btn.innerText = "MODE AUTO : ON (30s)";
+      btn.classList.add('active');
+      autoTimer = setInterval(() => changeCam(1), timerDuration);
     }
+  }
 
-    function next() {
-        index = (index + 1) % list.length;
-        update();
-    }
+  function resetAutoTimer() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => changeCam(1), timerDuration);
+  }
 
-    function prev() {
-        index = (index - 1 + list.length) % list.length;
-        update();
-    }
+  // Horloge
+  setInterval(() => {
+    document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+  }, 1000);
 
-    function toggleAuto() {
-        const btn = document.getElementById('autoBtn');
-        if (autoTimer) {
-            clearInterval(autoTimer);
-            autoTimer = null;
-            btn.innerText = "AUTO: OFF";
-            btn.classList.remove('active');
-        } else {
-            btn.innerText = "AUTO: ON";
-            btn.classList.add('active');
-            autoTimer = setInterval(next, 60000); // 1 minute
-        }
-    }
-
-    // Premier chargement
-    update();
+  // Lancement initial
+  updateDisplay();
 </script>
 
 </body>
