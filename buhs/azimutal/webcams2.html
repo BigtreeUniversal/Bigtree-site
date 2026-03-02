@@ -1,82 +1,204 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Webcams Live – Jamaïque, Sénégal, Brésil, Baie de New York</title>
-  <style>
-    :root{--bg:#0a0d14;--card:#101626;--ring:#25314a;--text:#e9eef8;--muted:#94a0b8;--accent:#7bc8ff}
-    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Inter,Roboto,"Helvetica Neue",Arial}
-    .grid{max-width:1200px;margin:20px auto;padding:0 16px;display:grid;gap:18px;grid-template-columns:repeat(12,1fr)}
-    .card{grid-column:span 12;background:linear-gradient(180deg,#0f1628,#0b1220);border:1px solid var(--ring);border-radius:18px;overflow:hidden}
-    @media(min-width:740px){.card{grid-column:span 6}}
-    .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--ring);background:linear-gradient(180deg,#121a2d,#0e1526)}
-    .city{display:flex;align-items:center;gap:10px;font-weight:700}
-    .badge{font-size:12px;color:#0a0d14;background:var(--accent);padding:4px 8px;border-radius:999px}
-    .clock{font-variant-numeric:tabular-nums;letter-spacing:.5px}
-    .frame{position:relative;aspect-ratio:16/9;background:#0a0f1a}
-    .frame iframe, .frame img{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Cam Explorer - LIVE</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --accent-color: #e62117; /* Rouge YouTube */
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Container Vidéo Responsif */
+        .video-container {
+            flex-grow: 1;
+            position: relative;
+            width: 100%;
+            background: #000;
+        }
+
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Barre de contrôle */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: #1e1e1e;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .cam-info {
+            text-align: center;
+            min-width: 200px;
+        }
+
+        #camName {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .status {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            background: #333;
+            color: white;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover { background: #444; }
+        button:active { transform: scale(0.9); }
+
+        .btn-auto {
+            font-size: 0.9rem;
+            padding: 10px 20px;
+            border: 2px solid #444;
+            background: transparent;
+        }
+
+        .btn-auto.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0px rgba(230, 33, 23, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(230, 33, 23, 0); }
+            100% { box-shadow: 0 0 0 0px rgba(230, 33, 23, 0); }
+        }
+
+        /* Responsive Mobile */
+        @media (max-width: 600px) {
+            .controls { gap: 10px; padding: 10px; }
+            button { padding: 10px 15px; font-size: 1.2rem; }
+            #camName { font-size: 1rem; }
+            .btn-auto { font-size: 0.7rem; padding: 8px 12px; }
+        }
+    </style>
 </head>
 <body>
-  <section class="grid">
-    <!-- AUSTRALIE -->
-    <article class="card">
-      <div class="topbar">
-        <div class="city"><span class="badge">Australie</span><span class="clock" data-timezone="Oceania//Australia">--:--:--</span></div>
-        <div>Sydney</div>
-      </div>
-      <div class="frame">
-        <iframe 
-      src="https://www.youtube.com/embed/5uZa3-RMFos" 
-      title="Sydney Harbour Live" 
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-      allowfullscreen loading="lazy"></iframe>
-      </div>
-    </article>
 
-    <!-- USA -->
-    <article class="card">
-      <div class="topbar">
-        <div class="city"><span class="badge">USA</span><span class="clock" data-timezone="USA/Cleveland">--:--:--</span></div>
-        <div>Cleveland</div>
-      </div>
-      <div class="frame">
+<div class="video-container">
+    <iframe id="camFrame" 
+            src="" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allowfullscreen>
+    </iframe>
+</div>
+
+<div class="controls">
+    <button onclick="changeCam(-1)" title="Précédent">❮</button>
+    
+    <div class="cam-info">
+        <div id="camName">Chargement...</div>
+        <div class="status" id="camStatus">-- / --</div>
+    </div>
+
+    <button onclick="changeCam(1)" title="Suivant">❯</button>
+    
+    <button id="autoBtn" class="btn-auto" onclick="toggleAuto()">MODE AUTO : OFF</button>
+</div>
+
+<script>
+    // Ta liste mise à jour avec tes liens YouTube
+    const camList = [
+        { name: "Island", id: "4VR91TGYDz4" },
+        { name: "Hawaii", id: "h378-aAa224" },
+        { name: "JA West Parade", id: "XCMRy1oxDpc" },
+        { name: "JA Harbour", id: "ibEJVqozfn0" },
+        { name: "Groundswell", id: "CFrFymhHsRM" },
+        { name: "Turkey", id: "3di416roDcU" }
+    ];
+
+    let currentIndex = 0;
+    let autoInterval = null;
+    const frame = document.getElementById('camFrame');
+    const camName = document.getElementById('camName');
+    const camStatus = document.getElementById('camStatus');
+
+    function loadCam(index) {
+        currentIndex = (index + camList.length) % camList.length;
+        const cam = camList[currentIndex];
         
-<iframe width="560" height="315" src="https://www.youtube.com/embed/n5Ja0_q2Cos?si=d0yRa2pLsWSoeuL5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        camName.innerText = cam.name;
+        camStatus.innerText = `Lieu ${currentIndex + 1} sur ${camList.length}`;
         
-      </div>
-    </article>
-
-    <!-- BRESIL -->
-    <article class="card">
-      <div class="topbar">
-        <div class="city"><span class="badge">Brésil</span><span class="clock" data-timezone="America/Sao_Paulo">--:--:--</span></div>
-        <div>Rio de Janeiro</div>
-      </div>
-      <div class="frame">
-        <iframe src="https://www.youtube.com/embed/6QoLEltTzIM" allowfullscreen loading="lazy"></iframe>
-      </div>
-    </article>
-
-    <!-- BAIE DE NEW YORK (East River) -->
-    <article class="card">
-      <div class="topbar">
-        <div class="city"><span class="badge">New York</span><span class="clock" data-timezone="America/New_York">--:--:--</span></div>
-        <div>Central Parc</div>
-      </div>
-      <div class="frame">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/TsgoxkRFit0?si=Nsf5_QVGMo6djnIt" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        // On construit l'URL YouTube embed avec Autoplay et Mute
+        // Le mute est obligatoire pour que la vidéo se lance sans clic utilisateur
+        const newSrc = `https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1&rel=0`;
         
-      </div>
-    </article>
-  </section>
+        // On ne recharge l'iframe que si la source change
+        if (frame.src !== newSrc) {
+            frame.src = newSrc;
+        }
+    }
 
-  <script>
-    const els = document.querySelectorAll('.clock');
-    const fmt = tz => new Intl.DateTimeFormat('fr-FR',{hour12:false,timeStyle:'medium',timeZone:tz});
-    function tick(){const now=Date.now();els.forEach(el=>{const tz=el.dataset.timezone;try{el.textContent=fmt(tz).format(now)}catch{el.textContent='--:--:--'}})}
-    tick();setInterval(tick,1000);
-  </script>
+    function changeCam(direction) {
+        loadCam(currentIndex + direction);
+        if (autoInterval) resetAutoTimer();
+    }
+
+    function toggleAuto() {
+        const btn = document.getElementById('autoBtn');
+        if (autoInterval) {
+            clearInterval(autoInterval);
+            autoInterval = null;
+            btn.innerText = "MODE AUTO : OFF";
+            btn.classList.remove('active');
+        } else {
+            btn.innerText = "MODE AUTO : ON";
+            btn.classList.add('active');
+            autoInterval = setInterval(() => changeCam(1), 60000); // Change chaque minute
+        }
+    }
+
+    function resetAutoTimer() {
+        clearInterval(autoInterval);
+        autoInterval = setInterval(() => changeCam(1), 60000);
+    }
+
+    // Lancement de la première caméra au chargement
+    loadCam(0);
+</script>
+
 </body>
 </html>

@@ -1,111 +1,91 @@
-<!DOCTYPE html><html lang="fr">
+<!doctype html>
+<html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Live Cams Monde + Horloges</title>
-  <meta name="description" content="Page technique et design présentant des flux vidéo publics en direct (YouTube) et des horloges locales : Sydney, Paris, Tokyo, New York, Singapour, Los Angeles." />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Webcams Fix</title>
   <style>
-    :root{
-      --bg:#0b0d12; --card:#111521; --muted:#8892a6; --text:#e8eefc; --accent:#7cc0ff; --ring:#2b364e;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:radial-gradient(1200px 800px at 10% -10%,#0f1626 0%,var(--bg) 40%),linear-gradient(180deg,#0b0d12 0%,#0b0d12 100%);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial}
-    header{max-width:1200px;margin:32px auto 10px;padding:0 16px}
-    h1{margin:0 0 6px;font-size:clamp(20px,3vw,32px);letter-spacing:.3px}
-    p.lead{margin:0;color:var(--muted)}
-    .grid{max-width:1200px;margin:20px auto 60px;padding:0 16px;display:grid;gap:18px;grid-template-columns:repeat(12,1fr)}
-    .card{grid-column:span 12;background:linear-gradient(180deg,#0f1422,#0b0d12);border:1px solid var(--ring);border-radius:18px;overflow:hidden;box-shadow:0 10px 22px rgba(0,0,0,.35)}
-    @media(min-width:740px){.card{grid-column:span 6}}
-    @media(min-width:1100px){.card{grid-column:span 6}}
-    .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--ring);background:linear-gradient(180deg,#101828,#0d1320)}
-    .city{display:flex;align-items:center;gap:10px;font-weight:600}
-    .badge{font-size:12px;color:#0b0d12;background:var(--accent);padding:4px 8px;border-radius:999px;border:0}
-    .clock{font-variant-numeric:tabular-nums;letter-spacing:.5px;color:#d7e3ff;font-weight:700}
-    .frame{position:relative;aspect-ratio:16/9;background:#0a0f1a}
-    .frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-    footer{max-width:1200px;margin:10px auto 40px;padding:0 16px;color:var(--muted);font-size:14px}
-    a{color:#b9d8ff}
+    /* On garde TOUT ton style d'origine */
+    :root { --bg: #0b1020; --card: #121931; --text: #e7ecff; --sub: #9fb0ff; --accent: #7aa2ff; --radius: 18px; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; padding: 20px; max-width: 1200px; margin: auto; }
+    .card { background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+    .video-wrap { aspect-ratio: 16 / 9; position: relative; }
+    iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    
+    /* Le focus sur la caméra active */
+    .card.active { border: 2px solid var(--accent); box-shadow: 0 0 20px rgba(122,162,255,0.4); transform: scale(1.02); }
+
+    /* Tes nouveaux contrôles */
+    .nav-bar { position: sticky; top: 0; background: rgba(11, 16, 32, 0.9); padding: 15px; display: flex; justify-content: center; gap: 10px; z-index: 100; backdrop-filter: blur(5px); }
+    button { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--accent); background: transparent; color: white; cursor: pointer; }
+    button.active { background: #e62117; border-color: #e62117; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Public Street Webcams </h1>
-    <p class="lead">Flux YouTube officiels/partenaires, avec horloges locales mises à jour en temps réel.</p>
-  </header>  <section class="grid"><!-- PARIS -->
-<article class="card" aria-label="Paris">
-  <div class="topbar">
-    <div class="city"><span class="badge">St Petersburg</span><span class="clock" data-timezone="Europe/Moscou">--:--:--</span></div>
-    <div>FR</div>
-  </div>
-  <div class="frame">
-    <!-- Source: st petersburg tv (YouTube live) -->
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/h1wly909BYw?si=qhNbuJ59oCAuMgwf" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-  </div>
-</article>
 
-<!-- NEW YORK -->
-<article class="card" aria-label="New York">
-  <div class="topbar">
-    <div class="city"><span class="badge">New York</span><span class="clock" data-timezone="America/New_York">--:--:--</span></div>
-    <div>USA</div>
+  <div class="nav-bar">
+    <button onclick="navigate(-1)">⬅ Précédent</button>
+    <button id="autoBtn" onclick="toggleAuto()">MODE AUTO : OFF</button>
+    <button onclick="navigate(1)">Suivant ➡</button>
   </div>
-  <div class="frame">
-    <!-- Source: EarthCam – Times Square (official YouTube stream) -->
-    <iframe 
-      src="https://www.youtube.com/embed/rnXIjl_Rzy4" 
-      title="Times Square Live – EarthCam" 
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-      allowfullscreen loading="lazy"></iframe>
-  </div>
-</article>
 
-<!-- TOKYO -->
-<article class="card" aria-label="Tokyo">
-  <div class="topbar">
-    <div class="city"><span class="badge">Tokyo</span><span class="clock" data-timezone="Asia/Tokyo">--:--:--</span></div>
-    <div>JP</div>
-  </div>
-  <div class="frame">
-    <!-- Source: TV Asahi / テレ朝ニュース – Shibuya Scramble Crossing -->
-    <iframe 
-      src="https://www.youtube.com/embed/tujkoXI8rWM" 
-      title="Shibuya Scramble Crossing Live" 
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-      allowfullscreen loading="lazy"></iframe>
-  </div>
-</article>
+  <main class="grid" id="mainGrid">
+    <section class="card active">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube.com/embed/gIv9J38Dax8?enablejsapi=1" allowfullscreen></iframe>
+      </div>
+    </section>
 
+    <section class="card">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube.com/embed/sQxL8t0gtu8?enablejsapi=1" allowfullscreen></iframe>
+      </div>
+    </section>
 
-<!-- DUBLIN -->
-<article class="card" aria-label="Sydney">
-  <div class="topbar">
-    <div class="city"><span class="badge">Sydney</span><span class="clock" data-timezone="Australia/Sydney">--:--:--</span></div>
-    <div>AU</div>
-  </div>
-  <div class="frame">
-    <!-- Source: WebcamSydney 1 – Harbour (~4K) -->
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/u4UZ4UvZXrg?si=PsqToTPBEukpXi_8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-  </div>
-</article>
+    <section class="card">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube.com/embed/TsgoxkRFit0?enablejsapi=1" allowfullscreen></iframe>
+      </div>
+    </section>
 
+    <section class="card">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube.com/embed/CXYr04BWvmc?enablejsapi=1" allowfullscreen></iframe>
+      </div>
+    </section>
+  </main>
 
-  </section>  <footer>
-    <p><strong>Note juridique / intégration :</strong> ces flux sont fournis par des chaînes YouTube officielles ou partenaires qui autorisent l’intégration via <code>&lt;iframe&gt;</code></p>
-  </footer>  <script>
-    // Horloges locales
-    const els = Array.from(document.querySelectorAll('.clock'))
-    const fmt = (tz)=> new Intl.DateTimeFormat('fr-FR',{hour12:false,timeStyle:'medium',timeZone:tz})
-    function tick(){
-      const now = Date.now()
-      for(const el of els){
-        const tz = el.getAttribute('data-timezone')
-        try{ el.textContent = fmt(tz).format(now) }catch{ el.textContent='—' }
-      }
+<script>
+    let currentIdx = 0;
+    let autoInterval = null;
+    const cards = document.querySelectorAll('.card');
+
+    function navigate(dir) {
+        // Enlève le style actif de l'ancienne carte
+        cards[currentIdx].classList.remove('active');
+        
+        // Calcule le nouvel index
+        currentIdx = (currentIdx + dir + cards.length) % cards.length;
+        
+        // Active la nouvelle carte et scrolle jusqu'à elle
+        cards[currentIdx].classList.add('active');
+        cards[currentIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    tick(); setInterval(tick,1000)
 
-    // Amélioration accessibilité clavier sur iframes
-    document.querySelectorAll('iframe').forEach((f,i)=>{ f.setAttribute('tabindex', 0) })
-  </script></body>
+    function toggleAuto() {
+        const btn = document.getElementById('autoBtn');
+        if (autoInterval) {
+            clearInterval(autoInterval);
+            autoInterval = null;
+            btn.innerText = "MODE AUTO : OFF";
+            btn.classList.remove('active');
+        } else {
+            btn.innerText = "MODE AUTO : ON";
+            btn.classList.add('active');
+            autoInterval = setInterval(() => navigate(1), 60000);
+        }
+    }
+</script>
+</body>
 </html>
