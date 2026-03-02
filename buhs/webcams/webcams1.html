@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Collection de Webcams</title>
+    <style>
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        #viewer { flex-grow: 1; width: 100%; position: relative; }
+        /* On force l'iFrame à remplir tout l'écran, peu importe sa taille d'origine */
+        #viewer iframe { width: 100% !important; height: 100% !important; border: none; }
+        .controls { background: #222; padding: 15px; display: flex; justify-content: center; align-items: center; gap: 20px; }
+        button { padding: 10px 20px; cursor: pointer; font-size: 1.2rem; border-radius: 5px; border: none; }
+        .btn-nav { background: #444; color: white; }
+        .btn-auto { background: #28a745; color: white; }
+        .btn-auto.active { background: #dc3545; }
+    </style>
+</head>
+<body>
+
+<div id="viewer">
+    </div>
+
+<div class="controls">
+    <button class="btn-nav" onclick="prev()">❮ Gauche</button>
+    <div id="info">Caméra 1</div>
+    <button class="btn-nav" onclick="next()">Droite ❯</button>
+    <button id="autoBtn" class="btn-auto" onclick="toggleAuto()">AUTO: OFF</button>
+</div>
+
+<script>
+    // COLLE TES IFRAMES ENTIÈRES ICI
+    // Attention : utilise des ' (apostrophes simples) autour du code
+    const list = [
+        '<iframe width="573" height="322" src="https://www.youtube.com/embed/K_FOP7_wGPE" title="The Windmill Bar -  St. John, USVI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+        '<<iframe width="573" height="322" src="https://www.youtube.com/embed/ydYDqZQpim8" title="Namibia: Live stream in the Namib Desert" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+        '<iframe width="560" height="315" src="https://www.youtube.com/embed/XCMRy1oxDpc?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>',
+        '<iframe width="560" height="315" src="https://www.youtube.com/embed/ibEJVqozfn0?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>',
+        '<iframe width="560" height="315" src="https://www.youtube.com/embed/CFrFymhHsRM?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>',
+        '<iframe width="560" height="315" src="https://www.youtube.com/embed/3di416roDcU?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>'
+    ];
+
+    let index = 0;
+    let autoTimer = null;
+    const viewer = document.getElementById('viewer');
+    const info = document.getElementById('info');
+
+    function update() {
+        viewer.innerHTML = list[index];
+        info.innerText = `Caméra ${index + 1} / ${list.length}`;
+    }
+
+    function next() {
+        index = (index + 1) % list.length;
+        update();
+    }
+
+    function prev() {
+        index = (index - 1 + list.length) % list.length;
+        update();
+    }
+
+    function toggleAuto() {
+        const btn = document.getElementById('autoBtn');
+        if (autoTimer) {
+            clearInterval(autoTimer);
+            autoTimer = null;
+            btn.innerText = "AUTO: OFF";
+            btn.classList.remove('active');
+        } else {
+            btn.innerText = "AUTO: ON";
+            btn.classList.add('active');
+            autoTimer = setInterval(next, 60000); // 1 minute
+        }
+    }
+
+    // Premier chargement
+    update();
+</script>
+
+</body>
+</html>
