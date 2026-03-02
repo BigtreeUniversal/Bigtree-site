@@ -20,13 +20,11 @@
       font-family: system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
-      /* Suppression du overflow hidden pour permettre le scroll si nécessaire sur très petit écran */
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* Bouton Retour en haut à gauche */
     .back-btn {
       position: absolute;
       top: 10px;
@@ -47,6 +45,7 @@
       flex-direction: column;
       padding: 10px;
       justify-content: center;
+      margin-top: 40px; /* Espace pour le bouton retour */
     }
 
     .cam-card {
@@ -57,6 +56,7 @@
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.05);
     }
 
     .video-wrap {
@@ -72,51 +72,58 @@
       border: 0;
     }
 
-    .meta-bar {
-      padding: 12px 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0,0,0,0.2);
-    }
-
-    .cam-info b { font-size: 1rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .cam-info span { color: var(--sub); font-size: 0.8rem; }
-    #clock { font-family: monospace; font-size: 0.9rem; color: var(--accent); }
-
-    /* Contrôles fixés en bas sur mobile */
+    /* --- NOUVEAUX CONTRÔLES SOUS LA VIDÉO --- */
     .controls {
-      padding: 15px;
-      background: var(--card);
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes égales */
-      gap: 8px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
     button {
-      padding: 12px 5px;
+      padding: 10px 5px;
       border-radius: 8px;
       border: 1px solid var(--accent);
       background: rgba(122,162,255,0.1);
       color: #fff;
       font-weight: bold;
       cursor: pointer;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
+      transition: all 0.2s;
     }
+
+    button:active { transform: scale(0.95); }
 
     #autoBtn.active {
       background: #e62117;
       border-color: #ff4d4d;
+      animation: pulse 2s infinite;
     }
 
-    /* Optimisation spécifique Mobile */
+    /* Barre d'infos tout en bas */
+    .meta-bar {
+      padding: 12px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cam-info b { font-size: 1rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cam-info span { color: var(--sub); font-size: 0.8rem; }
+    #clock { font-family: monospace; font-size: 0.9rem; color: var(--accent); }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0px rgba(230, 33, 23, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(230, 33, 23, 0); }
+      100% { box-shadow: 0 0 0 0px rgba(230, 33, 23, 0); }
+    }
+
     @media (max-width: 600px) {
-      .viewer-container { justify-content: flex-start; padding-top: 50px; }
-      .meta-bar { padding: 8px 10px; }
-      .cam-info b { font-size: 0.9rem; max-width: 150px; }
-      button { font-size: 0.7rem; }
+      .cam-info b { font-size: 0.9rem; max-width: 140px; }
+      .controls { padding: 10px; gap: 5px; }
     }
   </style>
 </head>
@@ -126,8 +133,14 @@
 
   <div class="viewer-container">
     <div class="cam-card">
-      <div class="video-wrap" id="videoWrapper">
-        </div>
+      <div class="video-wrap" id="videoWrapper"></div>
+      
+      <div class="controls">
+        <button onclick="changeCam(-1)">❮ Précédent</button>
+        <button id="autoBtn" onclick="toggleAuto()">AUTO: OFF</button>
+        <button onclick="changeCam(1)">Suivant ❯</button>
+      </div>
+
       <div class="meta-bar">
         <div class="cam-info">
           <b id="camTitle">Chargement...</b>
@@ -136,12 +149,6 @@
         <div id="clock">00:00:00</div>
       </div>
     </div>
-  </div>
-
-  <div class="controls">
-    <button onclick="changeCam(-1)">Précédent</button>
-    <button id="autoBtn" onclick="toggleAuto()">AUTO: OFF</button>
-    <button onclick="changeCam(1)">Suivant</button>
   </div>
 
 <script>
@@ -161,7 +168,7 @@
   function updateDisplay() {
     const cam = cams[index];
     const wrapper = document.getElementById('videoWrapper');
-    wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1&rel=0&modestbranding=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
     document.getElementById('camTitle').innerText = cam.title;
     document.getElementById('camLocation').innerText = cam.loc;
   }
