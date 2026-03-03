@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>World Cam Explorer - Station Complète</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121931;
+      --text: #e7ecff;
+      --sub: #9fb0ff;
+      --accent: #7aa2ff;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(1200px 800px at 80% -10%, #14214a 0%, var(--bg) 40%, #080c1a 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* --- ZONE HORLOGE ET NAVIGATION --- */
+    .clock-zone {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      margin: 20px auto 10px;
+      padding: 30px;
+    }
+
+    .clock-frame {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    #sunClock {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 3px solid gold;
+      box-shadow: 0 0 15px rgba(255,215,0,0.5);
+      background: #000 url("https://bigtreeconnection.com/buhs/azimutal/clockmap1.jpg") no-repeat center/cover;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    /* Halo Solaire Dynamique */
+    #sunClock::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(
+        circle at var(--sun-x, 50%) var(--sun-y, 50%),
+        rgba(255, 236, 140, 0.55) 0%,
+        rgba(255, 236, 140, 0) 26%
+      );
+      mix-blend-mode: screen;
+      z-index: 1;
+    }
+
+    /* Les 4 Boutons de coins */
+    .corner-btn {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: rgba(18, 25, 49, 0.9);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+      z-index: 10;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .corner-btn:hover { background: var(--accent); color: var(--bg); transform: scale(1.1); }
+
+    .top-left { top: 10px; left: 10px; }
+    .top-right { top: 10px; right: 10px; }
+    .bottom-left { bottom: 10px; left: 10px; border-color: #ff9f00; }
+    .bottom-right { bottom: 10px; right: 10px; border-color: #ff9f00; }
+
+    /* Aiguille 24h */
+    .hand.hour {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;
+      height: 50%;
+      background: gold;
+      transform-origin: center bottom;
+      z-index: 2;
+    }
+    .hand.hour::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 50%;
+      transform: translate(-50%, 50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: gold;
+      box-shadow: 0 0 15px yellow;
+    }
+
+    /* --- LECTEUR WEBCAM --- */
+    .viewer-container {
+      width: 100%;
+      max-width: 900px;
+      padding: 10px;
+    }
+    .cam-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      background: #000;
+    }
+    iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+    }
+    button {
+      padding: 12px 5px;
+      border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: rgba(122,162,255,0.1);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #autoBtn.active { background: #e62117; }
+    
+    .meta-bar {
+      padding: 12px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #radioStatus { color: #ff9f00; font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+
+  <div class="clock-zone">
+    <a href="smartclock.html" class="corner-btn top-left">🏠</a>
+    <a href="aide.html" class="corner-btn top-right">❓</a>
+    
+    <div class="clock-frame">
+      <div id="sunClock">
+        <div class="hand hour" id="hourHand"></div>
+      </div>
+    </div>
+
+    <div class="corner-btn bottom-left" onclick="radioPrev()">⏮</div>
+    <div class="corner-btn bottom-right" onclick="radioNext()">⏭</div>
+  </div>
+
+  <div id="radioStatus">RADIO : OFF</div>
+
+  <div class="viewer-container">
+    <div class="cam-card">
+      <div class="video-wrap" id="videoWrapper"></div>
+      <div class="controls">
+        <button onclick="changeCam(-1)">❮ Précédent</button>
+        <button id="autoBtn" onclick="toggleAuto()">AUTO: OFF</button>
+        <button onclick="changeCam(1)">Suivant ❯</button>
+      </div>
+      <div class="meta-bar">
+        <div class="cam-info"><b id="camTitle">Chargement...</b> <br><span id="camLocation">Patientez</span></div>
+        <div id="digitalClock" style="font-family: monospace; color: var(--accent);">00:00:00</div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audioPlayer"></audio>
+
+<script>
+  // 1. GESTION RADIO
+  const radioStations = [
+    { name: "Radio Campus", url: "http://stream.radiotime.com/listen.m3u?streamId=10555650" },
+    { name: "IRIE FM (Jamaïque)", url: "https://listen.openstream.co/4458/audio" },
+    { name: "La Grosse Radio", url: "https://hd.lagrosseradio.info/lagrosseradio-reggae-192.mp3" },
+    { name: "JAZZ RADIO", url: "https://jazzradio.ice.infomaniak.ch/jazzradio-high.mp3" },
+    { name: "LOFI CHILL", url: "https://icecast.lofi.re/lofi.mp3" }
+    
+    
+    
+    
+    
+  ];
+  let radioIdx = 0;
+  const audio = document.getElementById('audioPlayer');
+  const rStatus = document.getElementById('radioStatus');
+
+  function updateRadio() {
+    if (radioIdx === 0) {
+      audio.pause();
+      rStatus.innerText = "RADIO : OFF";
+    } else {
+      audio.src = radioStations[radioIdx].url;
+      audio.play().catch(() => rStatus.innerText = "CLIQUEZ POUR ACTIVER");
+      rStatus.innerText = "📻 " + radioStations[radioIdx].name;
+    }
+  }
+  function radioNext() { radioIdx = (radioIdx + 1) % radioStations.length; updateRadio(); }
+  function radioPrev() { radioIdx = (radioIdx - 1 + radioStations.length) % radioStations.length; updateRadio(); }
+
+  // 2. HORLOGE 24H
+  function updateClock() {
+    const now = new Date();
+    const h = now.getUTCHours();
+    const m = now.getUTCMinutes();
+    const hoursFloat = (h % 24) + m/60;
+    const hourDeg = hoursFloat * 15; // 360/24
+
+    document.getElementById("hourHand").style.transform = `translate(-50%, -100%) rotate(${hourDeg}deg)`;
+    
+    const theta = hourDeg * Math.PI / 180;
+    const x = 50 + Math.sin(theta) * 25;
+    const y = 50 - Math.cos(theta) * 25;
+    document.getElementById("sunClock").style.setProperty("--sun-x", x + "%");
+    document.getElementById("sunClock").style.setProperty("--sun-y", y + "%");
+    document.getElementById('digitalClock').innerText = now.toLocaleTimeString();
+  }
+  setInterval(updateClock, 1000);
+
+  // 3. WEBCAMS
+  const cams = [
+    { id: "K_FOP7_wGPE", title: "The Windmill Bar", loc: "St.John, USVI" },
+    { id: "ydYDqZQpim8", title: "African Desert", loc: "Namibia" },
+    { id: "CXYr04BWvmc", title: "Oakland Bay Bridge", loc: "San Francisco" },
+    { id: "qx7gry390YA", title: "Niagara Falls", loc: "Canada / USA" },
+    { id: "cWR8KGKftUw", title: "Statue of Liberty", loc: "New York, NY" },
+    { id: "_5zWp0bMgcI", title: "National Aquarium", loc: "Baltimore, MD" },
+    { id: "YEAhxXd-TiY", title: "Anglins Pier", loc: "Lauderdale-By-The-Sea, FL" },
+    { id: "O0UGT7AT3aw", title: "Chicago Skydeck", loc: "Chicago, IL" },
+    { id: "_rmUXOHSf0w", title: "Allegiant Stadium", loc: "Las Vegas, NV" },
+    { id: "skM8DTCx3gM", title: "Fort Myers Beach", loc: "Fort Myers, FL" },
+    { id: "PMhVgTcDd1o", title: "Tamariu Beach", loc: "Spain" },
+    { id: "2_PDaUJbfuI", title: "SUMMIT One Vanderbilt", loc: "New York City, NY" },
+    { id: "Thtj8Ht7Z_c", title: "Seychelles Ocean 4K", loc: "Seychelles" },
+    { id: "AfD16cDYBbE", title: "PUERTO del CARMEN BEACH ", loc: "Lanzarote, Canary Islands" },
+    { id: "qpukdDslCjk", title: "24/7 Safari Cam", loc: "Africa" },
+    { id: "hm9iAviOZ20", title: "LIVE Surf Cams 24/7 ", loc: "Hawaii, California, Bali" }
+    
+  ];
+  let index = 0;
+  let autoTimer = null;
+
+  function updateDisplay() {
+    const cam = cams[index];
+    document.getElementById('videoWrapper').innerHTML = `<iframe src="https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    document.getElementById('camTitle').innerText = cam.title;
+    document.getElementById('camLocation').innerText = cam.loc;
+  }
+  function changeCam(dir) { index = (index + dir + cams.length) % cams.length; updateDisplay(); }
+  function toggleAuto() {
+    const btn = document.getElementById('autoBtn');
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; btn.innerText = "AUTO: OFF"; btn.classList.remove('active'); }
+    else { btn.innerText = "AUTO: ON"; btn.classList.add('active'); autoTimer = setInterval(() => changeCam(1), 30000); }
+  }
+
+  updateDisplay();
+  updateClock();
+</script>
+</body>
+</html>
