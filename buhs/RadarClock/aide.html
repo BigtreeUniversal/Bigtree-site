@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+  <title>BUHS Radar Clock Fusion - Guide Officiel</title>
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --card: #151b25;
+      --accent-gold: gold;
+      --accent-blue: #3498db;
+      --accent-green: #9af7be;
+      --text: #e5e7eb;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      text-align: center;
+      padding: 50px 20px;
+      background: linear-gradient(to bottom, #1a1a1a, var(--bg));
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-size: 2.5rem;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+
+    h2 {
+      border-left: 4px solid var(--accent-blue);
+      padding-left: 15px;
+      color: var(--accent-blue);
+      margin-top: 40px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid #2a3446;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      background: rgba(154, 247, 190, 0.1);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 15px;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    li::before {
+      content: "📡";
+      position: absolute;
+      left: 0;
+    }
+
+    .contact-info {
+      text-align: center;
+      margin-top: 50px;
+      padding: 30px;
+      border-top: 1px solid #2a3446;
+      font-family: monospace;
+    }
+
+    a {
+      color: var(--accent-green);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+
+
+
+
+
+<body>
+
+<header>
+  <div class="badge">VERSION 1.0</div>
+  <h1>BUHS Radar Clock Fusion</h1>
+
+
+<img src="https://bigtreeconnection.com/buhs/RadarClock/icon-512.png" style="max-width:80%; height:auto;" alt="Logo BUHS">
+
+
+  <p>Big Tree Universal Harmonic System</p>
+</header>
+
+
+
+
+
+<div class="container">
+  
+  <section class="card">
+    <h2>​I. Introduction : Une Première Mondiale
+
+</h2>
+    <p>​Bienvenue dans l'écosystème BUHS (Big Tree Universal Harmonic System). Le module Radar Clock Fusion v1.0 est une application web progressive (PWA) unique, fusionnant deux piliers technologiques :
+</p>
+    <ul>
+      <li><strong>Modèle Prédictif :</strong> Basé sur l'horloge UTC internationale.</li>
+      <li><strong>Mode Radar :</strong> Observation brute en temps réel sans filtres satellites.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>​II. Architecture et Mécanique Euclidienne
+
+​
+
+
+</h2>
+    <p>Le système repose sur une projection azimutale équidistante (Nord au centre, Sud en périphérie).
+</p>
+    <ul>
+      <li><strong>Aiguille Jaune (Soleil) :</strong> Définit l'heure via la position du soleil (cycle de 24h) calée sur l'UTC.</li>
+      <li><strong>Aiguille Bleue (Lune) :</strong> Basée sur un calcul euclidien (cycle synodique de 29,53 jours), elle représente la course de la lune en longitude sans recours à des API externes.
+
+</li>
+      <li><strong>Aiguille Rouge (Séparateur) :</strong> Visualise la lumière électromagnétique (jour/nuit) se déplaçant autour de la carte à titre indicatif.
+
+(jour/nuit).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>III. Innovation : La Bague Azimutale</h2>
+    <p>Cette bague rotative interactive permet :</p>
+    <ul>
+      <li>Le : de faire pivoter manuellement l'affichage (le "Ring") pour aligner le système sur votre position locale.
+
+</li>
+      <li> de synchroniser visuellement l'heure UTC avec votre propre réalité géographique, permettant une lecture intuitive de l'heure et de la position des astres par rapport à votre position sur la carte.
+
+</li>
+    </ul>
+  </section>
+
+
+<section class="card">
+    <h2>​IV. Le Mode Radar : La "Danse" de la Réalité
+</h2>
+    <p>​Une fois activé, le mode Radar remplace les prédictions théoriques par la position réelle des astres via notre réseau de mesures propriétaire :
+
+ <strong>Micro-variations</strong>.</p>
+    <ul>
+      <li>Observez comment le soleil et la lune sont tantôt en avance, tantôt en retard sur les aiguilles.
+
+</li>
+      <li>​Expérience Humaine : Ce spectacle unique, telle une danse, permet de s'adapter à son propre rythme physique et spirituel, loin des éphémérides figées.
+
+</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>​V. Technologie de Haute Précision
+
+</h2>
+    <p>​Le cœur du système bat à Zurich, en Suisse, via le serveur BUHS Heartbeat Azurite (Strate 1)
+
+<strong>​Protocole Syncro-link :e</strong>.</p>
+    <ul>
+      <li>Synchronise tous les modules via une trame codée propriétaire.
+
+</li>
+      <li>​Standard Stratum 1 : des serveurs intégrant des recherches sur les horloges atomiques pour une précision absolue.
+
+</li>
+    </ul>
+  </section>
+
+
+
+
+<section class="card">
+    <h2>​VI. Conclusion & Évolution
+</h2>
+    <p>​Le projet BUHS est une aventure technologique et métaphysique. La version 2.0 incorporera bientôt les étoiles et les planètes. Le module est actuellement gratuit ; nous vous invitons à soutenir l'innovation via un don ou en rejoignant l'économie du token $BIGTREE sur buhs-universal.xyz.
+</p>
+   
+    </ul>
+  </section>
+
+
+
+
+
+  <section class="card">
+    <h2> VII. Installation & Mobilité (PWA)</h2>
+    <p>​Le BUHS Radar Clock est conçu comme une application native. Pour une immersion totale et un accès rapide, nous vous recommandons de l'installer sur votre écran d'accueil :
+
+</p>
+    <ul>
+      <li><strong>Android :</strong> Menu Chrome > ​Sur Android (Chrome) : Appuyez sur les trois points verticaux en haut à droite, puis sélectionnez "Installer l'application" ou "Ajouter à l'écran d'accueil".
+
+.</li>
+      <li><strong>iOS :</strong> Partage > Appuyez sur l'icône de partage (le carré avec une flèche vers le haut) et faites défiler jusqu'à trouver "Sur l'écran d'accueil".
+
+</li>
+    </ul>
+  </section>
+
+
+<section style="background: rgba(122, 162, 255, 0.05); border: 1px solid #7aa2ff; padding: 20px; border-radius: 12px; margin: 20px 0;">
+    <h2 style="color: #7aa2ff; margin-top: 0;">✨ Nouveautés V1.1</h2>
+    <ul style="list-style: none; padding-left: 0;">
+        <li style="margin-bottom: 10px;"><strong>💎 Autonomie :</strong> Calculs par équations (sans API).</li>
+        <li style="margin-bottom: 10px;"><strong>⚡ Vitesse :</strong> Traitement en quelques secondes.</li>
+        <li style="margin-bottom: 10px;"><strong>🟣 Visibilité :</strong> Repères lunaires en violet.</li>
+        <li style="margin-bottom: 10px;"><strong>📖 Support :</strong> Manuel d'aide intégré.</li>
+        <li style="margin-bottom: 10px;"><strong>🌍 Immersion :</strong> Nouveau mode Webcams Live.</li>
+    </ul>
+</section>
+
+
+<section class="card">
+  <h2 style="color: var(--accent-green); border-left-color: var(--accent-green);">🔗 Liens & Ressources</h2>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+    
+    <a href="https://paragraph.com/@bigtree.buhs" target="_blank" style="text-decoration: none;">
+      <div style="background: rgba(122, 162, 255, 0.1); border: 1px solid var(--accent-blue); padding: 15px; border-radius: 8px; text-align: center;">
+        <strong style="color: var(--text); display: block;">📚Articles de l'auteur</strong>
+        <span style="font-size: 0.8rem; color: var(--sub);">Accéder à l'horloge fusion</span>
+      </div>
+    </a>
+
+    <a href="https://bigtreeconnection.com/buhs/webcams/webcams.html" style="text-decoration: none;">
+      <div style="background: rgba(154, 247, 190, 0.1); border: 1px solid var(--accent-green); padding: 15px; border-radius: 8px; text-align: center;">
+        <strong style="color: var(--text); display: block;">🎥 Webcams Monde</strong>
+        <span style="font-size: 0.8rem; color: var(--sub);">Immersion totale V1.1</span>
+      </div>
+    </a>
+
+    <a href="https://app.doppler.lol/tokens/base/0x14e732bbba1cd07685d2081869ca5062ac32463a" target="_blank" style="text-decoration: none;">
+      <div style="background: rgba(255, 215, 0, 0.1); border: 1px solid var(--accent-gold); padding: 15px; border-radius: 8px; text-align: center;">
+        <strong style="color: var(--text); display: block;">💰 Token $BIGTREE</strong>
+        <span style="font-size: 0.8rem; color: var(--sub);">Soutenir le projet</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+
+
+  <footer class="contact-info">
+    <p>Oliver Bigtree [BUHS]</p>
+    <p><a href="https://buhs-universal.xyz">buhs-universal.xyz</a></p>
+    <p>buhs.universal@gmx.com</p>
+    <p style="margin-top: 20px; font-size: 0.8rem; color: #666;">© 2026 - Aventure technologique et métaphysique</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
