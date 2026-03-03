@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>World Cam Explorer - Live & Clock</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121931;
+      --text: #e7ecff;
+      --sub: #9fb0ff;
+      --accent: #7aa2ff;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(1200px 800px at 80% -10%, #14214a 0%, var(--bg) 40%, #080c1a 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* --- STYLE DE L'HORLOGE PERPETUAL SUNSET --- */
+    .clock-container {
+      width: 100%;
+      max-width: 300px; /* Taille ajustable pour le cadre responsive */
+      margin: 20px auto 10px;
+      padding: 10px;
+    }
+
+    #sunClock {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 3px solid gold;
+      box-shadow: 0 0 15px rgba(255,215,0,0.5);
+      background: #000 url("https://bigtreeconnection.com/buhs/RadarClock/clockmap1.jpg") no-repeat center/cover;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    /* Halo du soleil */
+    #sunClock::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(
+        circle at var(--sun-x, 50%) var(--sun-y, 50%),
+        rgba(255, 236, 140, 0.55) 0%,
+        rgba(255, 236, 140, 0.18) 25%,
+        rgba(255, 236, 140, 0.00) 26%
+      );
+      mix-blend-mode: screen;
+      z-index: 1;
+    }
+
+    .hand.hour {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;
+      height: 50%;
+      background: gold;
+      transform-origin: center bottom;
+      z-index: 2;
+      box-shadow: 0 0 6px gold;
+    }
+
+    /* Le "point" soleil sur l'aiguille */
+    .hand.hour::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 50%;
+      transform: translate(-50%, 50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffd400 0%, #ffe873 80%);
+      box-shadow: 0 0 20px gold;
+    }
+
+    .center-dot {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: gold;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+    }
+
+    /* --- RESTE DU STYLE WEBCAMS --- */
+    .viewer-container {
+      width: 100%;
+      max-width: 900px;
+      padding: 10px;
+      margin-bottom: 30px;
+    }
+
+    .cam-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      background: #000;
+    }
+
+    iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+    }
+
+    button {
+      padding: 12px 5px;
+      border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: rgba(122,162,255,0.1);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    #autoBtn.active { background: #e62117; border-color: #ff4d4d; animation: pulse 2s infinite; }
+
+    .meta-bar { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
+    .cam-info b { font-size: 1rem; }
+    #digitalClock { font-family: monospace; color: var(--accent); }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0px rgba(230, 33, 23, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(230, 33, 23, 0); }
+      100% { box-shadow: 0 0 0 0px rgba(230, 33, 23, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="clock-container">
+    <div id="sunClock">
+      <div class="hand hour" id="hourHand"></div>
+      <div class="center-dot"></div>
+    </div>
+  </div>
+
+  <div class="viewer-container">
+    <div class="cam-card">
+      <div class="video-wrap" id="videoWrapper"></div>
+      
+      <div class="controls">
+        <button onclick="changeCam(-1)">❮ Précédent</button>
+        <button id="autoBtn" onclick="toggleAuto()">AUTO: OFF</button>
+        <button onclick="changeCam(1)">Suivant ❯</button>
+      </div>
+
+      <div class="meta-bar">
+        <div class="cam-info">
+          <b id="camTitle">Chargement...</b>
+          <span id="camLocation">Patientez</span>
+        </div>
+        <div id="digitalClock">00:00:00</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --- LOGIQUE DE L'HORLOGE 24H (SUNSET) ---
+  function updateSunClock() {
+    const now = new Date();
+    const h = now.getUTCHours();
+    const m = now.getUTCMinutes();
+    const s = now.getUTCSeconds();
+    
+    // Calcul pour une rotation sur 24h
+    const hoursFloat = (h % 24) + m/60 + s/3600;
+    const hourDeg = hoursFloat * 15; // 360 degrés / 24 heures
+
+    const hh = document.getElementById("hourHand");
+    const clockEl = document.getElementById("sunClock");
+
+    if (hh) hh.style.transform = `translate(-50%, -100%) rotate(${hourDeg}deg)`;
+    
+    if (clockEl) {
+      const theta = hourDeg * Math.PI / 180;
+      const rFrac = 0.5; // Position du soleil sur le rayon
+      const x = 50 + Math.sin(theta) * rFrac * 50;
+      const y = 50 - Math.cos(theta) * rFrac * 50;
+      clockEl.style.setProperty("--sun-x", x + "%");
+      clockEl.style.setProperty("--sun-y", y + "%");
+    }
+    
+    document.getElementById('digitalClock').innerText = now.toLocaleTimeString();
+  }
+  setInterval(updateSunClock, 1000);
+  updateSunClock();
+
+  // --- LOGIQUE WEBCAMS ---
+  const cams = [
+    { id: "K_FOP7_wGPE", title: "The Windmill Bar", loc: "St.John, USVI" },
+    { id: "ydYDqZQpim8", title: "African Desert", loc: "Namibia" },
+    { id: "CXYr04BWvmc", title: "Oakland Bay Bridge", loc: "San Francisco" },
+    { id: "qx7gry390YA", title: "Niagara Falls", loc: "Canada / USA" },
+    { id: "cWR8KGKftUw", title: "Statue of Liberty", loc: "New York, NY" },
+    { id: "rnXIjl_Rzy4", title: "Times Square 4K", loc: "New York City, NY" },
+    { id: "_5zWp0bMgcI", title: "National Aquarium", loc: "Baltimore, MD" },
+    { id: "iHqqkh_Rzy4", title: "Terminal Tower Cam", loc: "Cleveland, OH" },
+    { id: "YEAhxXd-TiY", title: "Anglins Pier", loc: "Lauderdale-By-The-Sea, FL" },
+    { id: "O0UGT7AT3aw", title: "Chicago Skydeck", loc: "Chicago, IL" },
+    { id: "_rmUXOHSf0w", title: "Allegiant Stadium", loc: "Las Vegas, NV" },
+    { id: "skM8DTCx3gM", title: "Fort Myers Beach", loc: "Fort Myers, FL" },
+    { id: "PMhVgTcDd1o", title: "Tamariu Beach", loc: "Spain" },
+    { id: "2_PDaUJbfuI", title: "SUMMIT One Vanderbilt", loc: "New York City, NY" }
+  ];
+
+  let index = 0;
+  let autoTimer = null;
+
+  function updateDisplay() {
+    const cam = cams[index];
+    const wrapper = document.getElementById('videoWrapper');
+    wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1&rel=0&modestbranding=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    document.getElementById('camTitle').innerText = cam.title;
+    document.getElementById('camLocation').innerText = cam.loc;
+  }
+
+  function changeCam(dir) {
+    index = (index + dir + cams.length) % cams.length;
+    updateDisplay();
+    if (autoTimer) resetAutoTimer();
+  }
+
+  function toggleAuto() {
+    const btn = document.getElementById('autoBtn');
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+      btn.innerText = "AUTO: OFF";
+      btn.classList.remove('active');
+    } else {
+      btn.innerText = "AUTO: ON";
+      btn.classList.add('active');
+      autoTimer = setInterval(() => changeCam(1), 30000);
+    }
+  }
+
+  function resetAutoTimer() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => changeCam(1), 30000);
+  }
+
+  updateDisplay();
+</script>
+</body>
+</html>
