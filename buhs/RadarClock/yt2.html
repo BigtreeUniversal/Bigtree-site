@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Ghost Radio</title>
+    <style>
+        :root {
+            --neon-green: #00ffcc;
+            --bg-black: #000000;
+            --card-bg: #111111;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            background-color: var(--bg-black);
+            color: white;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- NAVIGATION DES PLAYLISTS --- */
+        .playlist-menu {
+            display: flex;
+            overflow-x: auto;
+            padding: 15px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid #222;
+            scrollbar-width: none; /* Cache la scrollbar sur Firefox */
+        }
+        .playlist-menu::-webkit-scrollbar { display: none; }
+
+        .btn-pl {
+            background: #1a1a1a;
+            color: #aaa;
+            border: 1px solid #333;
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .btn-pl.active {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+
+        /* --- ZONE CENTRALE : AFFICHAGE NOIR --- */
+        .main-display {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .marquee-container {
+            width: 100%;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .scrolling-text {
+            display: inline-block;
+            white-space: nowrap;
+            font-size: clamp(2rem, 8vw, 5rem);
+            font-weight: 900;
+            color: var(--neon-green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: scroll-text 15s linear infinite;
+            text-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+        }
+
+        @keyframes scroll-text {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* --- BARRE DE MINIATURES (MENU À SUIVRE) --- */
+        .thumbnail-strip {
+            position: absolute;
+            bottom: 120px;
+            width: 90%;
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 10px;
+            justify-content: center;
+        }
+
+        .yt-thumb {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            object-fit: cover;
+            cursor: pointer;
+            transition: 0.3s;
+            opacity: 0.6;
+        }
+        .yt-thumb:hover, .yt-thumb.playing {
+            opacity: 1;
+            border-color: var(--neon-green);
+            transform: scale(1.1);
+        }
+
+        /* --- CONTRÔLES BAS DE PAGE --- */
+        .player-controls {
+            background: #080808;
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #1a1a1a;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .control-btn:active { transform: scale(0.9); color: var(--neon-green); }
+
+        /* LECTEUR CACHÉ */
+        #player { position: absolute; top: -1000px; }
+    </style>
+</head>
+<body>
+
+    <div class="playlist-menu" id="menu">
+        </div>
+
+    <div class="main-display">
+        <div class="marquee-container">
+            <div id="track-title" class="scrolling-text">CHOISISSEZ UNE PLAYLIST...</div>
+        </div>
+
+        <div class="thumbnail-strip" id="thumbs">
+            </div>
+    </div>
+
+    <div id="player"></div>
+
+    <div class="player-controls">
+        <button class="control-btn" onclick="player.previousVideo()">⏮</button>
+        <button class="control-btn" id="play-pause" onclick="togglePlay()">▶️</button>
+        <button class="control-btn" onclick="player.nextVideo()">⏭</button>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        const playlists = {
+            "REGGAE MOD": "PL9D-qI9DCdypGs8n_c1OCUiTsLhGIymVS",
+            "REGGAE CLASSICS": "PL9D-qI9DCdypFiwBzbGQwXw2JIwbbNkWb",
+            "REGGAE 1": "PL9D-qI9DCdypePCTVgUDWZdL6Ov43-fiN",
+            "REGGAE 2": "PL9D-qI9DCdyoCjoO6-yW5-TAplhGbVOTK",
+            "VARIOUS 4": "PL9D-qI9DCdyquTkdVKSsias9oCACu5hBD",
+            "VARIOUS 3": "PL9D-qI9DCdyoKaHXSDpaCkAtd6KqK5kc9",
+            "JAZZ 1": "PL9D-qI9DCdyqxLpZu6LRo4mpr6Gd_zwe3",
+            "JAZZ 2": "PL9D-qI9DCdyp4XVohGsAXWccmJtvXIOiH",
+            "HIPHOP 1": "PL9D-qI9DCdyo5zA9ip_PUOswT5utKMP63",
+            "SOUL R&B": "PL9D-qI9DCdyqrriTLtefKRw7Xhp26x_g2"
+        };
+
+        let player;
+        const menu = document.getElementById('menu');
+        const trackTitle = document.getElementById('track-title');
+        const thumbsContainer = document.getElementById('thumbs');
+
+        // Générer les boutons du menu
+        Object.keys(playlists).forEach(name => {
+            let btn = document.createElement('button');
+            btn.className = 'btn-pl';
+            btn.innerText = name;
+            btn.onclick = () => {
+                document.querySelectorAll('.btn-pl').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadNewPlaylist(playlists[name]);
+            };
+            menu.appendChild(btn);
+        });
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '0', width: '0',
+                playerVars: { 'listType': 'playlist', 'list': playlists["REGGAE MOD"] },
+                events: {
+                    'onStateChange': onPlayerStateChange,
+                    'onReady': () => console.log("Prêt !")
+                }
+            });
+        }
+
+        function loadNewPlaylist(id) {
+            player.loadPlaylist({list: id, listType: 'playlist'});
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                const data = player.getVideoData();
+                trackTitle.innerText = data.title + " • " + data.author;
+                document.getElementById('play-pause').innerText = "⏸";
+                updateThumbnails();
+            } else {
+                document.getElementById('play-pause').innerText = "▶️";
+            }
+        }
+
+        function updateThumbnails() {
+            const list = player.getPlaylist();
+            const currentIdx = player.getPlaylistIndex();
+            thumbsContainer.innerHTML = '';
+            
+            // On affiche les 5 prochaines vidéos
+            list.slice(currentIdx, currentIdx + 6).forEach((id, i) => {
+                let img = document.createElement('img');
+                img.src = `https://img.youtube.com/vi/${id}/default.jpg`;
+                img.className = 'yt-thumb' + (i === 0 ? ' playing' : '');
+                img.onclick = () => player.playVideoAt(currentIdx + i);
+                thumbsContainer.appendChild(img);
+            });
+        }
+
+        function togglePlay() {
+            if (player.getPlayerState() == 1) player.pauseVideo();
+            else player.playVideo();
+        }
+    </script>
+</body>
+</html>
