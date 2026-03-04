@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#050505">
+    <title>Bigtree Player</title>
+    <style>
+        /* TONS FONCÉS ET SOBRES */
+        body { margin: 0; background: #000; color: #eee; font-family: 'Segoe UI', Roboto, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* ZONE VISUELLE PRINCIPALE */
+        #now-playing { 
+            background: #050505; /* Gris très sombre */
+            padding: 30px 20px; text-align: center; 
+            border-bottom: 1px solid #1a1a1a; flex-shrink: 0; 
+        }
+        #big-thumb { 
+            width: 90%; max-width: 380px; aspect-ratio: 1/1; /* Format carré pour faire plus "album" */
+            object-fit: cover; border-radius: 15px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9);
+            border: 1px solid #222; margin-bottom: 20px;
+        }
+        #current-title { font-size: 15px; letter-spacing: 0.5px; color: #fff; font-weight: 500; min-height: 40px; }
+
+        /* MENU PLAYLISTS SOBRE */
+        .header { display: flex; gap: 12px; overflow-x: auto; padding: 15px; background: #000; flex-shrink: 0; }
+        .chip { background: #111; padding: 10px 20px; border-radius: 8px; font-size: 11px; white-space: nowrap; border: 1px solid #222; cursor: pointer; color: #666; text-transform: uppercase; transition: 0.3s; }
+        .chip.active { background: #222; color: #fff; border-color: #444; }
+
+        /* LISTE */
+        #playlist-view { flex-grow: 1; overflow-y: auto; padding-bottom: 130px; background: #000; }
+        .track-item { display: flex; align-items: center; padding: 15px 25px; gap: 20px; border-bottom: 1px solid #080808; }
+        .track-item.active { background: #050505; border-left: 3px solid #fff; }
+        .track-item img { width: 40px; height: 40px; border-radius: 4px; opacity: 0.3; }
+        .track-label { font-size: 12px; color: #444; font-weight: bold; }
+
+        /* COMMANDES */
+        .controls { position: fixed; bottom: 0; width: 100%; background: #050505; border-top: 1px solid #1a1a1a; display: flex; justify-content: center; align-items: center; gap: 50px; padding: 25px 0 50px 0; }
+        .btn { background: none; border: none; color: #fff; font-size: 35px; cursor: pointer; }
+        .btn-play { background: #fff; color: #000; width: 60px; height: 60px; border-radius: 50%; font-size: 24px; display: flex; align-items: center; justify-content: center; }
+
+        #player-container { position: absolute; top: -1000px; }
+    </style>
+</head>
+<body>
+
+    <div id="now-playing">
+        <img id="big-thumb" src="icon-512.png">
+        <div id="current-title">SÉLECTIONNEZ UNE PLAYLIST</div>
+    </div>
+
+    <div class="header" id="nav"></div>
+    <div id="playlist-view"></div>
+    <div id="player-container"><div id="player"></div></div>
+
+    <div class="controls">
+        <button class="btn" onclick="player.previousVideo()">⏮</button>
+        <button class="btn btn-play" id="play-btn" onclick="togglePlay()">▶</button>
+        <button class="btn" onclick="player.nextVideo()">⏭</button>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        // Tes playlists
+        const myPlaylists = [
+            { name: "REGGAE MODERN", id: "PL9D-qI9DCdypGs8n_c1OCUiTsLhGIymVS" },
+            { name: "REGGAE CLASSICS", id: "PL9D-qI9DCdypFiwBzbGQwXw2JIwbbNkWb" },
+            { name: "JAZZ 1", id: "PL9D-qI9DCdyqxLpZu6LRo4mpr6Gd_zwe3" },
+            { name: "HIPHOP OLDSCHOOL 1", id: "PL9D-qI9DCdyo5zA9ip_PUOswT5utKMP63" },
+            { name: "SOUL R & B", id: "PL9D-qI9DCdyqrriTLtefKRw7Xhp26x_g2" },
+            { name: "VARIOUS 1", id: "PL9D-qI9DCdyquTkdVKSsias9oCACu5hBD" }   
+        ];
+
+        let player;
+
+        // Menu
+        const nav = document.getElementById('nav');
+        myPlaylists.forEach((pl, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'chip';
+            btn.innerText = pl.name;
+            btn.onclick = () => {
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                player.loadPlaylist({list: pl.id});
+            };
+            nav.appendChild(btn);
+        });
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '0', width: '0',
+                playerVars: { listType: 'playlist', list: myPlaylists[0].id },
+                events: {
+                    'onStateChange': (e) => {
+                        if (e.data == 1) { 
+                            document.getElementById('play-btn').innerText = "⏸";
+                            updateDisplay();
+                        } else { document.getElementById('play-btn').innerText = "▶"; }
+                    }
+                }
+            });
+        }
+
+        function updateDisplay() {
+            const data = player.getVideoData();
+            const list = player.getPlaylist();
+            const currIdx = player.getPlaylistIndex();
+
+            if(data && data.title) {
+                document.getElementById('current-title').innerText = data.title;
+                // On garde l'image YT pour la lecture, mais on peut forcer ton image au début
+                document.getElementById('big-thumb').src = `https://img.youtube.com/vi/${data.video_id}/hqdefault.jpg`;
+            }
+
+            const view = document.getElementById('playlist-view');
+            view.innerHTML = '';
+            if(list) {
+                list.forEach((id, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'track-item' + (index === currIdx ? ' active' : '');
+                    item.innerHTML = `<img src="https://img.youtube.com/vi/${id}/mqdefault.jpg"><div class="track-label">0${index + 1}</div>`;
+                    item.onclick = () => player.playVideoAt(index);
+                    view.appendChild(item);
+                });
+            }
+        }
+
+        function togglePlay() {
+            if (player.getPlayerState() == 1) player.pauseVideo();
+            else player.playVideo();
+        }
+    </script>
+</body>
+</html>
