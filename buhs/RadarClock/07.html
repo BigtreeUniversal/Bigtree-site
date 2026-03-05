@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BigTree Jukebox PRO</title>
+
+<style>
+:root{
+--bg:#000;
+--surface:#0e0e0e;
+--accent:#1db954;
+--text:#fff;
+--dim:#888;
+}
+
+body{
+margin:0;
+background:var(--bg);
+color:var(--text);
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto;
+display:flex;
+flex-direction:column;
+height:100vh;
+overflow:hidden;
+}
+
+.header{
+display:flex;
+overflow-x:auto;
+gap:12px;
+padding:12px;
+background:#000;
+border-bottom:1px solid #111;
+}
+
+.chip{
+background:#111;
+padding:8px 14px;
+border-radius:20px;
+font-size:12px;
+cursor:pointer;
+white-space:nowrap;
+color:#aaa;
+}
+
+.chip.active{
+background:var(--accent);
+color:#000;
+font-weight:bold;
+}
+
+#now-playing{
+display:flex;
+gap:15px;
+padding:15px;
+background:var(--surface);
+align-items:center;
+border-bottom:1px solid #111;
+}
+
+#big-thumb{
+width:80px;
+height:80px;
+object-fit:cover;
+border-radius:10px;
+}
+
+#current-title{
+font-weight:bold;
+color:var(--accent);
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+#playlist{
+flex:1;
+overflow-y:auto;
+}
+
+.track{
+display:flex;
+gap:12px;
+align-items:center;
+padding:12px 16px;
+border-bottom:1px solid #111;
+cursor:pointer;
+}
+
+.track img{
+width:60px;
+height:45px;
+border-radius:6px;
+object-fit:cover;
+}
+
+.track-info{
+flex:1;
+overflow:hidden;
+}
+
+.track-title{
+font-size:14px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+.track-duration{
+font-size:12px;
+color:var(--dim);
+}
+
+.track.active{
+background:#111;
+border-left:4px solid var(--accent);
+}
+
+.controls{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:40px;
+padding:20px;
+background:#0a0a0a;
+border-top:1px solid #111;
+}
+
+button{
+background:none;
+border:none;
+color:white;
+font-size:28px;
+cursor:pointer;
+}
+
+.play-btn{
+background:white;
+color:black;
+width:60px;
+height:60px;
+border-radius:50%;
+font-size:22px;
+}
+</style>
+</head>
+<body>
+
+<div class="header" id="nav"></div>
+
+<div id="now-playing">
+<img id="big-thumb">
+<div style="flex:1">
+<div id="current-title">Chargement...</div>
+<div style="font-size:12px;color:#888">BigTree Radio</div>
+</div>
+</div>
+
+<div id="playlist"></div>
+
+<div class="controls">
+<button onclick="player.previousVideo()">⏮</button>
+<button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+<button onclick="player.nextVideo()">⏭</button>
+</div>
+
+<div id="player" style="display:none;"></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+const API_KEY = "YOUR_API_KEY_HERE";
+
+const playlists = [
+{ name:"REGGAE MODERN", id:"PL9D-qI9DCdypGs8n_c1OCUiTsLhGIymVS"},
+{ name:"REGGAE CLASSICS", id:"PL9D-qI9DCdypFiwBzbGQwXw2JIwbbNkWb"},
+{ name:"JAZZ 1", id:"PL9D-qI9DCdyqxLpZu6LRo4mpr6Gd_zwe3"},
+{ name:"HIPHOP OLD", id:"PL9D-qI9DCdyo5zA9ip_PUOswT5utKMP63"}
+];
+
+let player;
+let currentVideos=[];
+
+const nav=document.getElementById("nav");
+
+playlists.forEach((pl,i)=>{
+const chip=document.createElement("div");
+chip.className="chip"+(i===0?" active":"");
+chip.innerText=pl.name;
+chip.onclick=()=>{
+document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+chip.classList.add("active");
+loadPlaylist(pl.id);
+};
+nav.appendChild(chip);
+});
+
+function onYouTubeIframeAPIReady(){
+player=new YT.Player("player",{
+height:"0",
+width:"0",
+events:{
+onStateChange:e=>{
+document.getElementById("playBtn").innerText=
+e.data===1?"⏸":"▶";
+highlightCurrent();
+}
+}
+});
+loadPlaylist(playlists[0].id);
+}
+
+async function loadPlaylist(id){
+
+// 1️⃣ récupérer vidéos
+const res=await fetch(
+`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${id}&key=${API_KEY}`
+);
+const data=await res.json();
+
+currentVideos=data.items.map(i=>({
+title:i.snippet.title,
+videoId:i.snippet.resourceId.videoId,
+thumb:i.snippet.thumbnails.medium.url
+}));
+
+// 2️⃣ charger dans player
+player.loadPlaylist({
+playlist:currentVideos.map(v=>v.videoId)
+});
+
+renderPlaylist();
+}
+
+function renderPlaylist(){
+const container=document.getElementById("playlist");
+container.innerHTML="";
+
+currentVideos.forEach((v,i)=>{
+const div=document.createElement("div");
+div.className="track";
+div.innerHTML=`
+<img src="${v.thumb}">
+<div class="track-info">
+<div class="track-title">${v.title}</div>
+</div>
+`;
+div.onclick=()=>player.playVideoAt(i);
+container.appendChild(div);
+});
+}
+
+function highlightCurrent(){
+const idx=player.getPlaylistIndex();
+document.querySelectorAll(".track").forEach((t,i)=>{
+t.classList.toggle("active",i===idx);
+});
+
+const video=currentVideos[idx];
+if(video){
+document.getElementById("big-thumb").src=video.thumb;
+document.getElementById("current-title").innerText=video.title;
+}
+}
+
+function togglePlay(){
+if(player.getPlayerState()===1) player.pauseVideo();
+else player.playVideo();
+}
+</script>
+
+</body>
+</html>

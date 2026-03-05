@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BUHS Jukebox</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: #111;
+            --accent: #1db954;
+            --text: #eee;
+        }
+
+        body { 
+            margin: 0; background: var(--bg); color: var(--text); 
+            font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; 
+            overflow: hidden; /* Empêche le scroll global */
+        }
+
+        /* Nav Header - Hauteur Fixe */
+        .header { 
+            height: 60px; display: flex; gap: 10px; overflow-x: auto; 
+            padding: 0 15px; align-items: center; border-bottom: 1px solid #222;
+            flex-shrink: 0; scrollbar-width: none;
+        }
+        .header::-webkit-scrollbar { display: none; }
+        
+        .chip { 
+            padding: 8px 15px; background: #222; border-radius: 20px; 
+            font-size: 11px; white-space: nowrap; cursor: pointer; color: #888;
+        }
+        .chip.active { background: var(--accent); color: #000; font-weight: bold; }
+
+        /* Infos Lecture - Hauteur Fixe */
+        #now-playing { 
+            height: 80px; padding: 10px 15px; display: flex; align-items: center; 
+            gap: 12px; background: var(--surface); flex-shrink: 0;
+        }
+        #big-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+        #current-title { font-size: 13px; font-weight: bold; color: var(--accent); overflow: hidden; }
+
+        /* Playlist - Zone de scroll flexible */
+        #playlist-view { 
+            flex-grow: 1; overflow-y: auto; background: var(--bg);
+        }
+        .track-item { 
+            display: flex; align-items: center; padding: 12px 15px; gap: 15px; 
+            border-bottom: 1px solid #111; font-size: 12px;
+        }
+        .track-item.active { background: #1a1a1a; color: var(--accent); }
+        .track-item img { width: 40px; height: 30px; border-radius: 3px; opacity: 0.5; }
+        .track-item.active img { opacity: 1; }
+
+        /* Contrôles - Fixés en bas */
+        .controls { 
+            height: 100px; display: flex; justify-content: center; align-items: center; 
+            gap: 30px; background: rgba(0,0,0,0.9); border-top: 1px solid #222; flex-shrink: 0;
+        }
+        .btn { background: none; border: none; color: #fff; font-size: 30px; }
+        .btn-play { background: #fff; color: #000; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; }
+
+        #player-container { position: absolute; top: -1000px; }
+    </style>
+</head>
+<body>
+
+    <div class="header" id="nav"></div>
+
+    <div id="now-playing">
+        <img id="big-thumb" src="">
+        <div id="current-title">SÉLECTIONNEZ UNE PLAYLIST</div>
+    </div>
+
+    <div id="playlist-view"></div>
+
+    <div class="controls">
+        <button class="btn" onclick="player.previousVideo()">⏮</button>
+        <button class="btn btn-play" id="play-btn" onclick="togglePlay()">▶</button>
+        <button class="btn" onclick="player.nextVideo()">⏭</button>
+    </div>
+
+    <div id="player-container"><div id="player"></div></div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        const myPlaylists = [
+            { name: "REGGAE MODERN", id: "PL9D-qI9DCdypGs8n_c1OCUiTsLhGIymVS" },
+            { name: "REGGAE CLASSICS", id: "PL9D-qI9DCdypFiwBzbGQwXw2JIwbbNkWb" },
+            { name: "JAZZ 1", id: "PL9D-qI9DCdyqxLpZu6LRo4mpr6Gd_zwe3" },
+            { name: "HIPHOP OLD", id: "PL9D-qI9DCdyo5zA9ip_PUOswT5utKMP63" },
+            { name: "SOUL R & B", id: "PL9D-qI9DCdyqrriTLtefKRw7Xhp26x_g2" },
+            { name: "VARIOUS", id: "PL9D-qI9DCdyquTkdVKSsias9oCACu5hBD" }   
+        ];
+
+        let player;
+
+        // Boutons navigation
+        const nav = document.getElementById('nav');
+        myPlaylists.forEach((pl, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'chip' + (i === 0 ? ' active' : '');
+            btn.innerText = pl.name;
+            btn.onclick = () => {
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                // On vide la vue actuelle pour forcer le rafraîchissement au chargement
+                document.getElementById('playlist-view').innerHTML = "Chargement...";
+                player.loadPlaylist({list: pl.id});
+            };
+            nav.appendChild(btn);
+        });
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '0', width: '0',
+                playerVars: { listType: 'playlist', list: myPlaylists[0].id },
+                events: {
+                    'onReady': () => { updateUI(); },
+                    'onStateChange': (e) => {
+                        document.getElementById('play-btn').innerText = (e.data == 1) ? "⏸" : "▶";
+                        updateUI();
+                    }
+                }
+            });
+        }
+
+        function updateUI() {
+            const data = player.getVideoData();
+            const list = player.getPlaylist();
+            const currIdx = player.getPlaylistIndex();
+
+            if(data && data.title && data.video_id) {
+                document.getElementById('current-title').innerText = data.title;
+                document.getElementById('big-thumb').src = `https://img.youtube.com/vi/${data.video_id}/mqdefault.jpg`;
+            }
+
+            const view = document.getElementById('playlist-view');
+            if(list && list.length > 0) {
+                view.innerHTML = '';
+                list.forEach((id, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'track-item' + (index === currIdx ? ' active' : '');
+                    // On n'affiche le vrai titre que pour le morceau en cours pour éviter les erreurs de désynchro API
+                    const label = (index === currIdx) ? data.title : "Titre " + (index + 1);
+                    item.innerHTML = `<img src="https://img.youtube.com/vi/${id}/mqdefault.jpg"><div>${label}</div>`;
+                    item.onclick = () => player.playVideoAt(index);
+                    view.appendChild(item);
+                });
+            }
+        }
+
+        function togglePlay() {
+            if (player.getPlayerState() == 1) player.pauseVideo();
+            else player.playVideo();
+        }
+    </script>
+</body>
+</html>

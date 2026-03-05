@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BigTree Jukebox - BUHS Edition</title>
+    
+    <style>
+        :root {
+            --bronze: #a67c52;
+            --dark-metal: #222;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glow: #ffaa00;
+        }
+
+        body { 
+            margin: 0; background: #0a0a0a; color: #d4af37; 
+            font-family: 'Courier New', monospace;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+
+        /* BOITIER PRINCIPAL */
+        .machine {
+            width: 360px;
+            background: #2c2c2c;
+            border: 6px solid #1a1a1a;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 50px #000;
+            position: relative;
+        }
+
+        /* ECRAN & COVER */
+        .screen {
+            background: #111;
+            border: 4px solid var(--bronze);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 15px #000;
+        }
+
+        #big-thumb { 
+            width: 100%; border-radius: 5px; border: 1px solid #444; 
+            filter: sepia(0.2) contrast(1.1);
+        }
+
+        #current-title {
+            font-size: 13px; font-weight: bold; margin-top: 10px;
+            height: 34px; overflow: hidden; color: var(--glow);
+            text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+        }
+
+        /* VUMETRE (L'AIGUILLE) */
+        .vu-meter {
+            width: 120px; height: 60px; background: #eedd82;
+            margin: 10px auto; border-radius: 60px 60px 0 0;
+            position: relative; border: 3px solid #555; overflow: hidden;
+        }
+        .vu-needle {
+            position: absolute; bottom: 0; left: 50%;
+            width: 2px; height: 50px; background: red;
+            transform-origin: bottom center;
+            transform: rotate(-45deg);
+            transition: transform 0.1s ease-out;
+        }
+
+        /* BOUTONS PLAYLIST (LAITON) */
+        .grid-pl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .pl-btn {
+            background: linear-gradient(to bottom, #8e6d45, #5d4037);
+            border: 2px solid #332211; color: #fff; font-size: 10px;
+            padding: 8px; border-radius: 3px; cursor: pointer; text-transform: uppercase;
+        }
+        .pl-btn.active { background: var(--glow); color: #000; box-shadow: 0 0 10px var(--glow); }
+
+        /* COMMANDES BAS (CUIR & METAL) */
+        .panel-bottom {
+            background: #3d2b1f; border-radius: 10px; padding: 15px;
+            display: flex; justify-content: space-around; align-items: center;
+            border: 2px solid #1a1a1a;
+        }
+        .dial {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: radial-gradient(circle, #777, #222);
+            border: 2px solid #000;
+        }
+        .btn-main {
+            width: 55px; height: 55px; border-radius: 50%;
+            background: #eee; border: 4px solid #555; font-size: 20px; cursor: pointer;
+        }
+
+        #player-container { position: absolute; top: -1000px; }
+    </style>
+</head>
+<body>
+
+    <div class="machine">
+        <div class="screen">
+            <img id="big-thumb" src="https://via.placeholder.com/300x200?text=BUHS+RADIO">
+            <div id="current-title">CHARGEMENT DU SYSTÈME...</div>
+            
+            <div class="vu-meter">
+                <div class="vu-needle" id="needle"></div>
+            </div>
+        </div>
+
+        <div class="grid-pl" id="nav"></div>
+
+        <div class="panel-bottom">
+            <div class="dial"></div>
+            <button class="btn-main" onclick="player.previousVideo()">⏮</button>
+            <button class="btn-main" id="play-btn" onclick="togglePlay()">▶</button>
+            <button class="btn-main" onclick="player.nextVideo()">⏭</button>
+            <div class="dial"></div>
+        </div>
+    </div>
+
+    <div id="player-container"><div id="player"></div></div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        const myPlaylists = [
+            { name: "Reggae Modern", id: "PL9D-qI9DCdypGs8n_c1OCUiTsLhGIymVS" },
+            { name: "Reggae Classic", id: "PL9D-qI9DCdypFiwBzbGQwXw2JIwbbNkWb" },
+            { name: "Jazz 1", id: "PL9D-qI9DCdyqxLpZu6LRo4mpr6Gd_zwe3" },
+            { name: "HipHop Old", id: "PL9D-qI9DCdyo5zA9ip_PUOswT5utKMP63" },
+            { name: "Soul R&B", id: "PL9D-qI9DCdyqrriTLtefKRw7Xhp26x_g2" },
+            { name: "Various", id: "PL9D-qI9DCdyquTkdVKSsias9oCACu5hBD" }
+        ];
+
+        let player;
+        let needleInterval;
+
+        // Génération des boutons
+        const nav = document.getElementById('nav');
+        myPlaylists.forEach((pl, i) => {
+            const b = document.createElement('button');
+            b.className = 'pl-btn' + (i===0 ? ' active' : '');
+            b.innerText = pl.name;
+            b.onclick = () => {
+                document.querySelectorAll('.pl-btn').forEach(btn => btn.classList.remove('active'));
+                b.classList.add('active');
+                // Correction chargement : cuePlaylist puis play
+                player.loadPlaylist({list: pl.id, listType: 'playlist'});
+            };
+            nav.appendChild(b);
+        });
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '0', width: '0',
+                playerVars: { 
+                    listType: 'playlist', 
+                    list: myPlaylists[0].id,
+                    autoplay: 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            document.getElementById('current-title').innerText = "PRÊT À DIFFUSER";
+        }
+
+        function onPlayerStateChange(event) {
+            const btn = document.getElementById('play-btn');
+            if (event.data == YT.PlayerState.PLAYING) {
+                btn.innerText = "⏸";
+                updateUI();
+                startNeedle();
+            } else {
+                btn.innerText = "▶";
+                stopNeedle();
+            }
+        }
+
+        function updateUI() {
+            const data = player.getVideoData();
+            if(data && data.title) {
+                document.getElementById('current-title').innerText = data.title;
+                document.getElementById('big-thumb').src = `https://img.youtube.com/vi/${data.video_id}/hqdefault.jpg`;
+            }
+        }
+
+        function togglePlay() {
+            if (player.getPlayerState() === 1) player.pauseVideo();
+            else player.playVideo();
+        }
+
+        // Animation de l'aiguille
+        function startNeedle() {
+            needleInterval = setInterval(() => {
+                const angle = Math.floor(Math.random() * 60) - 30; // Oscille entre -30 et 30 deg
+                document.getElementById('needle').style.transform = `rotate(${angle}deg)`;
+            }, 150);
+        }
+
+        function stopNeedle() {
+            clearInterval(needleInterval);
+            document.getElementById('needle').style.transform = `rotate(-45deg)`;
+        }
+    </script>
+</body>
+</html>
