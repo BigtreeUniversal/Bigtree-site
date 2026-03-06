@@ -82,54 +82,7 @@
             line-height: 1.2;
         }
 
-        /* VUMETRE */
-        .vu-container {
-            display: flex;
-            justify-content: center;
-            margin: 10px 0;
-        }
-        .vu-meter {
-            width: 100px; height: 50px; 
-            background: #eedd82;
-            border-radius: 50px 50px 0 0;
-            position: relative; 
-            border: 2px solid #555; 
-            overflow: hidden;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-        }
-        .vu-needle {
-            position: absolute; bottom: 0; left: 50%;
-            width: 2px; height: 40px; background: #e60000;
-            transform-origin: bottom center;
-            transform: rotate(-45deg);
-            transition: transform 0.15s ease-out;
-        }
-
-        /* PLAYLISTS (Boutons Laiton) */
-        .grid-nav { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 10px; 
-            margin-bottom: 25px; 
-        }
-        .pl-btn {
-            background: linear-gradient(145deg, #8e6d45, #5d4037);
-            border: 2px solid #2a1a0a;
-            color: #fff;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 10px 5px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 3px 0 #1a1a1a;
-        }
-        .pl-btn.active {
-            background: var(--glow);
-            color: #000;
-            box-shadow: 0 0 15px var(--glow), inset 0 0 5px rgba(255,255,255,0.5);
-            transform: translateY(2px);
-        }
+        
 
         /* PANEL COMMANDES (Cuir) */
         .panel-controls {
@@ -203,12 +156,10 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         const myPlaylists = [
-            { name: "Reggae Modern", id: "PL9D-qI9DCdypGs8n_c1OCUiTsLhGIymVS" },
+            
             { name: "Reggae Classic", id: "PL9D-qI9DCdypFiwBzbGQwXw2JIwbbNkWb" },
-            { name: "Jazz Select", id: "PL9D-qI9DCdyqxLpZu6LRo4mpr6Gd_zwe3" },
-            { name: "HipHop Old", id: "PL9D-qI9DCdyo5zA9ip_PUOswT5utKMP63" },
-            { name: "Soul R&B", id: "PL9D-qI9DCdyqrriTLtefKRw7Xhp26x_g2" },
-            { name: "Various", id: "PL9D-qI9DCdyquTkdVKSsias9oCACu5hBD" }
+            { name: "Jazz Select", id: "PL9D-qI9DCdyqxLpZu6LRo4mpr6Gd_zwe3" }
+           
         ];
 
         let player;
