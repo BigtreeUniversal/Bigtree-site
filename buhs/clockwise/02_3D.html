@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <a-scene embedded arjs="sourceType: webcam; facingMode: environment; debugUIEnabled: false;">
+        
+        <a-marker preset="hiro">
+            <a-sphere id="sun-3d" radius="0.1" color="yellow" 
+                      material="emissive: yellow; emissiveIntensity: 0.5">
+            </a-sphere>
+
+            <a-sphere id="moon-3d" radius="0.07" color="#DADADA">
+            </a-sphere>
+            
+            <a-cylinder position="0 0 0" radius="0.01" height="0.1" color="grey"></a-cylinder>
+        </a-marker>
+
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        function updatePositions() {
+            const now = new Date();
+            // Coordonnées par défaut (ex: Paris), à ajuster selon ton besoin
+            const lat = 48.85; 
+            const lon = 2.35;
+
+            // Calculs via SunCalc
+            const sunPos = SunCalc.getPosition(now, lat, lon);
+            const moonPos = SunCalc.getMoonPosition(now, lat, lon);
+
+            // 1. Calcul de la Hauteur (Relief)
+            // L'altitude est en radians. On la convertit pour le relief en RA.
+            // On ajoute un minimum de 0.1 (1cm) pour que ce soit toujours visible.
+            const sunHeight = Math.max(0.1, (Math.sin(sunPos.altitude) * 2) + 0.1);
+            const moonHeight = Math.max(0.1, (Math.sin(moonPos.altitude) * 1.5) + 0.1);
+
+            // 2. Calcul de la position sur le Radar (Azimuth)
+            // L'azimuth 0 est le Sud chez SunCalc. On projette sur un cercle de rayon 1.
+            const sunX = Math.sin(sunPos.azimuth) * 1;
+            const sunZ = Math.cos(sunPos.azimuth) * 1;
+
+            const moonX = Math.sin(moonPos.azimuth) * 1.2;
+            const moonZ = Math.cos(moonPos.azimuth) * 1.2;
+
+            // Mise à jour des éléments A-Frame
+            document.getElementById('sun-3d').setAttribute('position', `${sunX} ${sunHeight} ${sunZ}`);
+            document.getElementById('moon-3d').setAttribute('position', `${moonX} ${moonHeight} ${moonZ}`);
+        }
+
+        // Mise à jour toutes les 2 secondes
+        setInterval(updatePositions, 2000);
+        window.onload = updatePositions;
+    </script>
+</body>
+</html>
