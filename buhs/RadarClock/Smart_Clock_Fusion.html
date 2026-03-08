@@ -143,7 +143,7 @@
 
     elements.hands[0].style.transform = `translate(-50%,-100%) rotate(${sun}deg)`;
     elements.hands[1].style.transform = `translate(-50%,-100%) rotate(${sun - (phase * 360)}deg)`;
-    elements.hands[2].style.transform = `translate(-50%,-50%) rotate(${sun + 180}deg)`;
+    elements.hands[2].style.transform = `translate(-50%,-50%) rotate(${sun + 90}deg)`;
     
     elements.utc.textContent = `${(now.getUTCHours()+'').padStart(2,'0')}:${(now.getUTCMinutes()+'').padStart(2,'0')}:${(now.getUTCSeconds()+'').padStart(2,'0')} UTC`;
     elements.moon.textContent = `LUNE: ${( (phase <= 0.5 ? phase * 2 : (1 - phase) * 2) * 100 ).toFixed(1)}%`;
