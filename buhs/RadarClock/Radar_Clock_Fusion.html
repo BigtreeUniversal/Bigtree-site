@@ -85,7 +85,7 @@
 </head>
 <body>
 
-<h1 class="clock-title">BUHS RADAR CLOCK FUSION v1.2 by BigTree 🌟</h1>
+<h1 class="clock-title">BUHS RADAR CLOCK FUSION v1.2</h1>
 
 <div class="dial">
     <img id="map" class="layer map" src="https://images.weserv.nl/?url=83.228.222.219/index.jpg" alt="Carte Live">
@@ -118,7 +118,7 @@
 <script>
 (() => {
   const SYNODIC_MONTH = 29.530588853 * 24 * 60 * 60 * 1000;
-  const REF_NEW_MOON = new Date(Date.UTC(2026, 2, 17, 12, 1)).getTime();
+  const REF_NEW_MOON = new Date(Date.UTC(2026, 1, 17, 12, 1)).getTime();
 
   const elements = {
     ring: document.getElementById('ring'),
@@ -138,15 +138,21 @@
     const hu = now.getUTCHours(), mu = now.getUTCMinutes(), su = now.getUTCSeconds();
     const sun = (hu % 24) * 15 + mu * 0.25 + su * (0.25 / 60);
     
+    // 1. Calcul de la phase (0 à 1)
     let phase = ((t - REF_NEW_MOON) % SYNODIC_MONTH) / SYNODIC_MONTH;
     if (phase < 0) phase += 1;
 
+    // 2. LA NOUVELLE LIGNE VA ICI :
+    let illuminated = (1 - Math.cos(2 * Math.PI * phase)) / 2 * 100;
+
+    // 3. Mise à jour des aiguilles
     elements.hands[0].style.transform = `translate(-50%,-100%) rotate(${sun}deg)`;
     elements.hands[1].style.transform = `translate(-50%,-100%) rotate(${sun - (phase * 360)}deg)`;
     elements.hands[2].style.transform = `translate(-50%,-50%) rotate(${sun + 90}deg)`;
     
+    // 4. Affichage des textes (On utilise la variable 'illuminated' ici)
     elements.utc.textContent = `${(now.getUTCHours()+'').padStart(2,'0')}:${(now.getUTCMinutes()+'').padStart(2,'0')}:${(now.getUTCSeconds()+'').padStart(2,'0')} UTC`;
-    elements.moon.textContent = `LUNE: ${( (phase <= 0.5 ? phase * 2 : (1 - phase) * 2) * 100 ).toFixed(1)}%`;
+    elements.moon.textContent = `LUNE: ${illuminated.toFixed(1)}%`;
   }
 
   function refreshMap() {
