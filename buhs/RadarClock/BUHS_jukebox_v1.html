@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BUHS Jukebox - Tactical Audio</title>
+    
+    <style>
+        :root {
+            --bg: #0b0c10;
+            --panel: #151b25;
+            --accent: #9af7be; /* Vert Radar */
+            --gold: #d4af37;
+            --red: #ff3b3b;
+            --border: #2a3446;
+        }
+
+        body { 
+            margin: 0; background: var(--bg); color: #e5e7eb; 
+            font-family: 'Courier New', monospace;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            padding: 20px;
+        }
+
+        .jukebox-container {
+            width: 100%; max-width: 400px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+        }
+
+        /* --- ÉCRAN TACTIQUE --- */
+        .screen-frame {
+            background: #000;
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            text-align: center;
+        }
+
+        #big-thumb { 
+            width: 100%; aspect-ratio: 16/9; object-fit: cover; 
+            border-radius: 4px; opacity: 0.8; filter: sepia(0.3) hue-rotate(70deg); 
+        }
+
+        #current-title {
+            font-size: 11px; margin-top: 10px; height: 30px;
+            color: var(--accent); overflow: hidden;
+            letter-spacing: 1px; line-height: 1.2;
+        }
+
+        /* --- GRILLE DE SÉLECTION --- */
+        .grid-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        
+        .pl-btn {
+            background: #1a212c;
+            border: 1px solid var(--border);
+            color: #9aa0a6; font-size: 10px;
+            padding: 12px 5px; border-radius: 4px; cursor: pointer;
+            text-transform: uppercase; transition: 0.2s;
+        }
+        
+        .pl-btn.active { 
+            border-color: var(--accent); color: var(--accent);
+            background: rgba(154, 247, 190, 0.1);
+        }
+
+        /* --- CONTRÔLES TRANSPORT --- */
+        .panel-controls {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-top: 1px solid var(--border);
+        }
+
+        .btn-transport {
+            background: transparent; border: 1px solid var(--border);
+            color: var(--gold); border-radius: 50%; width: 45px; height: 45px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+
+        .btn-transport:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); }
+        .btn-transport.main { width: 60px; height: 60px; border-color: var(--accent); color: var(--accent); font-size: 24px; }
+
+        #shuf-btn.active { color: var(--red); border-color: var(--red); }
+
+        /* Masquer le vrai lecteur */
+        #yt-player-container { position: absolute; top: -1000px; visibility: hidden; }
+    </style>
+</head>
+<body>
+
+    <div class="jukebox-container">
+        <div style="font-size: 10px; color: var(--gold); margin-bottom: 10px; text-align: center; letter-spacing: 3px;">
+            SYSTEM AUDIO CONTROL
+        </div>
+
+        <div class="screen-frame">
+            <img id="icon-512.png" src="https://via.placeholder.com/400x250?text=RADAR_STANDBY">
+            <div id="current-title">INITIALISATION...</div>
+        </div>
+
+        <div class="grid-nav" id="nav"></div>
+
+        <div class="panel-controls">
+            <button class="btn-transport" onclick="toggleShuffle()" id="shuf-btn">🔀</button>
+            <button class="btn-transport" onclick="player.previousVideo()">⏮</button>
+            <button class="btn-transport main" id="play-btn" onclick="togglePlay()">▶</button>
+            <button class="btn-transport" onclick="player.nextVideo()">⏭</button>
+        </div>
+    </div>
+
+    <div id="yt-player-container"><div id="player"></div></div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        const myPlaylists = [
+            { name: "Reggae Modern", id: "PL9D-qI9DCdypGs8n_c1OCUiTsLhGIymVS" },
+            { name: "Reggae Classic", id: "PL9D-qI9DCdypFiwBzbGQwXw2JIwbbNkWb" },
+            { name: "Jazz Select", id: "PL9D-qI9DCdyqxLpZu6LRo4mpr6Gd_zwe3" },
+            { name: "HipHop Old", id: "PL9D-qI9DCdyo5zA9ip_PUOswT5utKMP63" },
+            { name: "Soul R&B", id: "PL9D-qI9DCdyqrriTLtefKRw7Xhp26x_g2" },
+            { name: "Various", id: "PL9D-qI9DCdyquTkdVKSsias9oCACu5hBD" }
+        ];
+
+        let player;
+        let isShuffle = false;
+
+        // Création des boutons
+        const nav = document.getElementById('nav');
+        myPlaylists.forEach(pl => {
+            const btn = document.createElement('button');
+            btn.className = 'pl-btn';
+            btn.innerText = pl.name;
+            btn.onclick = () => changePlaylist(pl.id, btn);
+            nav.appendChild(btn);
+        });
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '0', width: '0',
+                playerVars: { listType: 'playlist', list: myPlaylists[0].id, autoplay: 0 },
+                events: { 'onStateChange': onStateChange, 'onReady': onReady }
+            });
+        }
+
+        function onReady() {
+            document.getElementById('current-title').innerText = "STATION PRÊTE - CLIQUEZ PLAY";
+        }
+
+        function changePlaylist(playlistId, element) {
+            document.querySelectorAll('.pl-btn').forEach(b => b.classList.remove('active'));
+            element.classList.add('active');
+            
+            player.loadPlaylist({
+                list: playlistId,
+                listType: 'playlist',
+                index: 0,
+                suggestedQuality: 'small'
+            });
+            
+            if(isShuffle) {
+                setTimeout(() => { player.setShuffle(true); player.nextVideo(); }, 600);
+            }
+        }
+
+        function onStateChange(e) {
+            const btn = document.getElementById('play-btn');
+            if (e.data == YT.PlayerState.PLAYING) {
+                btn.innerText = "⏸";
+                const data = player.getVideoData();
+                document.getElementById('current-title').innerText = data.title;
+                document.getElementById('big-thumb').src = `https://img.youtube.com/vi/${data.video_id}/hqdefault.jpg`;
+            } else {
+                btn.innerText = "▶";
+            }
+        }
+
+        function togglePlay() {
+            const state = player.getPlayerState();
+            state == 1 ? player.pauseVideo() : player.playVideo();
+        }
+
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            player.setShuffle(isShuffle);
+            document.getElementById('shuf-btn').classList.toggle('active', isShuffle);
+        }
+    </script>
+</body>
+</html>
