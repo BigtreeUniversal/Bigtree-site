@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Tree | Articles & Flux</title>
+    <style>
+        :root {
+            --bg-black: #000000; --bg-card: #0a0a0a; --text-white: #ffffff;
+            --text-grey: #888888; --accent-blue: #3b82f6; --neon-green: #00ff41; --border: #1a1a1a;
+        }
+        body, html { margin: 0; padding: 0; background-color: var(--bg-black); color: var(--text-white); font-family: -apple-system, system-ui, sans-serif; transition: 0.3s; }
+        body.terminal-active { font-family: 'Courier New', monospace; background-color: #050505; }
+
+        /* --- Header & Selector --- */
+        .header-nav { position: fixed; top: 0; width: 100%; height: 70px; display: flex; justify-content: flex-end; align-items: center; padding: 0 30px; box-sizing: border-box; z-index: 1000; }
+        .mode-selector { background: #111; border: 1px solid var(--border); padding: 5px; border-radius: 8px; display: flex; gap: 5px; }
+        .mode-btn { padding: 6px 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; background: transparent; color: var(--text-grey); }
+        .mode-btn.active { background: var(--accent-blue); color: white; }
+        body.terminal-active .mode-btn.active { background: var(--neon-green); color: black; }
+
+        .container { max-width: 700px; margin: 100px auto; padding: 20px; }
+
+        /* --- Style XYZ (Articles) --- */
+        .article-card { border-bottom: 1px solid var(--border); padding: 30px 0; transition: 0.2s; }
+        .article-card:hover { opacity: 0.8; }
+        .article-date { font-size: 0.75rem; color: var(--text-grey); text-transform: uppercase; letter-spacing: 1px; }
+        .article-title { font-size: 1.5rem; margin: 10px 0; color: var(--text-white); text-decoration: none; display: block; }
+        .article-excerpt { color: var(--text-grey); font-size: 0.95rem; line-height: 1.6; }
+
+        /* --- Style Linux --- */
+        .terminal-view { display: none; }
+        body.terminal-active .xyz-view { display: none; }
+        body.terminal-active .terminal-view { display: block; }
+        .shell-box { border: 1px solid var(--neon-green); padding: 25px; color: var(--neon-green); background: #000; }
+        .term-article { margin-bottom: 20px; border-left: 2px solid var(--neon-green); padding-left: 15px; }
+
+        .loading { color: var(--text-grey); text-align: center; padding: 50px; }
+    </style>
+</head>
+<body>
+
+    <header class="header-nav">
+        <div class="mode-selector">
+            <button id="btn-xyz" class="mode-btn active" onclick="setMode('xyz')">Standard</button>
+            <button id="btn-linux" class="mode-btn" onclick="setMode('linux')">Linux</button>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div id="loader" class="loading">Initialisation du flux Paragraph...</div>
+
+        <div id="articles-container">
+            <div class="xyz-view" id="xyz-list"></div>
+            <div class="terminal-view" id="linux-list">
+                <div class="shell-box">
+                    <div>[root@bigtree ~]# fetch --recent-posts --source=paragraph</div>
+                    <br>
+                    <div id="linux-content"></div>
+                    <div>[root@bigtree ~]# <span id="cursor">_</span></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // REMPLACE CETTE URL PAR TON FLUX PARAGRAPH (ex: https://paragraph.xyz/api/rss/@ton-nom)
+        const RSS_URL = "https://paragraph.xyz/api/rss/@bigtree.buhs"; 
+        const API_CONVERTER = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
+
+        async function loadArticles() {
+            try {
+                const response = await fetch(API_CONVERTER);
+                const data = await response.json();
+                
+                document.getElementById('loader').style.display = 'none';
+
+                data.items.forEach(item => {
+                    // Ajout version XYZ
+                    const xyzItem = `
+                        <div class="article-card">
+                            <div class="article-date">${new Date(item.pubDate).toLocaleDateString()}</div>
+                            <a href="${item.link}" target="_blank" class="article-title">${item.title}</a>
+                            <div class="article-excerpt">${item.description.substring(0, 150)}...</div>
+                        </div>`;
+                    document.getElementById('xyz-list').innerHTML += xyzItem;
+
+                    // Ajout version Linux
+                    const linuxItem = `
+                        <div class="term-article">
+                            <div>> TITLE: ${item.title.toUpperCase()}</div>
+                            <div>> DATE: ${item.pubDate}</div>
+                            <div>> LINK: <a href="${item.link}" target="_blank" style="color:var(--neon-green)">OPEN_FILE</a></div>
+                        </div>`;
+                    document.getElementById('linux-content').innerHTML += linuxItem;
+                });
+            } catch (error) {
+                document.getElementById('loader').innerText = "Erreur de chargement du flux.";
+            }
+        }
+
+        function setMode(mode) {
+            const body = document.body;
+            const btnXyz = document.getElementById('btn-xyz');
+            const btnLinux = document.getElementById('btn-linux');
+
+            if (mode === 'linux') {
+                body.classList.add('terminal-active');
+                btnLinux.classList.add('active');
+                btnXyz.classList.remove('active');
+            } else {
+                body.classList.remove('terminal-active');
+                btnXyz.classList.add('active');
+                btnLinux.classList.remove('active');
+            }
+        }
+
+        loadArticles();
+
+        setInterval(() => {
+            const cursor = document.getElementById('cursor');
+            if(cursor) cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+        }, 500);
+    </script>
+</body>
+</html>
