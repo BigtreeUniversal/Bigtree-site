@@ -53,19 +53,36 @@
             margin-top: 0;
             font-size: 1.5rem;
         }
-        .section a.button {
-            display: inline-block;
-            margin-top: 1rem;
-            padding: 0.6rem 1.2rem;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        .section a.button:hover {
-            background-color: #45a049;
-        }
+        /* Style du bouton Anthracite Transparent */
+.section a.button {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.7rem 1.5rem;
+    /* Couleur Anthracite avec 60% d'opacité */
+    background-color: rgba(20, 20, 20, 0.6); 
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    /* La bordure permet au bouton de ne pas disparaître sur le fond sombre */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Effet de flou derrière le bouton (Glassmorphism) */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+/* Effet au survol (Hover) */
+.section a.button:hover {
+    /* Devient un peu plus clair et plus opaque */
+    background-color: rgba(40, 40, 40, 0.9);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
         footer {
             background-color: rgba(0,0,0,0.7);
             padding: 2rem 1rem;
