@@ -1,21 +1,23 @@
 <?php
-// Désactiver la limite de temps pour que le flux ne coupe pas
-set_time_limit(0);
-
-$url = "http://83.228.222.219:8000/stream";
-
+// stream.php
 header('Content-Type: audio/mpeg');
 header('Cache-Control: no-cache');
+header('Connection: keep-alive');
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, false); // Envoie directement au navigateur
-curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
-    echo $data;
-    return strlen($data);
-});
+// On utilise pas de librairie complexe, on ouvre juste le flux brut
+$fp = fsockopen("83.228.222.219", 8000, $errno, $errstr, 30);
 
-curl_exec($ch);
-curl_close($ch);
+if (!$fp) {
+    echo "Erreur : $errstr ($errno)<br />\n";
+} else {
+    $out = "GET /stream HTTP/1.1\r\n";
+    $out .= "Host: 83.228.222.219\r\n";
+    $out .= "Connection: Close\r\n\r\n";
+    fwrite($fp, $out);
+    while (!feof($fp)) {
+        echo fgets($fp, 1024);
+        flush();
+    }
+    fclose($fp);
+}
 ?>
