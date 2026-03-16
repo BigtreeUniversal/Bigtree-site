@@ -261,11 +261,21 @@
   function updateRadio() {
     if (radioIdx === 0) {
       audio.pause();
+      audio.src = ""; // On vide la source
       rStatus.innerText = "RADIO : OFF";
     } else {
-      audio.src = radioStations[radioIdx].url;
-      audio.play().catch(() => rStatus.innerText = "CLIQUEZ POUR ACTIVER");
-      rStatus.innerText = "📻 " + radioStations[radioIdx].name;
+      // On ajoute un paramètre aléatoire pour éviter le cache
+      const cacheBuster = "?v=" + Date.now();
+      audio.src = radioStations[radioIdx].url + cacheBuster;
+      
+      audio.play()
+        .then(() => {
+          rStatus.innerText = "📻 " + radioStations[radioIdx].name;
+        })
+        .catch((e) => {
+          console.error("Erreur de lecture :", e);
+          rStatus.innerText = "CLIQUEZ POUR ACTIVER";
+        });
     }
   }
   function radioNext() { radioIdx = (radioIdx + 1) % radioStations.length; updateRadio(); }
