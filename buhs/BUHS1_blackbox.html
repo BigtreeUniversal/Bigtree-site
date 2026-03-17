@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>BUHS | Pédagogie - La Science du Réel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-blue: #00d2ff; --neon-green: #39ff14; --neon-red: #ff3131; --bg-dark: #050507; --panel-bg: #111114; }
+        body { background: var(--bg-dark); color: #e0e0e0; font-family: 'Orbitron', sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .console { width: 100%; max-width: 650px; padding: 30px; border: 1px solid #222; border-radius: 12px; background: var(--panel-bg); text-align: center; }
+        h2 { color: var(--neon-blue); font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 25px; border-bottom: 1px solid #222; padding-bottom: 10px; text-transform: uppercase; }
+        
+        .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .field { background: #000; padding: 12px; border: 1px solid #1a1a1a; border-radius: 8px; }
+        label { font-size: 0.55rem; color: #666; display: block; margin-bottom: 5px; text-transform: uppercase; }
+        input, select { background: none; border: none; color: white; width: 100%; font-family: 'Roboto Mono'; font-size: 1.1rem; outline: none; text-align: center; }
+        
+        .slider-wrap { background: #0a0a0c; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid var(--neon-blue); }
+        input[type=range] { width: 100%; cursor: pointer; height: 6px; background: #222; -webkit-appearance: none; outline: none; }
+        .slider-data { display: flex; justify-content: space-between; font-family: 'Roboto Mono'; font-size: 0.7rem; margin-top: 10px; color: #888; }
+
+        .gauge-section { margin: 30px 0; }
+        .led-bar { display: flex; gap: 4px; height: 25px; background: #000; padding: 5px; border-radius: 5px; border: 1px solid #222; }
+        .led-segment { flex: 1; background: #1a1a1a; border-radius: 2px; transition: 0.2s; }
+        
+        .main-result { margin-top: 20px; padding: 25px; border-radius: 8px; background: #0c0c0e; border: 1px solid #1a1a1a; border-top: 2px solid var(--neon-green); }
+        .force-val { font-family: 'Roboto Mono'; font-size: 2.8rem; font-weight: bold; color: var(--neon-green); margin: 5px 0; }
+        .sub-text { font-size: 0.7rem; color: #555; font-family: 'Roboto Mono'; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="console">
+    <h2>OBSERVABLE : FORCE DE RÉACTION (BUHS)</h2>
+
+    <div class="inputs">
+        <div class="field"><label>Masse de l'objet (kg)</label><input type="text" id="mass" value="10" oninput="calc()"></div>
+        <div class="field"><label>Volume total (m³)</label><input type="text" id="vol" value="0.0142" oninput="calc()"></div>
+        <div class="field" style="grid-column: span 2;">
+            <label>Nature du Fluide</label>
+            <select id="rho" onchange="calc()">
+                <option value="1000">EAU DOUCE (1000 kg/m³)</option>
+                <option value="1025">EAU DE MER (1025 kg/m³)</option>
+                <option value="900">HUILE (900 kg/m³)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="slider-wrap">
+        <label style="color:var(--neon-blue); font-size:0.6rem;">PROFONDEUR D'IMMERSION (m)</label>
+        <input type="range" id="h" min="0" max="100" step="1" value="0" oninput="calc()">
+        <div class="slider-data">
+            <span>Profondeur: <b id="h-val">0</b> m</span>
+            <span>P. Totale (P_atm + P_hydro): <b id="p-val">101 325</b> Pa</span>
+        </div>
+    </div>
+
+    <div class="gauge-section">
+        <label id="phi-label" style="font-size:0.6rem; color:#aaa; margin-bottom:10px; display:block;">RATIO DE DENSITÉ Φ : 0.00</label>
+        <div class="led-bar" id="gauge"></div>
+    </div>
+
+    <div class="main-result">
+        <label style="font-size: 0.6rem; color: #666;">FORCE RÉACTIONNELLE GÉNÉRÉE (N)</label>
+        <div id="buhs-val" class="force-val">0.00 N</div>
+        <div id="verdict" style="font-size: 0.8rem; letter-spacing: 2px; font-weight: bold;">--</div>
+        <div class="sub-text">ΔP observé par rapport à la surface : <span id="delta-p">0</span> Pa</div>
+    </div>
+</div>
+
+<script>
+    const P_ATM = 101325;
+    const gauge = document.getElementById('gauge');
+    for(let i=0; i<20; i++) gauge.innerHTML += `<div class="led-segment"></div>`;
+
+    async function calc() {
+        const m = document.getElementById('mass').value.replace(',', '.');
+        const v = document.getElementById('vol').value.replace(',', '.');
+        const rho = document.getElementById('rho').value;
+        const h = document.getElementById('h').value;
+
+        try {
+            // APPEL AU SERVEUR RENDER
+            const response = await fetch(`https://buhs-engine.onrender.com/api/v1/buhs-calc?m=${m}&v=${v}&h=${h}&rho=${rho}`);
+            const data = await response.json();
+
+            // AFFICHAGE DES RÉSULTATS
+            document.getElementById('h-val').innerText = h;
+            document.getElementById('p-val').innerText = data.total_pression.toLocaleString();
+            document.getElementById('delta-p').innerText = (data.total_pression - 101325).toLocaleString();
+            document.getElementById('phi-label').innerText = "RATIO DE DENSITÉ Φ : " + data.ratio_phi;
+            document.getElementById('buhs-val').innerText = data.buhs_force + " N";
+
+            // Verdict visuel basé sur le ratio reçu
+            const phi = parseFloat(data.ratio_phi);
+            const vElem = document.getElementById('verdict');
+            if (phi < 0.99) { vElem.innerText = "TENDANCE : ÉLÉVATION"; vElem.style.color = "var(--neon-green)"; }
+            else if (phi > 1.01) { vElem.innerText = "TENDANCE : DESCENTE"; vElem.style.color = "var(--neon-red)"; }
+            else { vElem.innerText = "TENDANCE : ÉQUILIBRE"; vElem.style.color = "yellow"; }
+
+            // Mise à jour Jauge (Densité relative)
+            const segments = document.getElementsByClassName('led-segment');
+            const activeCount = Math.min(Math.round((phi / 2) * 20), 20);
+            for(let i=0; i<20; i++) {
+                if(i < activeCount) {
+                    let color = i < 9 ? "var(--neon-green)" : (i < 11 ? "yellow" : "var(--neon-red)");
+                    segments[i].style.background = color;
+                    segments[i].style.boxShadow = `0 0 8px ${color}`;
+                } else {
+                    segments[i].style.background = "#1a1a1a";
+                    segments[i].style.boxShadow = "none";
+                }
+            }
+        } catch (error) {
+            document.getElementById('verdict').innerText = "MOTEUR HORS-LIGNE";
+        }
+    }
+    calc();
+</script>
+</body>
+</html>
