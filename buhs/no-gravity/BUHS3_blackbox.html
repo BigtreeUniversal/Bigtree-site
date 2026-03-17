@@ -95,7 +95,7 @@
 
         try {
             // APPEL AU SERVEUR RENDER (La boîte noire)
-            const response = await fetch(`https://buhs-engine.onrender.com/api/v1/buhs-calc?m=${m}&v=${v}&h=${h}&rho=${rho}`);
+            const response = await fetch(`https://buhs-calculator.onrender.com/api/v1/buhs-calc?m=${m}&v=${v}&h=${h}&rho=${rho}`);
             const data = await response.json();
 
             // AFFICHAGE DES RÉSULTATS REÇUS DU SERVEUR
