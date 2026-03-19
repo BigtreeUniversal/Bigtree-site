@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS Gateway | Web 2.5 Nexus</title>
+    <style>
+        :root {
+            --bg-black: #000000;
+            --text-white: #ffffff;
+            --text-grey: #888888;
+            --accent-blue: #3b82f6;
+            --neon-green: #00ff41;
+            --border: #1a1a1a;
+        }
+
+        body, html { 
+            margin: 0; padding: 0; 
+            background-color: var(--bg-black); 
+            color: var(--text-white);
+            font-family: -apple-system, system-ui, sans-serif;
+            line-height: 1.6;
+        }
+
+        body.terminal-active { font-family: 'Courier New', monospace; background-color: #050505; }
+
+        .header-nav {
+            position: fixed; top: 0; width: 100%; height: 70px;
+            display: flex; justify-content: flex-end; align-items: center;
+            padding: 0 30px; box-sizing: border-box; z-index: 1000;
+        }
+
+        .mode-selector { background: #111; border: 1px solid var(--border); padding: 5px; border-radius: 8px; display: flex; gap: 5px; }
+        .mode-btn { padding: 6px 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; background: transparent; color: var(--text-grey); }
+        .mode-btn.active { background: var(--accent-blue); color: white; }
+        body.terminal-active .mode-btn.active { background: var(--neon-green); color: black; }
+
+        .container { max-width: 600px; margin: 100px auto; padding: 20px; }
+
+        h1 { font-size: 1.8rem; margin-bottom: 20px; text-align: center; letter-spacing: -1px; }
+        h2 { font-size: 1.1rem; color: var(--accent-blue); margin-top: 5px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        body.terminal-active h2 { color: var(--neon-green); }
+
+        .step-card {
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            transition: 0.3s ease;
+        }
+        .step-card:hover { border-color: #333; transform: translateY(-2px); }
+        .step-number { font-weight: bold; color: var(--text-grey); font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 10px; display: block; }
+
+        .xyz-view, .terminal-view { width: 100%; }
+        body.terminal-active .xyz-view { display: none; }
+        body.terminal-active .terminal-view { display: block; }
+        .terminal-view { display: none; }
+
+        .shell-box { border: 1px solid var(--neon-green); padding: 25px; color: var(--neon-green); background: #000; border-radius: 4px; font-size: 0.85rem; box-shadow: 0 0 15px rgba(0, 255, 65, 0.05); }
+
+        .action-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            width: 100%;
+            font-family: inherit;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+        .action-btn:hover { opacity: 0.9; }
+        body.terminal-active .action-btn { background: var(--neon-green); color: black; }
+
+        .footer-note { text-align: center; font-size: 0.75rem; color: var(--text-grey); margin-top: 50px; opacity: 0.6; }
+    </style>
+</head>
+<body>
+
+    <header class="header-nav">
+        <div class="mode-selector">
+            <button id="btn-xyz" class="mode-btn active" onclick="setMode('xyz')">Standard</button>
+            <button id="btn-linux" class="mode-btn" onclick="setMode('linux')">Linux</button>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="xyz-view">
+            <h1>Web 2.5 Nexus 🌉</h1>
+            <p style="text-align: center; color: var(--text-grey); font-size: 0.9rem; margin-bottom: 40px;">Initialize your connection. Follow the protocol to link physical assets to your digital identity.</p>
+
+            <div class="step-card">
+                <span class="step-number">PROTOCOL_01</span>
+                <h2>Identity Generation 🔑</h2>
+                <p style="font-size: 0.85rem; color: var(--text-grey);">Deploy your secure digital vault. We recommend MetaMask for seamless integration with the Big Tree ecosystem.</p>
+                <button class="action-btn" onclick="window.open('https://metamask.io/download/', '_blank')">Download MetaMask</button>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">PROTOCOL_02</span>
+                <h2>Network Synchronization 🌐</h2>
+                <p style="font-size: 0.85rem; color: var(--text-grey);">Big Tree operates on <strong>Base</strong> to ensure high-velocity, eco-efficient transactions. Configure your node in one click.</p>
+                <button class="action-btn" onclick="addBaseNetwork()">Sync Base Mainnet</button>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">PROTOCOL_03</span>
+                <h2>Asset Activation 🪴</h2>
+                <p style="font-size: 0.85rem; color: var(--text-grey);">Post-Stripe confirmation: connect your vault to register ownership of your physical node on the blockchain.</p>
+                <button class="action-btn" style="background: transparent; border: 1px solid #222; color: var(--text-grey); cursor: not-allowed;">Pending: Link Stripe Receipt</button>
+            </div>
+        </div>
+
+        <div class="terminal-view">
+            <div class="shell-box">
+                <div>[root@bigtree ~]# ./initialize_web2.5_bridge</div>
+                <div style="color: #555;">> Initializing Nexus protocol... Success.</div>
+                <div style="color: #555;">> Status: Awaiting hardware-to-chain link.</div>
+                <br>
+                <div style="color: #fff; font-weight: bold;">1. DEPLOY_IDENTITY:</div>
+                <div style="padding-left: 20px; font-size: 0.8rem;">Use 'metamask.io' to generate unique private keys.</div>
+                <br>
+                <div style="color: #fff; font-weight: bold;">2. SYNC_BASE_L2:</div>
+                <div style="padding-left: 20px; color: var(--neon-green); cursor: pointer;" onclick="addBaseNetwork()">[EXECUTE] : patch --network=base_mainnet</div>
+                <br>
+                <div style="color: #fff; font-weight: bold;">3. CLAIM_UTILITY:</div>
+                <div style="padding-left: 20px; font-size: 0.8rem;">Mapping Stripe_Session_ID to Wallet_Address.</div>
+                <br>
+                <div>[root@bigtree ~]# <span id="cursor">_</span></div>
+            </div>
+        </div>
+
+        <p class="footer-note">Technical complications? Access the Big Tree support documentation or contact system administrators.</p>
+    </div>
+
+    <script>
+        function setMode(mode) {
+            const body = document.body;
+            const btnXyz = document.getElementById('btn-xyz');
+            const btnLinux = document.getElementById('btn-linux');
+            if (mode === 'linux') {
+                body.classList.add('terminal-active');
+                btnLinux.classList.add('active');
+                btnXyz.classList.remove('active');
+            } else {
+                body.classList.remove('terminal-active');
+                btnXyz.classList.add('active');
+                btnLinux.classList.remove('active');
+            }
+        }
+
+        // --- CORE FUNCTION: BASE NETWORK AUTO-CONFIG ---
+        async function addBaseNetwork() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [{
+                            chainId: '0x2105', // 8453 (Base Mainnet)
+                            chainName: 'Base Mainnet',
+                            nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+                            rpcUrls: ['https://mainnet.base.org'],
+                            blockExplorerUrls: ['https://basescan.org']
+                        }]
+                    });
+                } catch (error) {
+                    console.error("Network config error:", error);
+                    alert("Sync failed. Please check your MetaMask configuration.");
+                }
+            } else {
+                alert("Identity Vault (MetaMask) not detected. Please execute Protocol 01.");
+            }
+        }
+
+        setInterval(() => {
+            const cursor = document.getElementById('cursor');
+            if(cursor) cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+        }, 500);
+    </script>
+</body>
+</html>

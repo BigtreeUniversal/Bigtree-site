@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS Gateway | Dons</title>
+    <style>
+        :root {
+            --bg-black: #000000;
+            --text-white: #ffffff;
+            --text-grey: #888888;
+            --accent-blue: #3b82f6;
+            --neon-green: #00ff41;
+            --border: #1a1a1a;
+        }
+
+        body, html { 
+            margin: 0; padding: 0; 
+            background-color: var(--bg-black); 
+            color: var(--text-white);
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        body.terminal-active { font-family: 'Courier New', monospace; }
+
+        .header-nav {
+            position: fixed; top: 0; width: 100%; height: 70px;
+            display: flex; justify-content: flex-end; align-items: center;
+            padding: 0 30px; box-sizing: border-box;
+        }
+
+        .mode-selector { background: #111; border: 1px solid var(--border); padding: 5px; border-radius: 8px; display: flex; gap: 5px; }
+        .mode-btn { padding: 6px 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; background: transparent; color: var(--text-grey); }
+        .mode-btn.active { background: var(--accent-blue); color: white; }
+        body.terminal-active .mode-btn.active { background: var(--neon-green); color: black; }
+
+        .container { max-width: 500px; margin: 100px auto; padding: 20px; text-align: center; }
+
+        .doc-info { font-size: 0.9rem; color: var(--text-grey); margin-bottom: 30px; line-height: 1.6; }
+        .doc-link { color: var(--accent-blue); text-decoration: none; font-weight: bold; }
+        body.terminal-active .doc-link { color: var(--neon-green); }
+
+        .xyz-view, .terminal-view { width: 100%; }
+        body.terminal-active .xyz-view { display: none; }
+        body.terminal-active .terminal-view { display: block; }
+        .terminal-view { display: none; text-align: left; }
+
+        .shell-box { border: 1px solid var(--neon-green); padding: 20px; color: var(--neon-green); background: #000; border-radius: 4px; }
+
+        .payment-zone { margin-top: 40px; }
+        .pay-btn { width: 100%; padding: 18px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 12px; text-transform: uppercase; font-family: inherit; transition: 0.3s; }
+        .stripe-btn { background: white; color: black; }
+        .paypal-btn { background: #ffc439; color: #003087; }
+        .wallet-btn { background: transparent; border: 1px solid #222; color: white; }
+        body.terminal-active .wallet-btn { border-color: var(--neon-green); color: var(--neon-green); }
+        .pay-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+    <header class="header-nav">
+        <div class="mode-selector">
+            <button id="btn-xyz" class="mode-btn active" onclick="setMode('xyz')">Standard</button>
+            <button id="btn-linux" class="mode-btn" onclick="setMode('linux')">Linux</button>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="xyz-view">
+            <h1>Nurturing the Roots 🪴</h1>
+            <p class="doc-info">
+                Your support provides the essential resources to maintain and grow the Big Tree ecosystem. 
+                Every contribution is treated as vital hydration for our underlying technical and artistic research.
+                <br><br>
+                <a href="soon.html" class="doc-link" target="_blank">Read Transparency Charter (.PDF)</a>
+            </p>
+        </div>
+
+        <div class="terminal-view">
+            <div class="shell-box">
+                <div>[root@bigtree ~]# ./check_ecosystem_status</div>
+                <div style="color: #555;">> Status: Awaiting hydration...</div>
+                <div style="color: #555;">> Protocol: Support_Organic_Growth</div>
+                <br>
+                <div style="color:white;">Select a gateway to deploy resources:</div>
+                <br>
+                <div>[root@bigtree ~]# <span id="cursor">_</span></div>
+            </div>
+        </div>
+
+        <div class="payment-zone">
+            <button class="pay-btn stripe-btn" onclick="payStripe()">Credit Card (Stripe)</button>
+            <button class="pay-btn paypal-btn" onclick="payPaypal()">PayPal Me</button>
+            <button class="pay-btn wallet-btn" onclick="payWeb3()">Connect Wallet (Base)</button>
+        </div>
+
+    </div>
+
+    <script>
+        function setMode(mode) {
+            const body = document.body;
+            const btnXyz = document.getElementById('btn-xyz');
+            const btnLinux = document.getElementById('btn-linux');
+            if (mode === 'linux') {
+                body.classList.add('terminal-active');
+                btnLinux.classList.add('active');
+                btnXyz.classList.remove('active');
+            } else {
+                body.classList.remove('terminal-active');
+                btnXyz.classList.add('active');
+                btnLinux.classList.remove('active');
+            }
+        }
+
+        function payStripe() {
+            window.open("https://buy.stripe.com/cNidRa3s29wWgMU6Ty7wA08", '_blank');
+        }
+
+        function payPaypal() {
+            window.open("https://www.paypal.com/paypalme/bigtreeconnection", '_blank');
+        }
+
+        async function payWeb3() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                    // On peut ici rediriger vers une page spécifique ou lancer une transaction fixe
+                    alert("Wallet connected: " + accounts[0] + "\nPlease confirm the transaction in your wallet.");
+                    
+                    const transactionParameters = {
+                        to: '0x3150808afe0cfb4fd22ee0d2249f48260a7377ac',
+                        from: accounts[0],
+                        value: '0x2386F26FC10000', // Exemple: 0.01 ETH
+                    };
+
+                    await ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters] });
+                } catch (error) { console.error(error); }
+            } else {
+                alert("MetaMask not detected.");
+            }
+        }
+
+        setInterval(() => {
+            const cursor = document.getElementById('cursor');
+            if(cursor) cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+        }, 500);
+    </script>
+</body>
+</html>

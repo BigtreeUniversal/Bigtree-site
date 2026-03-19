@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS Gateway | Big Tree Project</title>
+    <style>
+        :root {
+            --bg-black: #000000;
+            --bg-card: #0a0a0a;
+            --text-white: #ffffff;
+            --text-grey: #888888;
+            --accent-blue: #3b82f6;
+            --neon-green: #00ff41;
+            --warning-amber: #ffb100;
+        }
+
+        body, html { 
+            margin: 0; padding: 0; 
+            background-color: var(--bg-black); 
+            color: var(--text-white);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            transition: background 0.6s ease;
+            overflow-x: hidden;
+        }
+
+        .header-nav {
+            position: fixed; top: 0; width: 100%; height: 70px;
+            display: flex; justify-content: flex-end; align-items: center;
+            padding: 0 30px; box-sizing: border-box; z-index: 1000;
+        }
+
+        .switch-box { display: flex; align-items: center; gap: 12px; }
+        .mode-label { font-size: 10px; letter-spacing: 2px; font-weight: bold; color: var(--text-grey); }
+
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--accent-blue); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            margin: 0 auto; 
+            padding: 80px 20px 120px 20px; 
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .logo-placeholder {
+            width: 80px; height: 80px;
+            margin: 0 auto 30px auto;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #222;
+            background: #111;
+        }
+        .logo-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+
+        h1 { 
+            font-size: 2.2rem; 
+            font-weight: 700; 
+            letter-spacing: -1px; 
+            margin-bottom: 20px; 
+            transition: 0.3s;
+            line-height: 1.2;
+        }
+
+        p { font-size: 1.05rem; color: var(--text-grey); line-height: 1.6; margin-bottom: 30px; }
+
+        .compatibility-note {
+            background: rgba(255, 177, 0, 0.05);
+            border: 1px solid rgba(255, 177, 0, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 30px;
+            text-align: center; /* Centré pour la version UI */
+            font-size: 0.85rem;
+        }
+        .compatibility-note strong { color: var(--warning-amber); display: block; margin-bottom: 5px; text-transform: uppercase; }
+
+        .terminal-preview {
+            display: none; background: var(--bg-card); border: 1px solid #222;
+            padding: 25px; border-radius: 12px; text-align: left;
+            font-family: 'Courier New', monospace; font-size: 0.85rem; margin: 30px 0;
+            line-height: 1.4;
+        }
+
+        .btn-launch {
+            display: inline-block; padding: 18px 40px; background: var(--text-white);
+            color: var(--bg-black); text-decoration: none; font-weight: bold;
+            border-radius: 8px; font-size: 0.9rem; letter-spacing: 1px;
+            transition: 0.3s; width: 100%; box-sizing: border-box;
+        }
+
+        body.terminal-active { background-color: #050505; }
+        body.terminal-active h1 { color: var(--neon-green); font-family: 'Courier New', monospace; font-size: 2rem; }
+        body.terminal-active .terminal-preview { display: block; }
+        body.terminal-active .btn-launch { background: var(--neon-green); box-shadow: 0 0 20px rgba(0,255,65,0.2); }
+        body.terminal-active .compatibility-note { border-color: var(--neon-green); background: rgba(0, 255, 65, 0.03); text-align: left; }
+        body.terminal-active .compatibility-note strong { color: var(--neon-green); }
+
+    </style>
+</head>
+<body>
+
+    <header class="header-nav">
+        <div class="switch-box">
+            <span class="mode-label">TERMINAL_MODE</span>
+            <label class="switch">
+                <input type="checkbox" id="mode-toggle" onchange="toggleMode()">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="logo-placeholder">
+            <img src="assets/logo.webp" alt="BUHS Logo">
+        </div>
+
+        <h1 id="main-title">THE BIGTREE GATEWAY</h1>
+        
+        <p id="main-desc">The universal interface for the Base Network. Engineered for clarity, speed, and total protocol transparency.</p>
+
+        <div class="compatibility-note">
+            <strong id="note-title">Connection Info</strong>
+            <span id="note-text">Please use an In-App Wallet Browser for the best experience.</span>
+        </div>
+
+        <div class="terminal-preview" id="preview">
+            <span style="color: var(--neon-green)">> INITIALIZING SECURE BRIDGE...</span><br>
+            
+            <span style="color: var(--text-grey)">> NETWORK: BASE_L2</span><br>
+            <span style="color: var(--text-grey)">> STATUS: 48H_TIMELOCK_SYNC</span><br>
+            <span style="color: var(--neon-green)">> SYSTEM READY.</span>
+        </div>
+
+        <a href="vector.html" class="btn-launch" id="btn-text">WELCOME CHOOSE VECTOR</a>
+
+        <div style="margin-top: 60px; font-size: 9px; color: #333; letter-spacing: 3px; font-weight: bold; text-transform: uppercase;">
+            Deposited 2025 @Bigtree // Built on Base
+        </div>
+    </div>
+
+    <script>
+        function toggleMode() {
+            const body = document.body;
+            const title = document.getElementById('main-title');
+            const desc = document.getElementById('main-desc');
+            const btn = document.getElementById('btn-text');
+            const noteText = document.getElementById('note-text');
+            const noteTitle = document.getElementById('note-title');
+
+            if (document.getElementById('mode-toggle').checked) {
+                body.classList.add('terminal-active');
+                title.innerHTML = "BUHS_TERMINAL<br>v1.8";
+                desc.innerText = "// Direct access to Base Network liquidity. Native mode active. Real-time Timelock monitoring.";
+                btn.innerText = "EXECUTE_LAUNCH";
+                noteTitle.innerText = "BUILD_ON_PUBLIC_LOG (v1.7)";
+                noteText.innerText = "Optimized for In-App Wallet Browsers. Universal Web Connect integration currently under development for v2.0.";
+            } else {
+                body.classList.remove('terminal-active');
+                title.innerHTML = "THE BIGTREE GATEWAY";
+                desc.innerText = "The universal interface for the Base Network. Engineered for clarity, speed, and total protocol transparency.";
+                btn.innerText = "WELCOME CHOOSE VECTOR";
+                noteTitle.innerText = "Connection Info";
+                noteText.innerText = "Please use an In-App Wallet Browser for the best experience.";
+            }
+        }
+    </script>
+</body>
+</html>

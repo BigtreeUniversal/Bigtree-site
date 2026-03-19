@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS Gateway | Nexus Selection</title>
+    <style>
+        :root {
+            --bg-black: #000000;
+            --bg-card: #0a0a0a;
+            --text-white: #ffffff;
+            --text-grey: #888888;
+            --accent-blue: #3b82f6;
+            --neon-green: #00ff41;
+            --border: #1a1a1a;
+        }
+
+        body, html { 
+            margin: 0; padding: 0; 
+            background-color: var(--bg-black); 
+            color: var(--text-white);
+            font-family: -apple-system, system-ui, sans-serif;
+            transition: all 0.4s ease;
+        }
+
+        body.terminal-active {
+            font-family: 'Courier New', monospace;
+            background-color: #050505;
+        }
+
+        .header-nav {
+            position: fixed; top: 0; width: 100%; height: 70px;
+            display: flex; justify-content: flex-end; align-items: center;
+            padding: 0 30px; box-sizing: border-box; z-index: 1000;
+        }
+
+        /* Switch Style */
+        .switch-box { display: flex; align-items: center; gap: 12px; }
+        .mode-label { font-size: 10px; letter-spacing: 2px; font-weight: bold; color: var(--text-grey); }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent-blue); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .container {
+            max-width: 600px;
+            margin: 60px auto; /* Réduit légèrement la marge haute pour compenser le logo plus grand */
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* --- LOGO GRANDE DIMENSION --- */
+        .logo-box {
+            width: 100px; /* Augmenté de 60px */
+            height: 100px; /* Augmenté de 60px */
+            margin: 0 auto 40px auto; /* Marge du bas augmentée pour l'aération */
+            background: #000; /* Fond noir pur pour fusionner avec l'image */
+            border-radius: 16px; /* Arrondi légèrement plus grand */
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; /* Assure que l'image ne déborde pas */
+        }
+        .logo-box img { 
+            width: 100%; /* Prend toute la largeur de la box */
+            height: 100%; /* Prend toute la hauteur de la box */
+            object-fit: contain; /* Conserve les proportions sans couper */
+        }
+
+        .xyz-content { display: block; text-align: left; }
+        .terminal-content { display: none; text-align: left; }
+
+        body.terminal-active .xyz-content { display: none; }
+        body.terminal-active .terminal-content { display: block; }
+
+        h1 { font-size: 1.8rem; letter-spacing: -0.5px; margin-bottom: 10px; }
+        .subtitle { color: var(--text-grey); margin-bottom: 40px; font-size: 0.95rem; line-height: 1.5; }
+
+        .payment-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        
+        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+
+        .btn-action {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 15px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .btn-continue { background: var(--text-white); color: #000; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
+        
+        /* Boutons Secondaires */
+        .secondary-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-outline { 
+            background: transparent; 
+            border: 1px solid var(--border); 
+            color: var(--text-grey); 
+            font-size: 0.75rem;
+            padding: 12px;
+        }
+        .btn-outline:hover { border-color: #444; color: white; }
+
+        /* Style Terminal */
+        .linux-shell {
+            background: #000;
+            border: 1px solid var(--neon-green);
+            padding: 25px;
+            color: var(--neon-green);
+            font-size: 0.85rem;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
+            border-radius: 4px;
+        }
+
+        .btn-terminal { 
+            background: transparent; 
+            border: 1px solid var(--neon-green); 
+            color: var(--neon-green); 
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+        body.terminal-active .btn-outline { border-color: var(--neon-green); color: var(--neon-green); }
+
+    </style>
+</head>
+<body>
+
+    <header class="header-nav">
+        <div class="switch-box">
+            <span class="mode-label">TERMINAL_MODE</span>
+            <label class="switch">
+                <input type="checkbox" id="mode-toggle" onchange="toggleMode()">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="logo-box">
+            <img src="assets/logo.webp" alt="Big Tree Logo">
+        </div>
+        
+        <div class="xyz-content">
+    <h1>SELECT YOUR ENGAGEMENT VECTOR</h1>
+    
+    <p class="subtitle">
+        Access the BUHS secure transaction portal.
+        &nbsp;&nbsp; <a href="soon.html" target="_blank" class="pdf-link" style="display: inline-block;">
+            > Documentation (*PDF)
+        </a>
+    </p>
+</div>
+            
+            
+            
+            <div class="payment-card">
+                <div class="card-header">
+                    <span>🏗️</span>
+                    <h3>Structural Investment</h3>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-grey);">Nourish the architecture. Access strategic documentation and configure resources.</p>
+                <a href="invest.html" class="btn-action btn-continue">Connect Vector</a>
+            </div>
+
+            <div class="payment-card">
+                <div class="card-header">
+                    <span>🪴</span>
+                    <h3>Ecosystem Support</h3>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-grey);">Provide vital resources for community growth via direct protocols.</p>
+                <a href="donate.html" class="btn-action btn-continue">Connect Gateway</a>
+            </div>
+
+            <div class="secondary-actions">
+                <a href="nexus.html" class="btn-action btn-outline">🌉 Web 2.5 Nexus</a>
+                <a href="token.html" class="btn-action btn-outline">🪙 Genesis Bigtree Token</a>
+            </div>
+        </div>
+
+        <div class="terminal-content">
+            <div class="linux-shell">
+                <div>[root@bigtree ~]# fetch --nexus-map</div>
+                <br>
+                <div style="color: white; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px; font-weight: bold;">-- CORE_VECTORS --</div>
+                
+                <a href="invest.html" class="btn-action btn-terminal">DEPLOY_INVESTOR_NODE</a>
+                <a href="donate.html" class="btn-action btn-terminal">ACTIVATE_DONATION_GATE</a>
+                
+                <div style="margin-top: 30px; color: white; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px; font-weight: bold;">-- EXTERNAL_LINKS --</div>
+                <div class="secondary-actions" style="margin-top: 0;">
+                    <a href="bridge.html" class="btn-action btn-terminal">BRIDGE_SYS</a>
+                    <a href="token_page.html" class="btn-action btn-terminal">TOKEN_GENESIS</a>
+                </div>
+                
+                <br>
+                <div>[root@bigtree ~]# <span id="cursor">_</span></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleMode() {
+            const isTerminal = document.getElementById('mode-toggle').checked;
+            document.body.classList.toggle('terminal-active', isTerminal);
+        }
+
+        setInterval(() => {
+            const cursor = document.getElementById('cursor');
+            if(cursor) cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+        }, 500);
+    </script>
+</body>
+</html>

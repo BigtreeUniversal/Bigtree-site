@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Tree | Genesis Protocol</title>
+    <style>
+        :root {
+            --bg-black: #000000; --bg-card: #0a0a0a; --text-white: #ffffff;
+            --text-grey: #888888; --accent-blue: #3b82f6; --neon-green: #00ff41; --border: #1a1a1a;
+        }
+        body, html { margin: 0; padding: 0; background-color: var(--bg-black); color: var(--text-white); font-family: -apple-system, system-ui, sans-serif; transition: 0.3s; }
+        body.terminal-active { font-family: 'Courier New', monospace; background-color: #050505; }
+
+        /* --- Header & Selector --- */
+        .header-nav { position: fixed; top: 0; width: 100%; height: 70px; display: flex; justify-content: flex-end; align-items: center; padding: 0 30px; box-sizing: border-box; z-index: 1000; }
+        .mode-selector { background: #111; border: 1px solid var(--border); padding: 5px; border-radius: 8px; display: flex; gap: 5px; }
+        .mode-btn { padding: 6px 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 10px; font-weight: bold; text-transform: uppercase; background: transparent; color: var(--text-grey); }
+        .mode-btn.active { background: var(--accent-blue); color: white; }
+        body.terminal-active .mode-btn.active { background: var(--neon-green); color: black; }
+
+        .container { max-width: 600px; margin: 100px auto; padding: 20px; }
+        
+        /* --- Vues --- */
+        .xyz-view, .terminal-view { width: 100%; }
+        body.terminal-active .xyz-view { display: none; }
+        body.terminal-active .terminal-view { display: block; }
+        .terminal-view { display: none; }
+
+        /* --- Style XYZ --- */
+        .token-header { text-align: center; margin-bottom: 40px; }
+        .token-logo { width: 80px; height: 80px; background: #111; border-radius: 50%; margin: 0 auto 20px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; box-shadow: 0 0 20px rgba(59, 130, 246, 0.1); }
+        h1 { font-size: 2rem; margin: 0; letter-spacing: -1px; }
+        .tagline { color: var(--text-grey); margin-top: 10px; font-size: 0.9rem; }
+
+        .info-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .stat-item label { display: block; font-size: 0.75rem; color: var(--text-grey); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
+        .stat-item span { font-size: 1.2rem; font-weight: bold; color: var(--accent-blue); }
+
+        /* --- Style Linux --- */
+        .shell-box { border: 1px solid var(--neon-green); padding: 25px; color: var(--neon-green); background: #000; border-radius: 4px; box-shadow: 0 0 15px rgba(0, 255, 65, 0.1); }
+        .shell-header { border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 15px; color: white; font-size: 0.8rem; }
+
+        /* --- Boutons --- */
+        .btn-main { display: block; width: 100%; padding: 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; margin-bottom: 12px; font-family: inherit; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
+        .btn-blue { background: var(--accent-blue); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: white; }
+        
+        body.terminal-active .btn-outline { border-color: var(--neon-green); color: var(--neon-green); }
+        body.terminal-active .stat-item span { color: var(--neon-green); }
+
+    </style>
+</head>
+<body>
+
+    <header class="header-nav">
+        <div class="mode-selector">
+            <button id="btn-xyz" class="mode-btn active" onclick="setMode('xyz')">Standard</button>
+            <button id="btn-linux" class="mode-btn" onclick="setMode('linux')">Linux</button>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="xyz-view">
+            <div class="token-header">
+                <div class="token-logo">BTG</div>
+                <h1>BigTree Genesis</h1>
+                <p class="tagline">Core utility layer for the Big Tree Base ecosystem.</p>
+            </div>
+
+            <div class="info-card">
+                <h3>Tokenomics & Governance</h3>
+                <p style="font-size: 0.9rem; color: var(--text-grey); line-height: 1.6;">
+                    The BTG protocol is engineered for governance and ecosystem sustainability. 
+                    It enables reward distribution mechanisms and secures prioritized access to structural growth cycles.
+                </p>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <label>Market Capitalization</label>
+                        <span id="mcap-val">Fetching data...</span>
+                    </div>
+                    <div class="stat-item">
+                        <label>Protocol Network</label>
+                        <span>Base Mainnet (L2)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="terminal-view">
+            <div class="shell-box">
+                <div class="shell-header">SYSTEM_SCAN: TOKEN_ID_BTG_GENESIS</div>
+                <div>[root@bigtree ~]# query --on-chain-data --all</div>
+                <div>> CONTRACT: 0x14e73...2463a</div>
+                <div>> TOTAL_SUPPLY: 1,000,000,000 BTG</div>
+                <div>> TOKEN_STANDARD: ERC-20</div>
+                <br>
+                <div class="stat-item">
+                    <label>> LIVE_MARKET_CAP:</label>
+                    <span style="font-size: 1.5rem;">REAL_TIME_SYNC</span>
+                </div>
+                <br>
+                <div>[root@bigtree ~]# <span id="cursor">_</span></div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="https://app.doppler.lol/tokens/base/0x14e732bbba1cd07685d2081869ca5062ac32463a" target="_blank" class="btn-main btn-blue">
+                Monitor Market Cap (Doppler)
+            </a>
+            
+            <a href="soon.html" class="btn-main btn-outline">
+                Technical Whitepaper (.PDF)
+            </a>
+            
+            <a href="https://app.uniswap.org/" class="btn-main btn-outline">
+                Swap on Uniswap (base) 
+            </a>
+            
+            
+            
+            
+            
+            
+        </div>
+
+    </div>
+
+    <script>
+        function setMode(mode) {
+            const body = document.body;
+            const btnXyz = document.getElementById('btn-xyz');
+            const btnLinux = document.getElementById('btn-linux');
+
+            if (mode === 'linux') {
+                body.classList.add('terminal-active');
+                btnLinux.classList.add('active');
+                btnXyz.classList.remove('active');
+            } else {
+                body.classList.remove('terminal-active');
+                btnXyz.classList.add('active');
+                btnLinux.classList.remove('active');
+            }
+        }
+
+        // Simulating Live Market Cap
+        document.getElementById('mcap-val').innerText = "$ 19,500";
+
+        setInterval(() => {
+            const cursor = document.getElementById('cursor');
+            if(cursor) cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+        }, 500);
+    </script>
+</body>
+</html>
