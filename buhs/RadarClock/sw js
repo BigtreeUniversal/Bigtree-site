@@ -1,6 +1,6 @@
-const CACHE_NAME = 'buhs-radar-clock-v1';
+const CACHE_NAME = 'buhs-Control-Tower';
 const ASSETS_TO_CACHE = [
-  './Smart_Clock_Fusion.html',
+  './Bigtree_WorldCam_Explorer.html',
   './manifest.json',
   './ring.jpg',
   './icon-192.png',
