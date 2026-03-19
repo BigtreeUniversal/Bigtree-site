@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate | Big Tree Ecosystem Support</title>
+    <style>
+        :root {
+            --bg-page: #000000; /* Fond noir pur */
+            --bg-card: #0a0a0a; /* Fond carte très sombre */
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --accent-blue: #3b82f6;
+            --border: #1a1a1a;
+            --success-green: #00ff41; /* Pour le flash de copie */
+        }
+
+        body { 
+            margin: 0; padding: 0; background: var(--bg-page); 
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+
+        /* La Carte Checkout style Deep Tech */
+        .checkout-card {
+            background: var(--bg-card);
+            width: 100%; max-width: 400px;
+            padding: 40px; border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .header { margin-bottom: 30px; }
+        .logo { width: 60px; height: 60px; margin-bottom: 15px; border-radius: 12px; border: 1px solid var(--border); }
+        h1 { font-size: 20px; color: var(--text-main); margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .network-badge { 
+            display: inline-block; background: rgba(59, 130, 246, 0.1); color: var(--accent-blue);
+            padding: 5px 15px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        /* Zone QR Code */
+        .qr-zone {
+            background: #fff; /* Fond blanc pour le QR */
+            border: 1px solid var(--border);
+            padding: 15px; border-radius: 12px; margin: 25px 0;
+            display: inline-block;
+        }
+        .qr-zone img { width: 200px; height: 200px; display: block; }
+        .qr-text { font-size: 11px; color: #000; margin: 10px 0 0; font-weight: bold; }
+
+        /* Actions */
+        .address-box {
+            background: #111; border: 1px solid var(--border);
+            padding: 14px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px; cursor: pointer; transition: 0.2s;
+        }
+        .address-box:hover { border-color: var(--accent-blue); }
+        .address-text { font-family: monospace; font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90%; }
+
+        .btn-metamask {
+            background: var(--accent-blue); color: white;
+            width: 100%; padding: 16px; border-radius: 8px;
+            text-decoration: none; font-weight: 600; font-size: 15px;
+            display: none; /* Caché par défaut */
+            transition: 0.2s; border: none; cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-metamask:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .footer { font-size: 12px; color: var(--text-muted); margin-top: 30px; line-height: 1.6; text-align: left; padding: 0 10px; }
+
+        /* Responsive Mobile */
+        @media (max-width: 600px) {
+            .qr-zone { display: none; } /* Cache le QR */
+            .btn-metamask { display: block; } /* Montre le bouton */
+            .checkout-card { padding: 30px 20px; box-shadow: none; border: none; height: 100vh; max-width: 100%; border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="checkout-card">
+        <div class="header">
+            <img src="assets/logo.webp" class="logo" alt="Logo">
+            <h1>Nurturing the Roots 🪴</h1>
+            <span class="network-badge">BASE NETWORK</span>
+        </div>
+
+        <div class="qr-zone">
+            <img src="assets/qr-code-base.jpg" alt="Scan QR">
+            <p class="qr-text">Scan with mobile wallet</p>
+        </div>
+
+        <a href="https://metamask.app.link/send/0x3150808afe0cfb4fd22ee0d2249f48260a7377ac@8453" class="btn-metamask">
+            Open MetaMask App
+        </a>
+
+        <div class="address-box" onclick="copyAddress()" title="Click to copy address">
+            <span class="address-text" id="wallet-addr">0x3150808afe0cfb4fd22ee0d2249f48260a7377ac</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </div>
+
+        <div class="footer">
+            1. Copy address or scan QR code.<br>
+            2. Send native assets (ETH/USDC) via Base.<br>
+            3. Funds directly hydrate R&D cycles.
+        </div>
+    </div>
+
+    <textarea id="copy-textarea" style="position: absolute; left: -9999px; top: 0;" readonly></textarea>
+
+    <script>
+        function copyAddress() {
+            const addrText = document.getElementById('wallet-addr').innerText;
+            const textArea = document.getElementById('copy-textarea');
+            const box = document.querySelector('.address-box');
+            
+            // On place le texte dans la zone invisible
+            textArea.value = addrText;
+            
+            // Méthode de secours (Fallback) qui fonctionne partout (même sans HTTPS)
+            textArea.select();
+            textArea.setSelectionRange(0, 99999); // Pour mobiles
+
+            try {
+                document.execCommand('copy');
+                // Flash visuel de succès (Neon Green)
+                const originalBg = box.style.background;
+                const originalBorder = box.style.borderColor;
+                box.style.background = "rgba(0, 255, 65, 0.1)";
+                box.style.borderColor = "var(--success-green)";
+                
+                setTimeout(() => {
+                    box.style.background = originalBg;
+                    box.style.borderColor = originalBorder;
+                }, 500);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            
+            // Désélectionner
+            window.getSelection().removeAllRanges();
+        }
+    </script>
+</body>
+</html>
