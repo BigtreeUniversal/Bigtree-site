@@ -1,4 +1,4 @@
-const CACHE_NAME = 'buhs-Control-Tower-v1'; // Changez le 'v1' en 'v2' dès que vous modifiez un fichier
+const CACHE_NAME = 'buhs-Control-Tower-v2'; // Changez le 'v1' en 'v2' dès que vous modifiez un fichier
 const ASSETS_TO_CACHE = [
   './Bigtree_WorldCam_Explorer.html',
   './manifest.json',
