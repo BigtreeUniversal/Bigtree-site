@@ -121,26 +121,12 @@
             window.open("https://www.paypal.com/paypalme/bigtreeconnection", '_blank');
         }
 
-        async function payWeb3() {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-                    // On peut ici rediriger vers une page spécifique ou lancer une transaction fixe
-                    alert("Wallet connected: " + accounts[0] + "\nPlease confirm the transaction in your wallet.");
-                    
-                    const transactionParameters = {
-                        to: '0x3150808afe0cfb4fd22ee0d2249f48260a7377ac',
-                        from: accounts[0],
-                        value: '0x2386F26FC10000', // Exemple: 0.01 ETH
-                    };
 
-                    await ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters] });
-                } catch (error) { console.error(error); }
-            } else {
-                alert("MetaMask not detected.");
-            }
+        function payWeb3() {
+            window.open("https://bigtreeconnection.com/gateway/pay-wallet.html", '_blank');
         }
 
+        
         setInterval(() => {
             const cursor = document.getElementById('cursor');
             if(cursor) cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
