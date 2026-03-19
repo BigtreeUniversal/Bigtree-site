@@ -121,25 +121,38 @@
             window.open("https://www.paypal.com/paypalme/bigtreeconnection", '_blank');
         }
 
-        async function payWeb3() {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-                    // On peut ici rediriger vers une page spécifique ou lancer une transaction fixe
-                    alert("Wallet connected: " + accounts[0] + "\nPlease confirm the transaction in your wallet.");
-                    
-                    const transactionParameters = {
-                        to: '0x3150808afe0cfb4fd22ee0d2249f48260a7377ac',
-                        from: accounts[0],
-                        value: '0x2386F26FC10000', // Exemple: 0.01 ETH
-                    };
+        aasync function connectAndPayCrypto() {
+    if (typeof window.ethereum !== 'undefined') {
+        try {
+            // 1. Demander la connexion au wallet
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            const account = accounts[0];
+            
+            // 2. Convertir le montant EUR en ETH (Approximation ou via Oracle)
+            // Pour l'exemple, on envoie une valeur fixe ou calculée
+            const amountInEth = (selectedAmount / 2500).toString(); // Exemple très simplifié
+            
+            const transactionParameters = {
+                to: 'TON_ADRESSE_WALLET_ICI', // Remplace par ton adresse
+                from: account,
+                value: (selectedAmount * 10**15).toString(16), // Montant en Wei (hex)
+            };
 
-                    await ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters] });
-                } catch (error) { console.error(error); }
-            } else {
-                alert("MetaMask not detected.");
-            }
+            // 3. Envoyer la transaction
+            await ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [transactionParameters],
+            });
+            
+        } catch (error) {
+            console.error("User denied account access or error occurred");
         }
+    } else {
+        alert("Please install MetaMask!");
+    }
+}
+
+document.querySelector('.wallet-btn').addEventListener('click', connectAndPayCrypto);
 
         setInterval(() => {
             const cursor = document.getElementById('cursor');
