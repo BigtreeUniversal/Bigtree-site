@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Portal | Big Tree Connection</title>
+    <style>
+        :root {
+            --bg: #f6f9fc;
+            --white: #ffffff;
+            --dark: #1a1f36;
+            --grey: #697386;
+            --blue: #3b82f6;
+            --border: #e3e8ee;
+        }
+
+        body { 
+            margin: 0; padding: 0; background: var(--bg); 
+            font-family: -apple-system, system-ui, sans-serif;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+
+        .checkout-card {
+            background: var(--white);
+            width: 100%; max-width: 400px;
+            padding: 40px; border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(50,50,93,.1), 0 5px 15px rgba(0,0,0,.07);
+            text-align: center;
+        }
+
+        .header { margin-bottom: 30px; }
+        .logo { width: 50px; height: 50px; border-radius: 10px; margin-bottom: 15px; }
+        h1 { font-size: 18px; color: var(--dark); margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .network { font-size: 12px; color: var(--blue); font-weight: bold; margin-top: 5px; display: block; }
+
+        /* Section QR (Visible sur Ordi) */
+        .qr-box {
+            background: #fff; border: 1px solid var(--border);
+            padding: 15px; border-radius: 12px; margin: 25px 0;
+            display: inline-block;
+        }
+        .qr-box img { width: 200px; height: 200px; display: block; }
+
+        /* Actions */
+        .copy-container {
+            background: #f7fafc; border: 1px solid var(--border);
+            padding: 12px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px; cursor: pointer;
+        }
+        .address { font-family: monospace; font-size: 11px; color: var(--dark); }
+
+        .btn-link {
+            display: block; width: 100%; background: var(--blue); color: white;
+            text-decoration: none; padding: 16px; border-radius: 8px;
+            font-weight: 600; font-size: 15px; margin-bottom: 20px;
+        }
+
+        .footer { font-size: 12px; color: var(--grey); line-height: 1.5; }
+
+        /* Mobile Switch */
+        @media (max-width: 600px) {
+            .qr-box { display: none; } /* Cache le QR sur tel */
+            .checkout-card { box-shadow: none; height: 100vh; border-radius: 0; max-width: 100%; }
+        }
+        @media (min-width: 601px) {
+            .btn-link { display: none; } /* Cache le lien sur ordi */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="checkout-card">
+        <div class="header">
+            <img src="assets/logo.png" class="logo" alt="Big Tree">
+            <h1>Structural Investment</h1>
+            <span class="network">BASE NETWORK MAINNET</span>
+        </div>
+
+        <div class="qr-box">
+            <img src="assets/qr-code-wallet.png" alt="Wallet QR Code">
+            <p style="font-size: 11px; color: var(--grey); margin: 10px 0 0;">Scan with your mobile wallet</p>
+        </div>
+
+        <a href="https://metamask.app.link/send/0x3150808afe0cfb4fd22ee0d2249f48260a7377ac@8453" class="btn-link">
+            Open in MetaMask App
+        </a>
+
+        <div class="copy-container" onclick="copyAddress()">
+            <span class="address" id="addr">0x3150808afe0cfb4fd22ee0d2249f48260a7377ac</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </div>
+
+        <div class="footer">
+            1. Copy address or scan QR<br>
+            2. Send your contribution (ETH/USDC)<br>
+            3. Assets are secured on-chain
+        </div>
+    </div>
+
+    <script>
+        function copyAddress() {
+            const text = document.getElementById('addr').innerText;
+            navigator.clipboard.writeText(text);
+            const container = document.querySelector('.copy-container');
+            container.style.background = "#e1ffeb";
+            setTimeout(() => container.style.background = "#f7fafc", 500);
+        }
+    </script>
+</body>
+</html>
