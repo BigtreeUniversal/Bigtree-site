@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The BigTree Jukebox</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #ccc;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 60px;
+        }
+
+        .logo-placeholder {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #fff;
+            margin: 0;
+            font-weight: 200;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-size: 1.5rem;
+        }
+
+        .jukebox-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 40px; 
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .playlist-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Styles du Carré avec image de fond */
+        .square {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            /* Propriétés pour l'image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .playlist-item:hover .square {
+            border-color: #555;
+            transform: translateY(-5px); /* Petit effet de levée au survol */
+        }
+
+        .playlist-title {
+            margin-top: 15px;
+            font-size: 0.75rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #888;
+        }
+
+        .playlist-item:hover .playlist-title {
+            color: #fff;
+        }
+
+        @media (max-width: 600px) {
+            .jukebox-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+            h1 { font-size: 1.2rem; }
+            .logo-placeholder { width: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-container">
+        <img src="logo.webp" alt="Logo BigTree" class="logo-placeholder" onerror="this.style.display='none'">
+        <h1>The BigTree Jukebox</h1>
+    </header>
+
+    <div class="jukebox-grid">
+        <a href="https://youtube.com/playlist?list=PL9D-qI9DCdypFiwBzbGQwXw2JIwbbNkWb&si=7sqWZOT3EcF0fAro" class="playlist-item">
+            <div class="square" style="background-image: url('p1.jpg');"></div>
+            <span class="playlist-title">Reggae Classics #1</span>
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PL9D-qI9DCdyqxLpZu6LRo4mpr6Gd_zwe3&si=hVekq1Yu_rs8Hbes" class="playlist-item">
+            <div class="square" style="background-image: url('p2.jpg');"></div>
+            <span class="playlist-title">Jazz Various #1</span>
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PL9D-qI9DCdyo5zA9ip_PUOswT5utKMP63&si=KMGPEnVZRsffOcQW" class="playlist-item">
+            <div class="square" style="background-image: url('p3.jpg');"></div>
+            <span class="playlist-title">Old Sch HipHop #1</span>
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PL9D-qI9DCdyoKYjo9pooV_Sb5DAnn47kq&si=5yaM5OlBwsT0mS6o" class="playlist-item">
+            <div class="square" style="background-image: url('p4.jpg');"></div>
+            <span class="playlist-title">RootsSelection #1</span>
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PL9D-qI9DCdyqrriTLtefKRw7Xhp26x_g2&si=5xl59hI8uaZLUi_d" class="playlist-item">
+            <div class="square" style="background-image: url('p5.jpg');"></div>
+            <span class="playlist-title">R & B Soul 70's</span>
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PL9D-qI9DCdyoz_0ny-eqose6lM5Z2ANvT&si=gquO0V3vNtfeG1xd" class="playlist-item">
+            <div class="square" style="background-image: url('p6.jpg');"></div>
+            <span class="playlist-title">Various Artists #1</span>
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PL9D-qI9DCdyo1PVak8bRO18bzv3tlxUDK&si=HDhtGIf1Oy-L4DEk" class="playlist-item">
+            <div class="square" style="background-image: url('p7.jpg');"></div>
+            <span class="playlist-title">Reggae Tunes #1</span>
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PL9D-qI9DCdyqvsQVojo33NGcMW7mRRuSF&si=AjrCKkHMXwVBldpi" class="playlist-item">
+            <div class="square" style="background-image: url('p8.jpg');"></div>
+            <span class="playlist-title">Chill Morning</span>
+        </a>
+
+        <a href="https://youtube.com/playlist?list=PL9D-qI9DCdyrA3d1g2sMPLWRSJ-Qa-8SO&si=QpMNJ988MulCndtj" class="playlist-item">
+            <div class="square" style="background-image: url('p9.jpg');"></div>
+            <span class="playlist-title">Jazz Alternative</span>
+        </a>
+    </div>
+
+</body>
+</html>
