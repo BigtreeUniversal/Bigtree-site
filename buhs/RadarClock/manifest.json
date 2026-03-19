@@ -1,8 +1,8 @@
 {
-  "name": "BUHS RADAR CLOCK",
-  "short_name": "Radar Clock",
-  "description": "Smart Clock Fusion avec affichage radar et phase lunaire en temps réel.",
-  "start_url": "./Smart_Clock_Fusion.html",
+  "name": "THE BIGTREE CONTROL TOWER",
+  "short_name": "Control Tower",
+  "description": "World Real-Time Observation ",
+  "start_url": "./Bigtree_WorldCam_Explorer.html",
   "display": "standalone",
   "background_color": "#0b0c10",
   "theme_color": "#0b0c10",
