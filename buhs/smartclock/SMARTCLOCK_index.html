@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMARTCLOCK | Azimuthal Projection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-pure: #0a0a0a;
+            --bg-surface: #1a1a1a;
+            --accent: #00ff88;
+            --accent-dark: #003322;
+            --text-main: #e0e0e0;
+            --text-dim: #888888;
+            --font-mono: 'Fira Code', monospace;
+            --font-sans: 'Inter', sans-serif;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --section-padding: 100px 10%;
+        }
+
+        /* --- Base Styles --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-pure);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Scanline Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        h1, h2, h3, .mono { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 2px; }
+        
+        .accent-text { color: var(--accent); text-shadow: 0 0 10px var(--accent-dark); }
+
+        /* --- Navigation --- */
+        .nav-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 1001;
+            background: var(--bg-surface);
+            border: 1px solid var(--accent);
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            transition: var(--transition);
+        }
+
+        .nav-toggle span {
+            display: block;
+            width: 25px;
+            height: 2px;
+            background: var(--accent);
+            transition: var(--transition);
+        }
+
+        .nav-toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .nav-toggle.active span:nth-child(2) { opacity: 0; }
+        .nav-toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .full-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-pure);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: translateX(100%);
+            transition: var(--transition);
+        }
+
+        .full-nav.open { transform: translateX(0); }
+
+        .nav-links { list-style: none; text-align: center; }
+        .nav-links li { margin: 25px 0; }
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 2rem;
+            font-family: var(--font-mono);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover { color: var(--accent); padding-left: 20px; }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: var(--section-padding);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hero-text h1 { font-size: 4rem; line-height: 1; margin-bottom: 20px; }
+        .hero-text p { font-size: 1.2rem; color: var(--text-dim); margin-bottom: 30px; max-width: 500px; }
+
+        .hero-image {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border: 1px solid var(--accent-dark);
+            background: url('https://bigtreeconnection.com/buhs/xylem/radar.png') center/cover no-repeat;
+            box-shadow: 0 0 30px var(--accent-dark);
+        }
+
+        .hero-image::after {
+            content: 'AZIMUTHAL_PROJECTION_v1.0';
+            position: absolute;
+            bottom: -30px;
+            right: 0;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        /* --- Parallax Floating Objects --- */
+        .parallax-obj {
+            position: absolute;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-family: var(--font-mono);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: var(--bg-pure);
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        /* --- About Section --- */
+        .section { padding: var(--section-padding); opacity: 0; transform: translateY(50px); transition: 1s ease; }
+        .section.visible { opacity: 1; transform: translateY(0); }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            padding: 40px;
+            border-bottom: 3px solid var(--accent-dark);
+            transition: var(--transition);
+        }
+
+        .card:hover { border-color: var(--accent); transform: translateY(-10px); }
+        .card h3 { margin-bottom: 15px; color: var(--accent); }
+
+        /* --- FAQ Accordion --- */
+        .faq-container { max-width: 800px; margin: 50px auto 0; }
+        
+        .faq-item {
+            border: 1px solid var(--accent-dark);
+            margin-bottom: 15px;
+        }
+
+        .faq-header {
+            padding: 20px;
+            background: var(--bg-surface);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-content {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: var(--transition);
+            background: var(--bg-pure);
+        }
+
+        .faq-item.active .faq-content { padding: 20px; max-height: 200px; }
+        .faq-item.active .faq-header { color: var(--accent); border-bottom: 1px solid var(--accent-dark); }
+
+        /* --- Contact Form --- */
+        .contact-form {
+            max-width: 600px;
+            margin: 50px auto 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group { position: relative; }
+        
+        input, textarea {
+            width: 100%;
+            background: var(--bg-surface);
+            border: 1px solid var(--accent-dark);
+            padding: 15px;
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-dark); }
+
+        .error-msg { color: #ff4444; font-size: 0.8rem; font-family: var(--font-mono); display: none; margin-top: 5px; }
+
+        /* --- Footer --- */
+        footer {
+            background: var(--bg-surface);
+            padding: 80px 10% 40px;
+            border-top: 1px solid var(--accent-dark);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 50px;
+            margin-bottom: 50px;
+        }
+
+        .footer-col h4 { margin-bottom: 20px; color: var(--accent); }
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 10px; }
+        .footer-col a { color: var(--text-dim); text-decoration: none; transition: var(--transition); }
+        .footer-col a:hover { color: var(--accent); }
+
+        .social-icons { display: flex; gap: 15px; margin-top: 20px; }
+        .social-icons a { 
+            width: 40px; height: 40px; 
+            border: 1px solid var(--accent); 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        /* --- Back to top --- */
+        #backToTop {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: var(--accent);
+            color: var(--bg-pure);
+            width: 50px;
+            height: 50px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            font-weight: bold;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 968px) {
+            .hero-split { grid-template-columns: 1fr; text-align: center; }
+            .hero-text h1 { font-size: 3rem; }
+            .hero-text p { margin: 0 auto 30px; }
+            .hero-image { height: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="backToTop">TOP</div>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle Navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <nav class="full-nav" id="navMenu">
+        <ul class="nav-links">
+            <li><a href="#home">01_HOME</a></li>
+            <li><a href="#about">02_SYSTEM</a></li>
+            <li><a href="#faq">03_FAQ</a></li>
+            <li><a href="#contact">04_CONNECT XYLEM</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="parallax-obj mono" style="top: 10%; left: 5%;" data-speed="2">COORD_X: 45.23</div>
+        <div class="parallax-obj mono" style="bottom: 20%; right: 10%;" data-speed="5">SIGNAL_STRENGTH: 98%</div>
+
+        <div class="hero-split">
+            <div class="hero-text">
+                <span class="mono accent-text">System Initialization</span>
+                <h1>SMARTCLOCK</h1>
+                <p>Advanced azimuthal temporal projection for the decentralized future. Redefining how the world visualizes synchronization.</p>
+                <a href="https://bigtreeconnection.com/buhs/RadarClock/Smart_Clock_Fusion.html" class="btn">INITIALIZE_SCAN</a>
+            </div>
+            <div class="hero-image" id="heroImg"></div>
+        </div>
+    </section>
+
+    <section class="section" id="about">
+        <div style="text-align: center;">
+            <span class="mono accent-text">Capabilities</span>
+            <h2>Modular Architecture</h2>
+        </div>
+        <div class="grid-3">
+            <div class="card">
+                <h3 class="mono">Real-time Azimuth</h3>
+                <p>Utilizing high-frequency azimuthal mapping to ensure temporal data is synchronized across all global nodes without latency.</p>
+            </div>
+            <div class="card">
+                <h3 class="mono">Neural Sync</h3>
+                <p>Proprietary algorithms that adjust clock cycles based on network load, maximizing throughput during peak operational windows.</p>
+            </div>
+            <div class="card">
+                <h3 class="mono">End-to-End Encryption</h3>
+                <p>Quantum-resistant temporal data packets ensure that your synchronization remains private and untraceable by third-party actors.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="faq">
+        <div style="text-align: center; margin-bottom: 50px;">
+            <span class="mono accent-text">Information</span>
+            <h2>Frequently Asked Questions</h2>
+        </div>
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-header mono">What is Azimuthal Projection? <span>+</span></div>
+                <div class="faq-content">
+                    <p>Azimuthal projection is a mathematical method for representing a sphere on a flat surface. SmartClock uses this to map global time-zones onto a localized grid for superior data visualization.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header mono">Is the system decentralized? <span>+</span></div>
+                <div class="faq-content">
+                    <p>Yes. SmartClock operates on a distributed ledger of temporal events, ensuring no single point of failure can disrupt the global synchronization cycle.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header mono">How do I integrate the API? <span>+</span></div>
+                <div class="faq-content">
+                    <p>Developer documentation is available in the 'Protocol' section. We support Webhook, REST, and WebSocket integration for real-time streaming.</p>
+                
+    </section>
+
+    <section class="section" id="contact">
+    <div style="text-align: center;">
+        <span class="mono accent-text">Contact</span>
+        
+
+        <h2>Establish Connection</h2>
+
+        <div style="margin: 20px 0;">
+            <img src="01.png" alt="Connect Tech" style="max-width: 300px; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 4px;">
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 50px;">
+        <a href="https://bigtreeconnection.com/buhs/xylem/xylem_index.html" class="btn">SEND_SIGNAL</a>
+    </div>
+</section>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4 class="mono">Gateway & Resource</h4>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Building the next generation of temporal infrastructure since 2025.</p>
+                <div class="social-icons">
+                    <a href="https://bigtreeconnection.com/gateway/index.html" class="mono">GA</a>
+                    <a href="https://bigtreeconnection.com/gateway/donate.html" class="mono">W2</a>
+                    <a href="https://bigtreeconnection.com/gateway/donate-wallet.html" class="mono">W3</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4 class="mono">Navigation</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">System</a></li>
+                    <li><a href="#faq">Intel</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4 class="mono">Protocol</h4>
+                <ul>
+                    <li><a href="https://bigtreeconnection.com/buhs/xylem/xylem_index.html">Xylem</a></li>
+                    <li><a href="https://bigtreeconnection.com/gateway/vector.html">Gateway</a></li>
+                    <li><a href="https://buhs.carrd.co/">Web Site</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4 class="mono">Contact</h4>
+                <p style="color: var(--text-dim);">OPS_CENTER: Zurich Swiss<br>buhs.universal@gmx.com</p>
+            </div>
+        </div>
+        <div style="text-align: center; color: var(--text-dim); font-size: 0.8rem; font-family: var(--font-mono); border-top: 1px solid var(--accent-dark); padding-top: 20px;">
+            &copy; 2026 BIGTREE UNIVERSAL HARMONIC SYSTEM // ALL_RIGHTS_RESERVED
+        </div>
+    </footer>
+
+    <script>
+        // --- Navigation Logic ---
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+        const navLinks = document.querySelectorAll('.nav-links a');
+
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.toggle('active');
+            navMenu.classList.toggle('open');
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navToggle.classList.remove('active');
+                navMenu.classList.remove('open');
+            });
+        });
+
+        // --- Scroll Animations (Intersection Observer) ---
+        const observerOptions = { threshold: 0.1 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => observer.observe(section));
+
+        // --- Parallax Effect ---
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            
+            // Hero Image Parallax
+            const heroImg = document.getElementById('heroImg');
+            heroImg.style.transform = `translateY(${scrolled * 0.1}px)`;
+
+            // Floating elements
+            document.querySelectorAll('.parallax-obj').forEach(obj => {
+                const speed = obj.getAttribute('data-speed');
+                obj.style.transform = `translateY(${scrolled * (speed / 10)}px)`;
+            });
+
+            // Back to Top button
+            const btt = document.getElementById('backToTop');
+            if(scrolled > 500) {
+                btt.style.display = 'flex';
+            } else {
+                btt.style.display = 'none';
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // --- FAQ Accordion ---
+        document.querySelectorAll('.faq-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const item = header.parentElement;
+                item.classList.toggle('active');
+                
+                // Toggle the symbol
+                const span = header.querySelector('span');
+                span.innerText = item.classList.contains('active') ? '-' : '+';
+            });
+        });
+
+        // --- Contact Form Validation ---
+        const contactForm = document.getElementById('contactForm');
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            let isValid = true;
+
+            const name = document.getElementById('name');
+            const email = document.getElementById('email');
+            const msg = document.getElementById('message');
+
+            if(name.value.length < 2) {
+                document.getElementById('nameError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('nameError').style.display = 'none';
+            }
+
+            if(!email.value.includes('@')) {
+                document.getElementById('emailError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('emailError').style.display = 'none';
+            }
+
+            if(isValid) {
+                alert('SIGNAL SENT: Thank you for connecting with SmartClock.');
+                contactForm.reset();
+            }
+        });
+    </script>
+</body>
+</html>
