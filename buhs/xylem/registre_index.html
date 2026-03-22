@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>XYLEM | SYSTEM LOG INDEX</title>
+    <style>
+        :root {
+            --term-green: #00ff88;
+            --term-dim: #004422;
+            --bg: #050505;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--term-green);
+            font-family: 'Fira Code', monospace;
+            padding: 40px;
+            line-height: 1.5;
+            text-transform: uppercase;
+        }
+
+        /* Effet de scanline (vieil écran) */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .terminal-header {
+            border-bottom: 2px solid var(--term-green);
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+            background: #111;
+            padding: 15px;
+            border: 1px solid var(--term-dim);
+        }
+
+        input {
+            background: transparent;
+            border: 1px solid var(--term-green);
+            color: var(--term-green);
+            padding: 5px 10px;
+            font-family: inherit;
+        }
+
+        .log-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .log-item {
+            border: 1px solid var(--term-dim);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--term-green);
+            display: block;
+        }
+
+        .log-item:hover {
+            background: var(--term-green);
+            color: var(--bg);
+            box-shadow: 0 0 15px var(--term-green);
+        }
+
+        .date-label { font-size: 0.8em; color: var(--term-dim); }
+        .log-item:hover .date-label { color: var(--bg); }
+
+        .status { float: right; animation: blink 1s infinite; }
+        @keyframes blink { 0% {opacity:0} 50% {opacity:1} 100% {opacity:0} }
+    </style>
+</head>
+<body>
+
+<div class="terminal-header">
+    <h1>> XYLEM_REGISTRY_ACCESS v1.0.4</h1>
+    <p>Statut : Connexion sécurisée établie... <span class="status">●</span></p>
+</div>
+
+<div class="filter-section">
+    <label>RECHERCHER PAR DATE (DEPUIS 24/02/2026) : </label>
+    <input type="date" id="dateFilter" min="2026-02-24">
+</div>
+
+<div class="log-grid" id="logGrid">
+    <a href="registre/01/registre_page_1.html" class="log-item" data-date="2026-02-24">
+        <span class="date-label">24 02 2026</span><br>
+        LOG_SESSION_001.SYS
+    </a>
+
+    <a href="registre/02/registre_page_1.html" class="log-item" data-date="2026-03-03">
+        <span class="date-label">27 02 2026</span><br>
+        LOG_SESSION_002.SYS
+    </a>
+    
+    <a href="registre/03/registre_page_1.html" class="log-item" data-date="2026-03-03">
+        <span class="date-label">01 03 2026</span><br>
+        LOG_SESSION_003.SYS
+    </a>
+    
+    <a href="registre/04/registre_page_1.html" class="log-item" data-date="2026-03-03">
+        <span class="date-label">11 03 2026</span><br>
+        LOG_SESSION_004.SYS
+    </a>
+    
+    <a href="registre/05/registre_page_1.html" class="log-item" data-date="2026-03-03">
+        <span class="date-label">17 03 2026</span><br>
+        LOG_SESSION_005.SYS
+    </a>
+</div>
+
+<script>
+    const filter = document.getElementById('dateFilter');
+    const logs = document.querySelectorAll('.log-item');
+
+    filter.addEventListener('change', () => {
+        const selectedDate = filter.value; // Format YYYY-MM-DD
+        logs.forEach(log => {
+            if (log.dataset.date === selectedDate || selectedDate === "") {
+                log.style.display = 'block';
+            } else {
+                log.style.display = 'none';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

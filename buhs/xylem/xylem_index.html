@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS | XYLEM PROTOCOL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ff88;
+            --primary-glow: rgba(0, 255, 136, 0.3);
+            --bg-dark: #0a0a0a;
+            --bg-surface: #1a1a1a;
+            --accent-green-dim: #003322;
+            --text-main: #e0e0e0;
+            --text-dim: #888888;
+            --font-mono: 'Fira Code', monospace;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- UI COMPONENTS --- */
+        .mono { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; }
+        .highlight { color: var(--primary); }
+
+        /* --- NAVIGATION --- */
+        .nav-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            transition: var(--transition);
+        }
+
+        .nav-toggle:hover { transform: scale(1.05); background: #00cc6d; }
+        .line { width: 30px; height: 2px; background: var(--bg-dark); transition: var(--transition); }
+        .nav-toggle.active .line:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .nav-toggle.active .line:nth-child(2) { opacity: 0; }
+        .nav-toggle.active .line:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        .nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.98);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .nav-overlay.open { visibility: visible; opacity: 1; }
+        .nav-links { list-style: none; text-align: center; }
+        .nav-links li { margin: 2rem 0; overflow: hidden; }
+        .nav-links a {
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            display: block;
+            transition: var(--transition);
+            transform: translateY(100%);
+        }
+        .nav-overlay.open a { transform: translateY(0); }
+        .nav-links a:hover { color: #fff; text-shadow: 0 0 15px var(--primary); padding-left: 20px; }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #001a11 0%, #0a0a0a 100%);
+        }
+
+        .hero-bg-anim {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 120%;
+            height: 120%;
+            background: linear-gradient(45deg, rgba(0, 255, 136, 0.05) 0%, transparent 50%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-family: var(--font-mono);
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            text-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .hero p {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            color: var(--primary);
+            border-right: 2px solid var(--primary);
+            width: fit-content;
+            margin: 0 auto;
+            white-space: nowrap;
+            overflow: hidden;
+            animation: typing 3.5s steps(40, end), blink .75s step-end infinite;
+        }
+
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink { from, to { border-color: transparent } 50% { border-color: var(--primary) } }
+
+        /* --- CONTENT SECTIONS --- */
+        section {
+            padding: 120px 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-inline: 2rem;
+        }
+
+        .section-row {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease-out;
+        }
+
+        .section-row.reveal { opacity: 1; transform: translateY(0); }
+        .section-row.reverse { flex-direction: row-reverse; }
+
+        .section-text { flex: 1; }
+        .section-image {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--primary);
+            background: var(--bg-surface);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+        }
+
+        .section-image img {
+            width: 100%;
+            display: block;
+            filter: grayscale(1) contrast(1.2) brightness(0.8);
+            transition: var(--transition);
+        }
+
+        .section-image:hover img { filter: grayscale(0) brightness(1); transform: scale(1.05); }
+
+        .label {
+            color: var(--primary);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        h2 { font-size: 3rem; margin-bottom: 1.5rem; font-family: var(--font-mono); color: var(--primary); }
+        p { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 1.1rem; }
+
+        /* --- GALLERY --- */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            cursor: pointer;
+            overflow: hidden;
+            border: 1px solid var(--accent-green-dim);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(1);
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover img { filter: grayscale(0); transform: scale(1.1); }
+
+        /* --- LIGHTBOX --- */
+        #lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        #lightbox img { max-width: 100%; max-height: 100%; border: 1px solid var(--primary); box-shadow: 0 0 50px var(--primary-glow); }
+        #lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: var(--primary);
+            font-size: 2rem;
+            cursor: pointer;
+            font-family: var(--font-mono);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #050505;
+            padding: 80px 0 40px;
+            border-top: 1px solid var(--accent-green-dim);
+            margin-top: 100px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            gap: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-col h4 {
+            font-family: var(--font-mono);
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 0.8rem; }
+        .footer-links a { color: var(--text-dim); text-decoration: none; transition: 0.3s; }
+        .footer-links a:hover { color: var(--primary); }
+
+        .newsletter input {
+            background: #111;
+            border: 1px solid var(--accent-green-dim);
+            padding: 0.8rem;
+            color: white;
+            width: 100%;
+            margin-bottom: 1rem;
+            font-family: var(--font-mono);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+            text-decoration: none; /* Ajouté pour les liens */
+            display: inline-block; /* Ajouté pour les liens */
+            text-align: center; /* Ajouté pour les liens */
+        }
+
+        .btn:hover { background: #fff; box-shadow: 0 0 20px var(--primary); }
+
+        .social-icons { display: flex; gap: 1rem; margin-top: 1.5rem; }
+        .social-icons a { 
+            width: 40px; height: 40px; 
+            border: 1px solid var(--accent-green-dim); 
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary); text-decoration: none;
+            transition: 0.3s;
+        }
+        .social-icons a:hover { background: var(--accent-green-dim); border-color: var(--primary); }
+
+        #backToTop {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            width: 50px;
+            height: 50px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 968px) {
+            .section-row, .section-row.reverse { flex-direction: column; text-align: center; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            h2 { font-size: 2.2rem; }
+        }
+
+        @media (max-width: 480px) {
+            .footer-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="lightbox">
+        <span id="lightbox-close">EXIT_</span>
+        <img src="" alt="Full size">
+    </div>
+
+    <button class="nav-toggle" id="navToggle">
+        <span class="line"></span>
+        <span class="line"></span>
+        <span class="line"></span>
+    </button>
+
+    <nav class="nav-overlay" id="navOverlay">
+        <ul class="nav-links">
+            <li><a href="#home" class="mono">01_ROOT</a></li>
+            <li><a href="#about" class="mono">02_SYS_INFO</a></li>
+            <li><a href="#services" class="mono">03_MODULES</a></li>
+            <li><a href="#gallery" class="mono">04_VISUALS</a></li>
+            <li><a href="#contact" class="mono">05_CONNECT</a></li>
+        </ul>
+    </nav>
+
+    <header class="hero" id="home">
+        <div class="hero-bg-anim" id="heroBg"></div>
+        <div class="hero-content">
+            <span class="mono highlight" style="font-size: 0.9rem;">STATUS: INITIALIZING_XYLEM_PROTOCOL...</span>
+            <h1>BUHS</h1>
+            <p>WELCOME INTO THE XYLEM DATABASE</p>
+        </div>
+    </header>
+
+    <main>
+        <section id="about">
+            <div class="section-row">
+                <div class="section-text">
+                    <span class="label">FILE: ABOUT.SYS</span>
+                    <h2>The XYLEM - XYZ Protocol: Engineering Immutable Truth in the Age of Synthetic Media</h2>
+                    <p>As digital decay and synthetic misinformation undermine web integrity, the XYZ Protocol engineers a sovereign pipeline to restore data ground-truth. By merging automated web-harvesting with decentralized Proof of Existence (PoE), this architecture transforms ephemeral web content into permanent, verifiable digital assets. <strong>Harmonic System</strong>,Bridging Web Ingestion and Bitcoin Immutability: A Decentralized Framework for Data Integrity</p>
+                    <p>OTo circumvent the volatility of live web environments, the XYZ Protocol implements a proprietary localized ingestion layer designed for high-fidelity asset recovery. By capturing snapshots in a local buffer, the system decouples the intensive data mining phase from the cryptographic settlement process..</p>
+                    <a href="https://paragraph.com/@bigtree.buhs/" class="btn" target="_blank" style="width: auto;">BUHS on Paragraph.xyz</a>
+                </div>
+                <div class="section-image">
+                    <img src="https://bigtreeconnection.com/buhs/xylem/dashboard.png">
+                </div>
+            </div>
+        </section>
+
+        <section id="services">
+            <div class="section-row reverse">
+                <div class="section-text">
+                    <span class="label">FILE: MODULES.LOG</span>
+                    <h2>System Capabilities</h2>
+                    <p>This is where the protocol moves from simple storage to DeepTech Certification.</p>
+                    <p>We specialize in <strong>Recursive Optimization</strong>Hashing Algorithm: Each file undergoes a SHA-256 cryptographic hash. This creates a unique digital fingerprint. Even changing a single pixel in a photo or a comma in a text file will result in a completely different fingerprint.
+
+Merkle Tree Integration: The OpenTimestamps (OTS) protocol aggregates multiple file hashes into a single Merkle Tree. The root of this tree is then "stamped" onto the Bitcoin blockchain.
+
+Trustless Verification: Because the proof is on the Bitcoin ledger, you do not need a third-party notary. The math proves that the file existed in that exact state at that specific time.</p>
+                    <a href="https://bigtreeconnection.com/buhs/RadarClock/Smart_Clock_Fusion.html" class="btn" target="_blank" style="width: auto;">INITIALIZE LINK</a>
+                </div>
+                <div class="section-image">
+                    <img src="https://bigtreeconnection.com/buhs/xylem/radar.png" alt="Core Modules">
+                </div>
+            </div>
+        </section>
+
+        <section id="gallery">
+            <span class="label">FILE: VISUAL_OUTPUTS.DIR</span>
+            <h2>System Artefacts</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item"><img src="https://bigtreeconnection.com/buhs/xylem/pinata.png" alt="Gallery 1"></div>
+                <div class="gallery-item"><img src="https://bigtreeconnection.com/buhs/xylem/pm2.png" alt="Gallery 2"></div>
+                <div class="gallery-item"><img src="https://bigtreeconnection.com/buhs/xylem/xylem_1772924401362.jpg" alt="Gallery 3"></div>
+                <div class="gallery-item"><img src="https://gateway.pinata.cloud/ipfs/QmXetUDKtLBy3vGFt71fbEksNtYE9HEmt8i9bkrpwqpVyU" alt="Gallery 4"></div>
+                <div class="gallery-item"><img src="https://gateway.pinata.cloud/ipfs/QmVsqrPHG671mhbSFdwHsnPC35t7eexer9J7GNf6Vk2drS" alt="Gallery 5"></div>
+                <div class="gallery-item"><img src="https://gateway.pinata.cloud/ipfs/QmedKW2ekUr81QHS6XRYagqyUcvH1VxCwj4XW6xmfTBm4W" alt="Gallery 6"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contact">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3 class="mono highlight" style="font-size: 1.5rem; margin-bottom: 1rem;">BUHS</h3>
+                <p>Gateway Expansion, Resource allocation (Web2/3), intel Feed (xyz)</p>
+                <div class="social-icons">
+                
+                <a href="https://bigtreeconnection.com/gateway/index.html">GA</a>
+                    
+                    <a href="https://bigtreeconnection.com/gateway/donate-wallet.html">W3</a>
+                    <a href="https://bigtreeconnection.com/gateway/donate.html">W2</a>
+                    <a href="https://paragraph.com/@bigtree.buhs">XYZ</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>DIRECTORY</h4>
+                <ul class="footer-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">Systems</a></li>
+                    <li><a href="#services">Modules</a></li>
+                    <li><a href="#gallery">Artefacts</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>NODES</h4>
+                <ul class="footer-links">
+                    <li><a href="https://bigtreeconnection.com/buhs/RadarClock/Smart_Clock_Fusion.html">BUHS Radar Clock</a></li>
+                    <li><a href="https://bigtreeconnection.com/bubble/BUHS_Earth.html">BUHS Earth</a></li>
+                    <li><a href="https://bigtreeconnection.com/buhs/RadarClock/Bigtree_WorldCam_Explorer.html">BUHS Control Tower</a></li>
+                </ul>
+            </div>
+            <li><a href="registre_index.html" class="btn" target="_blank">CONNECT XYLEM DATABASE</a></li>
+            </div>
+        </div>
+        <div style="text-align: center; padding-top: 50px; opacity: 0.5;" class="mono">
+            &copy; 2026 BIGTREE UNIVERSAL HARMONIC SYSTEM. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+
+    <button id="backToTop" class="mono">UP^</button>
+
+    <script>
+        // --- NAVIGATION LOGIC ---
+        const navToggle = document.getElementById('navToggle');
+        const navOverlay = document.getElementById('navOverlay');
+        const navLinks = document.querySelectorAll('.nav-links a');
+
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.toggle('active');
+            navOverlay.classList.toggle('open');
+            document.body.style.overflow = navOverlay.classList.contains('open') ? 'hidden' : 'auto';
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navToggle.classList.remove('active');
+                navOverlay.classList.remove('open');
+                document.body.style.overflow = 'auto';
+            });
+        });
+
+        // --- SCROLL ANIMATIONS ---
+        const observerOptions = { threshold: 0.2 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('reveal');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section-row').forEach(row => observer.observe(row));
+
+        // --- PARALLAX EFFECT ---
+        const heroBg = document.getElementById('heroBg');
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            heroBg.style.transform = `translateY(${scrolled * 0.3}px) scale(${1 + scrolled * 0.0005})`;
+            
+            const btt = document.getElementById('backToTop');
+            btt.style.display = scrolled > 800 ? 'flex' : 'none';
+        });
+
+        document.getElementById('backToTop').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // --- LIGHTBOX GALLERY ---
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = lightbox.querySelector('img');
+        const galleryItems = document.querySelectorAll('.gallery-item img');
+        const lightboxClose = document.getElementById('lightbox-close');
+
+        galleryItems.forEach(img => {
+            img.addEventListener('click', () => {
+                lightboxImg.src = img.src;
+                lightbox.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        lightboxClose.addEventListener('click', () => {
+            lightbox.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+
+        lightbox.addEventListener('click', (e) => {
+            if(e.target === lightbox) lightboxClose.click();
+        });
+    </script>
+</body>
+</html>
