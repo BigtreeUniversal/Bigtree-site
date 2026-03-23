@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Bigtree World Cam Explorer - Control Tower 2.0</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121931;
+      --text: #e7ecff;
+      --sub: #9fb0ff;
+      --accent: #7aa2ff;
+      --alert: #ff004c;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(1200px 800px at 80% -10%, #14214a 0%, var(--bg) 40%, #080c1a 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* --- ZONE HORLOGE ET NAVIGATION --- */
+    .clock-zone {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      margin: 20px auto 10px;
+      padding: 30px;
+    }
+
+    .clock-frame {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    #sunClock {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 3px solid gold;
+      box-shadow: 0 0 15px rgba(255,215,0,0.5);
+      background: #000 url("clockmap2.jpg") no-repeat center/cover;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    #sunClock::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(
+        circle at var(--sun-x, 50%) var(--sun-y, 50%),
+        rgba(255, 236, 140, 0.55) 0%,
+        rgba(255, 236, 140, 0) 26%
+      );
+      mix-blend-mode: screen;
+      z-index: 1;
+    }
+
+    .corner-btn {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: rgba(18, 25, 49, 0.9);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+      z-index: 10;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .corner-btn:hover { background: var(--accent); color: var(--bg); transform: scale(1.1); }
+
+    .top-left { top: 10px; left: 10px; }
+    .top-right { top: 10px; right: 10px; }
+    .bottom-left { bottom: 10px; left: 10px; border-color: #ff9f00; }
+    .bottom-right { bottom: 10px; right: 10px; border-color: #ff9f00; }
+
+    .hand.hour {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;
+      height: 50%;
+      background: gold;
+      transform-origin: center bottom;
+      z-index: 2;
+    }
+    .hand.hour::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 50%;
+      transform: translate(-50%, 50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: gold;
+      box-shadow: 0 0 15px yellow;
+    }
+
+    /* --- BOUTON CLIGNOTANT 2.0 --- */
+    .btn-alert-2 {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      margin: 10px 0 20px;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #fff;
+      background: linear-gradient(45deg, var(--alert), #ff6b00);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 0 15px rgba(255, 0, 76, 0.4);
+      transition: 0.3s;
+      animation: pulse-glow 1.5s infinite;
+    }
+
+    @keyframes pulse-glow {
+      0% { box-shadow: 0 0 0 0 rgba(255, 0, 76, 0.7); transform: scale(1); }
+      70% { box-shadow: 0 0 0 12px rgba(255, 0, 76, 0); transform: scale(1.03); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 0, 76, 0); transform: scale(1); }
+    }
+
+    .btn-alert-2::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      margin-right: 8px;
+      box-shadow: 0 0 8px #fff;
+      animation: blink-dot 0.6s infinite;
+    }
+
+    @keyframes blink-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    /* --- LECTEUR WEBCAM --- */
+    .viewer-container {
+      width: 100%;
+      max-width: 900px;
+      padding: 10px;
+    }
+    .cam-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      background: #000;
+    }
+    iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      padding: 15px 15px 10px;
+      background: rgba(0,0,0,0.3);
+    }
+    
+    .extra-tools {
+      display: flex;
+      gap: 10px;
+      padding: 0 15px 15px;
+      background: rgba(0,0,0,0.3);
+    }
+    
+    .btn-tool {
+      flex: 1;
+      padding: 10px;
+      font-size: 11px;
+      font-weight: bold;
+      font-family: monospace;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(122, 162, 255, 0.3);
+      border-radius: 6px;
+      color: var(--sub);
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+    }
+    .btn-tool:hover { background: rgba(122, 162, 255, 0.2); border-color: var(--accent); color: #fff; }
+
+    button {
+      padding: 12px 5px;
+      border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: rgba(122,162,255,0.1);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    #autoBtn.active { background: #e62117; }
+    
+    .meta-bar {
+      padding: 12px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #radioStatus { color: #ff9f00; font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+
+  <div class="clock-zone">
+    <a href="https://bigtreeconnection.com/buhs/smartclock/SMARTCLOCK_index.html" class="corner-btn top-left">🌳</a>
+    <a href="Smart_Clock_Fusion.html" class="corner-btn top-right">📡</a>
+    
+    <div class="clock-frame">
+      <div id="sunClock">
+        <div class="hand hour" id="hourHand"></div>
+      </div>
+    </div>
+
+    <div class="corner-btn bottom-left" onclick="radioPrev()">⏮</div>
+    <div class="corner-btn bottom-right" onclick="radioNext()">⏭</div>
+  </div>
+
+  <div id="radioStatus">RADIO : OFF</div>
+
+  <a href="https://bigtreeconnection.com/buhs/RadarClock/control_tower_v2.html" class="btn-alert-2">🔴 NEW VERSION 2.0</a>
+
+  <div class="viewer-container">
+    <div class="cam-card">
+      <div class="video-wrap" id="videoWrapper"></div>
+      
+      <div class="controls">
+        <button onclick="changeCam(-1)">❮ Précédent</button>
+        <button id="autoBtn" onclick="toggleAuto()">AUTO: OFF</button>
+        <button onclick="changeCam(1)">Suivant ❯</button>
+      </div>
+
+      <div class="extra-tools">
+        <button onclick="openJukebox()" class="btn-tool"> OPEN JUKEBOX</button>
+        <a href="https://bigtreeconnection.com/bubble/BUHS_Earth.html" class="btn-tool"> BUHS MAP EARTH</a>
+      </div>
+
+      <div class="meta-bar">
+        <div class="cam-info"><b id="camTitle">Chargement...</b> <br><span id="camLocation">Patientez</span></div>
+        <div id="digitalClock" style="font-family: monospace; color: var(--accent);">00:00:00</div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audioPlayer"></audio>
+
+<script>
+  // 1. GESTION RADIO
+  const radioStations = [
+    { name: "OFF", url: "" },
+    { name: "Reggae Mix Station", url: "https://france1.coollabel-productions.com/proxy/reggaemix340/stream.pls" },
+    { name: "1.FM REGGAE", url: "https://strm112.1.fm/reggae_mobile_mp3" },
+    { name: "LA GROSSE RADIO", url: "https://hd.lagrosseradio.info/lagrosseradio-reggae-192.mp3" },
+    { name: "HEARTICAL FM", url: "https://manager.conceptradio.fr/Hearticalfm" },
+    { name: "Jahfari", url: "https://stream.laut.fm/jahfari" },
+    { name: "FIP REGGAE (Hifi)", url: "https://stream.radiofrance.fr/fipreggae/fipreggae_hifi.m3u8" },
+    { name: "Rastamusic", url: "https://alphaboys-live.streamguys1.com/alphaboys.aac" },
+    { name: "Roots Legacy Dub", url: "https://n.rootslegacy.fr/stream.pls" },
+    { name: "BIG UP", url: "https://stream.laut.fm/big-up" },
+    { name: "Sensi Dancehall", url: "https://sensidancehall.radioca.st/stream.pls" },
+    { name: "Joint Radio Reggae", url: "https://betelgeuse.nucast.co.uk/stream/jrn-reggae" },
+    { name: "112", url: "https://strm112.1.fm/reggae_mobile_mp3" }
+  ];
+  let radioIdx = 0;
+  const audio = document.getElementById('audioPlayer');
+  const rStatus = document.getElementById('radioStatus');
+
+  function updateRadio() {
+    if (radioIdx === 0) {
+      audio.pause();
+      audio.src = "";
+      rStatus.innerText = "RADIO : OFF";
+    } else {
+      const cacheBuster = "?v=" + Date.now();
+      audio.src = radioStations[radioIdx].url + cacheBuster;
+      audio.play().then(() => {
+        rStatus.innerText = "📻 " + radioStations[radioIdx].name;
+      }).catch((e) => {
+        rStatus.innerText = "CLIQUEZ POUR ACTIVER";
+      });
+    }
+  }
+  function radioNext() { radioIdx = (radioIdx + 1) % radioStations.length; updateRadio(); }
+  function radioPrev() { radioIdx = (radioIdx - 1 + radioStations.length) % radioStations.length; updateRadio(); }
+
+  // 2. JUKEBOX
+  let jukeboxWindow = null;
+  function openJukebox() {
+    radioIdx = 0; updateRadio();
+    const url = "https://bigtreeconnection.com/jukebox/index.html";
+    const features = "width=450,height=700,menubar=no,toolbar=no,location=no,status=no";
+    if (jukeboxWindow && !jukeboxWindow.closed) jukeboxWindow.focus();
+    else jukeboxWindow = window.open(url, "BuhsJukebox", features);
+  }
+
+  // 3. HORLOGE 24H
+  function updateClock() {
+    const now = new Date();
+    const h = now.getUTCHours();
+    const m = now.getUTCMinutes();
+    const hoursFloat = (h % 24) + m/60;
+    const hourDeg = hoursFloat * 15;
+    document.getElementById("hourHand").style.transform = `translate(-50%, -100%) rotate(${hourDeg}deg)`;
+    const theta = hourDeg * Math.PI / 180;
+    const x = 50 + Math.sin(theta) * 25;
+    const y = 50 - Math.cos(theta) * 25;
+    const clockEl = document.getElementById("sunClock");
+    clockEl.style.setProperty("--sun-x", x + "%");
+    clockEl.style.setProperty("--sun-y", y + "%");
+    document.getElementById('digitalClock').innerText = now.toLocaleTimeString();
+  }
+  setInterval(updateClock, 1000);
+
+  // 4. WEBCAMS
+  const cams = [
+    { id: "K_FOP7_wGPE", title: "The Windmill Bar", loc: "St.John, USVI" },
+    { id: "pwlA66hgV3M", title: "Kingston Harbour LIVE 24/7 ", loc: "Jamaica 🇯🇲" },
+    { id: "0ImA9IcyQwA", title: "Mermaid Boat Trips 🌴💦☀️ ", loc: "Curaçao" },
+    { id: "cWR8KGKftUw", title: "Statue of Liberty", loc: "New York, NY" },
+    { id: "2_PDaUJbfuI", title: "SUMMIT One Vanderbilt", loc: "New York City, NY" },
+    { id: "YEAhxXd-TiY", title: "Anglins Pier", loc: "Lauderdale-By-The-Sea, FL" },
+    { id: "skM8DTCx3gM", title: "Fort Myers Beach", loc: "Fort Myers, FL" },
+    { id: "O0UGT7AT3aw", title: "Chicago Skydeck", loc: "Chicago, IL" },
+    { id: "qx7gry390YA", title: "Niagara Falls", loc: "Canada / USA" },
+    { id: "iHqqkh_Lths", title: "Terminal Tower Cam", loc: "Cleveland, OH" },
+    { id: "rxyNjFKwzJA", title: "Vancouver Live Cam Cruise Shipsl", loc: "Vancouver" },
+    { id: "_rmUXOHSf0w", title: "Allegiant Stadium", loc: "Las Vegas, NV" },
+    { id: "FLoSUN_Vrz4", title: "Vollmer Peak", loc: "California" },
+    { id: "BSWhGNXxT9A", title: "Mersea Restaurant Bay View", loc: "San Francisco" },
+    { id: "CXYr04BWvmc", title: "Oakland Bay Bridge", loc: "San Francisco" },
+    { id: "EO_1LWqsCNE", title: "Venice Beach · Venice V Hotel ", loc: "Los Angeles " },
+    { id: "cvP_F-c2Upw", title: "The Rooftop Bar | Oceanside, CA |", loc: "San Diego" },
+    { id: "X0idnu7HUmI", title: "LIVE Sheraton Waikiki ", loc: "Hawaii" },
+    { id: "6IaMqotNF_s", title: "24/7 Kilauea Volcano Livestream", loc: "Hawai" },
+    { id: "Ql7graq0I9M", title: "Sky Tower and Auckland Harbour", loc: "New Zealand" },
+    { id: "5uZa3-RMFos", title: "Harbour 24/7", loc: "Sydney" },
+    { id: "_k-5U7IeK8g", title: "Tokyo Live Camera", loc: "Tokyo Japan" },
+    { id: "ZopiySgQjsc", title: "Live Cam I", loc: "Seoul" },
+    { id: "uHdl_9hsHqw", title: "Live Cam Haeundae Busan", loc: "Korea" },
+    { id: "-JhoMGoAfFc", title: "Hangang Live Cam", loc: "Seoul Korea" },
+    { id: "FBYUkqutqzE", title: "Beach of Sanskara ·", loc: "SKoh Phangan, Thailand" },
+    { id: "ydYDqZQpim8", title: "African Desert", loc: "Namibia" },
+    { id: "qpukdDslCjk", title: "24/7 Safari Cam", loc: "Africa" },
+    { id: "pMhXWpyUhsk", title: "Clifton 4th beach Cape Town", loc: "South Africa" },
+    { id: "qJ3D5vhIK6k", title: "Iceberg Cam of Ilulissat", loc: "Greenland" },
+    { id: "AvKdtZIb-6c", title: "Aurora Alert Realtime Live", loc: "North Pole" },
+    { id: "bOEvPL206Hc", title: "Glass Igloo Hotel", loc: "Finland" },
+    { id: "dFBRpHHwQeg", title: "Basin in Live Streaming", loc: "Venise" },
+    { id: "lNAhqd8JLtw", title: "Sacré-Coeur de Montmartre", loc: "Paris" },
+    { id: "OzYp4NRZlwQ", title: "Vue Tour Eiffel", loc: "Paris" },
+    { id: "PMhVgTcDd1o", title: "Tamariu Beach", loc: "Spain" },
+    { id: "RV2Iu0wbgec", title: "Los Bolichos Beach ", loc: "Costa del Sol - SPAIN" },
+    { id: "Pgjsoeq7iGM", title: "🌞Webcam Santa Ponsa Beach 4K UHD 24/7", loc: "Mallorca" },
+    { id: "BuL1tgahkXM", title: "Webcam Live @ Ponta do Sol - Madeira", loc: "Madeira" },
+    { id: "AfD16cDYBbE", title: "PUERTO del CARMEN BEACH ", loc: "Lanzarote, Canary Islands" },
+    { id: "tYgGEC-ESTw", title: "Reykjavik, Iceland LIVE", loc: "Reykjavik, Iceland" },
+    { id: "cjOvxxDq36A", title: "ITAPEMA SC AO VIVO | – BLUE SEA HOTEL  ", loc: "Brasil" },
+    { id: "2u4GnVNtlsY", title: "BEACH LIVE 24/7 🌊 Villa Gesell", loc: "ARGENTINA" }
+  ];
+  let index = 0;
+  let autoTimer = null;
+
+  function updateDisplay() {
+    const cam = cams[index];
+    document.getElementById('videoWrapper').innerHTML = `<iframe src="https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    document.getElementById('camTitle').innerText = cam.title;
+    document.getElementById('camLocation').innerText = cam.loc;
+  }
+  function changeCam(dir) { index = (index + dir + cams.length) % cams.length; updateDisplay(); }
+  function toggleAuto() {
+    const btn = document.getElementById('autoBtn');
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; btn.innerText = "AUTO: OFF"; btn.classList.remove('active'); }
+    else { btn.innerText = "AUTO: ON"; btn.classList.add('active'); autoTimer = setInterval(() => changeCam(1), 30000); }
+  }
+
+  updateDisplay();
+  updateClock();
+</script>
+</body>
+</html>
