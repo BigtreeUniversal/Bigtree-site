@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Bigtree Control Tower - World Explorer Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-black: #050505;
+      --card-dark: #0d0d0d;
+      --accent-copper: #b87333;
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .main-station {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* --- SECTION HORLOGE & RADIO (MODIFIÉE) --- */
+    .top-panel {
+      background: var(--card-dark);
+      border: 1px solid var(--glass-border);
+      border-radius: 40px;
+      padding: 30px;
+      display: grid;
+      /* Ajustement des colonnes pour laisser place à la grande horloge centrale */
+      grid-template-columns: 1fr 2fr 1fr;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+    }
+
+    /* Centre (Horloge et Heure Digitale) */
+    .center-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .clock-wrapper {
+      position: relative;
+      /* TAILLE AGRANDIE DE L'HORLOGE CIRCULAIRE */
+      width: 360px; height: 360px;
+      margin: 0 auto;
+    }
+
+    #sunClock {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border: 10px solid #1a1a1a; /* Bordure plus épaisse */
+      background: #000 url("clockmap2.jpg") no-repeat center/cover;
+      position: relative; overflow: hidden;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
+    }
+
+    .hand.hour {
+      position: absolute; top: 50%; left: 50%;
+      width: 5px; height: 45%; /* Aiguille plus épaisse */
+      background: linear-gradient(to top, var(--accent-copper), #fff);
+      transform-origin: center bottom;
+      border-radius: 10px; z-index: 5;
+    }
+
+    /* TAILLE RÉDUITE DE L'HEURE DIGITALE */
+    #digitalClock {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; /* Plus petit */
+      color: #666; /* Couleur plus discrète */
+      letter-spacing: 2px;
+      margin-top: -5px;
+    }
+
+    /* Liens de navigation (Smart, Jukebox, Earth) */
+    .nav-links {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-tool {
+      text-decoration: none;
+      font-size: 0.6rem;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 1px solid #222;
+      padding: 4px 12px;
+      border-radius: 15px;
+      transition: 0.3s;
+    }
+    .btn-tool:hover { color: var(--accent-copper); border-color: var(--accent-copper); }
+
+    /* Contrôle Radio (Côté) */
+    .radio-control {
+      text-align: center;
+      background: rgba(255,255,255,0.01);
+      padding: 15px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    /* --- SECTION WEBCAM (INCHANGÉE) --- */
+    .video-section {
+      background: #000;
+      border: 1px solid var(--glass-border);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.7);
+    }
+
+    .iframe-container {
+      position: relative;
+      width: 100%; padding-top: 56.25%;
+    }
+
+    iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+    .cam-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.8) 100%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .video-section:hover .cam-overlay { opacity: 1; pointer-events: auto; }
+
+    .cam-meta h2 { font-family: 'Bebas Neue'; font-size: 2.2rem; color: #fff; }
+    .cam-meta p { color: var(--accent-copper); font-size: 0.9rem; text-transform: uppercase; font-weight: 600; }
+
+    /* --- BOUTONS --- */
+    .btn-row { display: flex; justify-content: center; gap: 15px; align-items: center; }
+
+    .btn-retro {
+      background: linear-gradient(145deg, #1e1e1e, #111111);
+      border: 1px solid #2a2a2a;
+      color: #888;
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition);
+      font-weight: bold;
+    }
+
+    .btn-retro:hover { color: #fff; border-color: var(--accent-copper); transform: translateY(-2px); }
+
+    .btn-main { 
+      width: 65px; height: 65px; 
+      font-family: 'Bebas Neue', sans-serif; 
+      font-size: 1.2rem; 
+      color: var(--accent-copper); 
+    }
+
+    .active { background: var(--accent-copper) !important; color: #fff !important; box-shadow: 0 0 20px rgba(184, 115, 51, 0.4); }
+
+    /* Effet Soleil (Ajusté pour la grande horloge) */
+    #sunClock::after {
+      content: ""; position: absolute;
+      width: 45px; height: 45px; /* Plus grand */
+      background: radial-gradient(circle, rgba(255,236,140,0.6) 0%, transparent 70%);
+      left: var(--sun-x, 50%); top: var(--sun-y, 50%);
+      transform: translate(-50%, -50%);
+      mix-blend-mode: screen;
+    }
+
+    @media (max-width: 950px) {
+      .top-panel { grid-template-columns: 1fr; padding: 20px; }
+      .clock-wrapper { width: 280px; height: 280px; } /* Ajustement responsive */
+      .center-info { order: -1; } /* L'horloge passe en premier sur mobile */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-station">
+    
+    <div class="top-panel">
+      <div class="left-nav">
+        <div class="nav-links">
+           <a href="https://bigtreeconnection.com/buhs/smartclock/SMARTCLOCK_index.html" class="btn-tool">🌳 Smart</a>
+           <a href="#" onclick="openJukebox()" class="btn-tool">🎵 Jukebox</a>
+           <a href="https://bigtreeconnection.com/bubble/BUHS_Earth.html" class="btn-tool">🌍 Earth</a>
+        </div>
+      </div>
+
+      <div class="center-info">
+        <div class="clock-wrapper">
+          <div id="sunClock">
+            <div class="hand hour" id="hourHand"></div>
+          </div>
+        </div>
+        <div id="digitalClock">00:00:00</div>
+      </div>
+
+      <div class="radio-control">
+        <div id="radioName" style="font-size: 0.7rem; color: #b87333; margin-bottom: 8px; font-weight: bold; font-family: monospace;">RADIO: OFF</div>
+        <div class="btn-row">
+          <button class="btn-retro" onclick="radioPrev()">⏮</button>
+          <button class="btn-retro btn-main" id="radioPlay" onclick="toggleRadio()">▶</button>
+          <button class="btn-retro" onclick="radioNext()">⏭</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="video-section">
+      <div class="iframe-container" id="videoWrapper"></div>
+      
+      <div class="cam-overlay">
+        <div class="cam-header">
+          <div class="cam-meta">
+            <h2 id="camTitle">Chargement...</h2>
+            <p id="camLocation">Localisation</p>
+          </div>
+        </div>
+
+        <div class="cam-footer">
+          <div class="btn-row" style="width: 100%; justify-content: space-between;">
+            <button class="btn-retro" onclick="changeCam(-1)">❮ PREV</button>
+            <button class="btn-retro btn-main" id="autoBtn" onclick="toggleAuto()">AUTO</button>
+            <button class="btn-retro" onclick="changeCam(1)">NEXT ❯</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <audio id="audioPlayer"></audio>
+
+<script>
+  // --- DATA WEBCAMS (Inchangée) ---
+  const cams = [
+    { id: "K_FOP7_wGPE", title: "The Windmill Bar", loc: "St.John, USVI" },
+    { id: "pwlA66hgV3M", title: "Kingston Harbour", loc: "Jamaica 🇯🇲" },
+    { id: "0ImA9IcyQwA", title: "Mermaid Boat Trips", loc: "Curaçao" },
+    { id: "cWR8KGKftUw", title: "Statue of Liberty", loc: "New York, NY" },
+    { id: "2_PDaUJbfuI", title: "SUMMIT One Vanderbilt", loc: "New York City, NY" },
+    { id: "YEAhxXd-TiY", title: "Anglins Pier", loc: "Lauderdale-By-The-Sea, FL" },
+    { id: "skM8DTCx3gM", title: "Fort Myers Beach", loc: "Fort Myers, FL" },
+    { id: "O0UGT7AT3aw", title: "Chicago Skydeck", loc: "Chicago, IL" },
+    { id: "qx7gry390YA", title: "Niagara Falls", loc: "Canada / USA" },
+    { id: "iHqqkh_Lths", title: "Terminal Tower Cam", loc: "Cleveland, OH" },
+    { id: "rxyNjFKwzJA", title: "Vancouver Cruise Ships", loc: "Vancouver" },
+    { id: "_rmUXOHSf0w", title: "Allegiant Stadium", loc: "Las Vegas, NV" },
+    { id: "FLoSUN_Vrz4", title: "Vollmer Peak", loc: "California" },
+    { id: "BSWhGNXxT9A", title: "Mersea Restaurant", loc: "San Francisco" },
+    { id: "CXYr04BWvmc", title: "Oakland Bay Bridge", loc: "San Francisco" },
+    { id: "EO_1LWqsCNE", title: "Venice Beach", loc: "Los Angeles " },
+    { id: "cvP_F-c2Upw", title: "The Rooftop Bar", loc: "San Diego" },
+    { id: "X0idnu7HUmI", title: "Waikiki Beach", loc: "Hawaii" },
+    { id: "6IaMqotNF_s", title: "Kilauea Volcano", loc: "Hawai" },
+    { id: "Ql7graq0I9M", title: "Auckland Harbour", loc: "New Zealand" },
+    { id: "5uZa3-RMFos", title: "Sydney Harbour", loc: "Australia" },
+    { id: "_k-5U7IeK8g", title: "Tokyo City Cam", loc: "Japan" },
+    { id: "ZopiySgQjsc", title: "Seoul District", loc: "South Korea" },
+    { id: "uHdl_9hsHqw", title: "Busan Beach", loc: "Korea" },
+    { id: "FBYUkqutqzE", title: "Sanskara Beach", loc: "Koh Phangan, Thailand" },
+    { id: "ydYDqZQpim8", title: "African Desert", loc: "Namibia" },
+    { id: "qpukdDslCjk", title: "Safari Cam 24/7", loc: "Africa" },
+    { id: "pMhXWpyUhsk", title: "Cape Town Beach", loc: "South Africa" },
+    { id: "qJ3D5vhIK6k", title: "Ilulissat Icebergs", loc: "Greenland" },
+    { id: "AvKdtZIb-6c", title: "Aurora Realtime", loc: "North Pole" },
+    { id: "bOEvPL206Hc", title: "Glass Igloo Hotel", loc: "Finland" },
+    { id: "dFBRpHHwQeg", title: "Venice Canal", loc: "Italy" },
+    { id: "lNAhqd8JLtw", title: "Sacré-Coeur", loc: "Paris, France" },
+    { id: "OzYp4NRZlwQ", title: "Tour Eiffel View", loc: "Paris, France" },
+    { id: "PMhVgTcDd1o", title: "Tamariu Beach", loc: "Spain" },
+    { id: "RV2Iu0wbgec", title: "Los Bolichos", loc: "Spain" },
+    { id: "Pgjsoeq7iGM", title: "Santa Ponsa", loc: "Mallorca" },
+    { id: "BuL1tgahkXM", title: "Ponta do Sol", loc: "Madeira" },
+    { id: "AfD16cDYBbE", title: "Puerto del Carmen", loc: "Canary Islands" },
+    { id: "tYgGEC-ESTw", title: "Reykjavik Live", loc: "Iceland" },
+    { id: "cjOvxxDq36A", title: "Itapema Beach", loc: "Brasil" },
+    { id: "2u4GnVNtlsY", title: "Villa Gesell", loc: "Argentina" }
+  ];
+
+  // --- RADIO DATA (Inchangée) ---
+  const radioStations = [
+    { name: "OFF", url: "" },
+    { name: "Reggae Mix Station", url: "https://france1.coollabel-productions.com/proxy/reggaemix340/stream.pls" },
+    { name: "1.FM REGGAE", url: "https://strm112.1.fm/reggae_mobile_mp3" },
+    { name: "LA GROSSE RADIO", url: "https://hd.lagrosseradio.info/lagrosseradio-reggae-192.mp3" },
+    { name: "HEARTICAL FM", url: "https://manager.conceptradio.fr/Hearticalfm" },
+    { name: "Jahfari", url: "https://stream.laut.fm/jahfari" },
+    { name: "FIP REGGAE", url: "https://stream.radiofrance.fr/fipreggae/fipreggae_hifi.m3u8" },
+    { name: "Rastamusic", url: "https://alphaboys-live.streamguys1.com/alphaboys.aac" },
+    { name: "Roots Legacy Dub", url: "https://n.rootslegacy.fr/stream.pls" }
+  ];
+
+  let camIdx = 0;
+  let radIdx = 0;
+  let autoTimer = null;
+  let isPlaying = false;
+  const audio = document.getElementById('audioPlayer');
+
+  // --- FONCTIONS WEBCAM ---
+  function updateDisplay() {
+    const cam = cams[camIdx];
+    // controls=0 cache l'interface YouTube par défaut pour un look épuré
+    document.getElementById('videoWrapper').innerHTML = `<iframe src="https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1&rel=0&controls=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    document.getElementById('camTitle').innerText = cam.title;
+    document.getElementById('camLocation').innerText = cam.loc;
+  }
+  function changeCam(dir) { camIdx = (camIdx + dir + cams.length) % cams.length; updateDisplay(); }
+  function toggleAuto() {
+    const btn = document.getElementById('autoBtn');
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; btn.classList.remove('active'); }
+    else { autoTimer = setInterval(() => changeCam(1), 30000); btn.classList.add('active'); changeCam(1); }
+  }
+
+  // --- FONCTIONS RADIO ---
+  function toggleRadio() {
+    const btn = document.getElementById('radioPlay');
+    if (!isPlaying && radIdx !== 0) {
+      audio.src = radioStations[radIdx].url;
+      audio.play().catch(e => console.log("Unlock required"));
+      btn.innerText = "■";
+      btn.classList.add('active');
+      document.getElementById('radioName').innerText = "📻 " + radioStations[radIdx].name;
+      isPlaying = true;
+    } else {
+      audio.pause();
+      btn.innerText = "▶";
+      btn.classList.remove('active');
+      document.getElementById('radioName').innerText = "RADIO: OFF";
+      isPlaying = false;
+    }
+  }
+  function radioNext() { radIdx = (radIdx + 1) % radioStations.length; if(isPlaying) { isPlaying=false; toggleRadio(); } else { document.getElementById('radioName').innerText = "READY: " + radioStations[radIdx].name; }}
+  function radioPrev() { radIdx = (radIdx - 1 + radioStations.length) % radioStations.length; if(isPlaying) { isPlaying=false; toggleRadio(); } else { document.getElementById('radioName').innerText = "READY: " + radioStations[radIdx].name; }}
+
+  // --- HORLOGE & SOLEIL ---
+  function updateClock() {
+    const now = new Date();
+    const h = now.getUTCHours();
+    const m = now.getUTCMinutes();
+    const s = now.getUTCSeconds();
+    
+    // Position 24h
+    const hourDeg = ((h % 24) + m/60) * 15;
+    document.getElementById("hourHand").style.transform = `translate(-50%, -100%) rotate(${hourDeg}deg)`;
+    
+    // Position du reflet solaire (ajustée pour la grande horloge)
+    const theta = hourDeg * Math.PI / 180;
+    const x = 50 + Math.sin(theta) * 38;
+    const y = 50 - Math.cos(theta) * 38;
+    document.getElementById("sunClock").style.setProperty("--sun-x", x + "%");
+    document.getElementById("sunClock").style.setProperty("--sun-y", y + "%");
+    
+    const pad = v => v.toString().padStart(2, '0');
+    // Affiche l'heure locale
+    document.getElementById('digitalClock').innerText = `${pad(now.getHours())}:${pad(m)}:${pad(s)}`;
+  }
+
+  function openJukebox() {
+    window.open("https://bigtreeconnection.com/jukebox/index.html", "BuhsJukebox", "width=450,height=700");
+  }
+
+  // Init
+  setInterval(updateClock, 1000);
+  updateClock();
+  updateDisplay();
+</script>
+</body>
+</html>
