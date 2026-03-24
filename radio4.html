@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIGTREE RADIO | Live Stream</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --accent: #b87333;
+            --text: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; justify-content: center;
+            height: 100vh; overflow: hidden;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+        }
+
+        .radio-card {
+            background: var(--card-bg);
+            width: 320px; padding: 30px; border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .radio-visual {
+            width: 160px; height: 160px; margin: 0 auto 25px;
+            border-radius: 30px;
+            background: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=400') center/cover;
+            border: 2px solid var(--accent);
+            position: relative; overflow: hidden;
+        }
+
+        .visual-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: 0.3s;
+        }
+        .playing .visual-overlay { opacity: 1; }
+
+        .wave {
+            width: 4px; height: 15px; background: var(--accent); margin: 0 2px;
+            animation: wave 1s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { height: 10px; }
+            50% { height: 35px; }
+        }
+
+        h1 { font-family: 'Bebas Neue'; font-size: 2rem; color: #fff; margin-bottom: 5px; }
+        p { color: var(--accent); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 25px; }
+
+        .btn-play {
+            width: 70px; height: 70px; border-radius: 50%;
+            background: var(--accent); border: none; color: white;
+            font-size: 1.2rem; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto;
+        }
+        .btn-play:hover { transform: scale(1.05); }
+
+        .status { margin-top: 20px; font-size: 0.65rem; color: #555; font-family: monospace; text-transform: uppercase; }
+
+        .close-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #444; cursor: pointer; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <div class="radio-card" id="playerContainer">
+        <button class="close-btn" onclick="window.close()">×</button>
+        
+        <div class="radio-visual" id="visual">
+            <div class="visual-overlay">
+                <div class="wave" style="animation-delay: 0.1s"></div>
+                <div class="wave" style="animation-delay: 0.3s"></div>
+                <div class="wave" style="animation-delay: 0.2s"></div>
+            </div>
+        </div>
+
+        <h1>BIGTREE RADIO</h1>
+        <p>Live Streaming</p>
+
+        <button class="btn-play" id="playBtn" onclick="toggleRadio()">▶</button>
+
+        <div class="status" id="status">SYSTÈME PRÊT</div>
+    </div>
+
+    <audio id="radioAudio" crossorigin="anonymous">
+        <source src="https://api.allorigins.win/raw?url=http://83.228.222.219:8000/stream" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const audio = document.getElementById('radioAudio');
+        const playBtn = document.getElementById('playBtn');
+        const container = document.getElementById('playerContainer');
+        const status = document.getElementById('status');
+        let isPlaying = false;
+
+        function toggleRadio() {
+            if (!isPlaying) {
+                status.textContent = "CHARGEMENT DU FLUX HTTPS...";
+                
+                // On réinitialise la source pour être sûr d'être au direct
+                audio.load(); 
+                
+                audio.play()
+                .then(() => {
+                    isPlaying = true;
+                    playBtn.textContent = "■";
+                    container.classList.add('playing');
+                    status.textContent = "EN DIRECT - BIGTREE FM";
+                })
+                .catch(err => {
+                    status.textContent = "ERREUR: BLOCAGE NAVIGATEUR";
+                    console.error("Erreur de lecture : ", err);
+                });
+            } else {
+                audio.pause();
+                isPlaying = false;
+                playBtn.textContent = "▶";
+                container.classList.remove('playing');
+                status.textContent = "PAUSE";
+            }
+        }
+    </script>
+</body>
+</html>
