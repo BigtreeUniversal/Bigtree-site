@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIGTREE RADIO | Live Stream</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --accent: #b87333; /* Ton cuivre Control Tower */
+            --text: #e0e0e0;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+        }
+
+        /* --- RADIO CARD --- */
+        .radio-card {
+            background: var(--card-bg);
+            width: 320px;
+            padding: 30px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .radio-visual {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 25px;
+            border-radius: 30px;
+            background: url('logo.webp') center/cover;
+            border: 2px solid var(--accent);
+            box-shadow: 0 10px 30px rgba(184, 115, 51, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animation quand ça joue */
+        .visual-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: 0.3s;
+        }
+        .playing .visual-overlay { opacity: 1; }
+
+        .wave {
+            width: 4px; height: 20px; background: var(--accent); margin: 0 2px;
+            animation: wave 1s ease-in-out infinite; display: none;
+        }
+        .playing .wave { display: block; }
+        .wave:nth-child(2) { animation-delay: 0.2s; }
+        .wave:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes wave {
+            0%, 100% { height: 10; }
+            50% { height: 40px; }
+        }
+
+        h1 { font-family: 'Bebas Neue'; font-size: 2.2rem; letter-spacing: 2px; color: #fff; margin-bottom: 5px; }
+        p { color: var(--accent); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 3px; font-weight: 600; margin-bottom: 30px; }
+
+        /* --- CONTROLS --- */
+        .btn-play {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 10px 20px rgba(184, 115, 51, 0.3);
+        }
+
+        .btn-play:hover { transform: scale(1.1); filter: brightness(1.1); }
+        .btn-play:active { transform: scale(0.95); }
+
+        .status {
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: #555;
+            font-family: monospace;
+        }
+
+        /* Bouton Fermer pour le pop-up */
+        .close-btn {
+            position: absolute; top: 15px; right: 20px;
+            background: none; border: none; color: #444;
+            font-size: 1.2rem; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="radio-card" id="playerContainer">
+        <button class="close-btn" onclick="window.close()">×</button>
+        
+        <div class="radio-visual" id="visual">
+            <div class="visual-overlay">
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+            </div>
+        </div>
+
+        <h1>BIGTREE RADIO</h1>
+        <p>Live Stream</p>
+
+        <button class="btn-play" id="playBtn" onclick="toggleRadio()">▶</button>
+
+        <div class="status" id="status">SYSTÈME PRÊT</div>
+    </div>
+
+    <audio id="radioAudio" preload="none">
+        <source src="http://83.228.222.219:8000/stream" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const audio = document.getElementById('radioAudio');
+        const playBtn = document.getElementById('playBtn');
+        const container = document.getElementById('playerContainer');
+        const status = document.getElementById('status');
+        let isPlaying = false;
+
+        function toggleRadio() {
+            if (!isPlaying) {
+                // Tentative de lecture
+                status.textContent = "CONNEXION AU FLUX...";
+                audio.play()
+                .then(() => {
+                    isPlaying = true;
+                    playBtn.textContent = "■";
+                    container.classList.add('playing');
+                    status.textContent = "EN DIRECT - 8000/STREAM";
+                })
+                .catch(error => {
+                    console.error("Erreur de lecture:", error);
+                    status.textContent = "ERREUR: VÉRIFIEZ LE FLUX HTTP";
+                });
+            } else {
+                audio.pause();
+                // On "reset" la source pour ne pas accumuler de retard sur le direct
+                audio.src = audio.src; 
+                isPlaying = false;
+                playBtn.textContent = "▶";
+                container.classList.remove('playing');
+                status.textContent = "PAUSE";
+            }
+        }
+
+        // Gestion de la fenêtre Pop-up : 
+        // Pour ouvrir cette page depuis la Control Tower ou le Jukebox :
+        // window.open('radio.html', 'BigTreeRadio', 'width=380,height=550');
+    </script>
+</body>
+</html>
