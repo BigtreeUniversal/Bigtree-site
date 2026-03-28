@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS SMARTCLOCK | Azimuthal Projection</title>
+    <meta name="description" content="Precision temporal monitoring via Azimuthal Projection. The future of time management for the digital elite.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-black: #0a0a0a;
+            --card-gray: #1a1a1a;
+            --border-soft: #2a2a2a;
+            --text-white: #e0e0e0;
+            --accent-cyan: #00f2ff; /* Subtle Cyber highlight */
+            --accent-dim: #004b4f;
+            --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --spacing-lg: 120px;
+        }
+
+        /* --- Reset & Base --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            background-color: var(--bg-black);
+            color: var(--text-white);
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .syncopate {
+            font-family: 'Syncopate', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+        /* --- Navigation --- */
+        .nav-trigger {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 2000;
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--border-soft);
+            padding: 15px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 2px;
+            background: var(--text-white);
+            display: block;
+            position: relative;
+            transition: var(--transition-smooth);
+        }
+
+        .hamburger::before, .hamburger::after {
+            content: '';
+            width: 25px;
+            height: 2px;
+            background: var(--text-white);
+            position: absolute;
+            left: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .hamburger::before { top: -8px; }
+        .hamburger::after { bottom: -8px; }
+
+        .nav-trigger.active .hamburger { background: transparent; }
+        .nav-trigger.active .hamburger::before { transform: rotate(45deg); top: 0; }
+        .nav-trigger.active .hamburger::after { transform: rotate(-45deg); top: 0; }
+
+        .full-nav {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-black);
+            z-index: 1500;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            transform: translateX(100%);
+            transition: var(--transition-smooth);
+        }
+
+        .full-nav.active { transform: translateX(0); }
+        .full-nav a {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2rem;
+            color: var(--text-white);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            opacity: 0.5;
+        }
+
+        .full-nav a:hover { opacity: 1; color: var(--accent-cyan); letter-spacing: 10px; }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, rgba(10,10,10,0.4), var(--bg-black)), 
+                        url('flat.png') center/cover;
+        }
+
+        .hero-content { z-index: 10; max-width: 800px; padding: 20px; }
+        .hero h1 { font-size: clamp(2.5rem, 8vw, 5rem); margin-bottom: 20px; line-height: 1.1; }
+        .hero p { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 5px; color: var(--accent-cyan); }
+
+        /* --- Parallax & Content --- */
+        section { padding: var(--spacing-lg) 0; position: relative; }
+
+        .split-row {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .split-row.reverse { flex-direction: row-reverse; }
+
+        .content-box { flex: 1; }
+        .content-box h2 { font-size: 2.5rem; margin-bottom: 25px; color: var(--text-white); }
+        .content-box p { color: #888; font-size: 1.1rem; margin-bottom: 30px; }
+
+        /* --- Stats --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            background: var(--card-gray);
+            padding: 60px;
+            border: 1px solid var(--border-soft);
+        }
+
+        .stat-item { text-align: center; }
+        .stat-item .number { font-size: 3rem; font-weight: 700; color: var(--accent-cyan); display: block; }
+        .stat-item .label { font-size: 0.9rem; text-transform: uppercase; color: #555; }
+
+        /* --- Pricing --- */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .price-card {
+            background: var(--card-gray);
+            padding: 50px;
+            border: 1px solid var(--border-soft);
+            transition: var(--transition-smooth);
+            text-align: center;
+        }
+
+        .price-card:hover { border-color: var(--accent-cyan); transform: translateY(-10px); }
+        .price-card h3 { margin-bottom: 20px; }
+        .price-card .cost { font-size: 3.5rem; font-weight: 700; margin-bottom: 30px; }
+        .price-card .cost span { font-size: 1rem; color: #555; }
+
+        /* --- FAQ Accordion --- */
+        .faq-item {
+            background: var(--card-gray);
+            border: 1px solid var(--border-soft);
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            color: #888;
+            padding: 0 25px;
+        }
+
+        .faq-item.active .faq-answer { max-height: 200px; padding-bottom: 25px; }
+
+        /* --- Buttons --- */
+        .cta-btn {
+            background: var(--accent-cyan);
+            color: var(--bg-black);
+            padding: 18px 40px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            transition: var(--transition-smooth);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-btn:hover { background: #fff; box-shadow: 0 0 20px var(--accent-cyan); }
+
+        .sticky-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 1000;
+            display: none;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: #050505;
+            padding: 80px 0 40px;
+            border-top: 1px solid var(--border-soft);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            gap: 60px;
+            margin-bottom: 80px;
+        }
+
+        .footer-col h4 { margin-bottom: 25px; color: var(--accent-cyan); font-size: 0.8rem; }
+        .footer-col a { display: block; color: #666; text-decoration: none; margin-bottom: 12px; transition: 0.3s; }
+        .footer-col a:hover { color: var(--accent-cyan); }
+
+        .newsletter input {
+            width: 100%;
+            background: var(--card-gray);
+            border: 1px solid var(--border-soft);
+            padding: 15px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .footer-bottom {
+            padding-top: 40px;
+            border-top: 1px solid var(--border-soft);
+            display: flex;
+            justify-content: space-between;
+            color: #444;
+            font-size: 0.8rem;
+        }
+
+        /* --- Animations --- */
+        .reveal { opacity: 0; transform: translateY(50px); transition: var(--transition-smooth); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* --- Responsive --- */
+        @media (max-width: 992px) {
+            .split-row, .split-row.reverse { flex-direction: column; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-trigger" id="navTrigger">
+        <span class="hamburger"></span>
+    </div>
+    <nav class="full-nav" id="fullNav">
+        <a href="#hero" onclick="closeNav()">// HOME</a>
+        <a href="https://bigtreeconnection.com/buhs/smartclock/SMARTCLOCK_index.html" onclick="closeNav()">// SYNC</a>
+        <a href="https://bigtreeconnection.com/buhs/xylem/xylem_index.html" onclick="closeNav()">// DATA</a>
+        <a href="https://bigtreeconnection.com/buhs/RadarClock/Bigtree_WorldCam_Explorer.html" onclick="closeNav()">// LIVE</a>
+        <a href="https://bigtreeconnection.com/buhs/RadarClock/aide.html" onclick="closeNav()">// HELP</a>
+    </nav>
+
+    <a href="#pricing" class="cta-btn sticky-btn" id="stickyCta">GET_SYNC</a>
+
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <p>// AZIMUTHAL_PROJECTION</p>
+            <h1>BUHS EARTH</h1>
+            <a href="https://bigtreeconnection.com/bubble/BUHS_Earth.html" class="cta-btn">INITIALIZE_SYSTEM</a>
+        </div>
+    </section>
+
+    <section id="about" class="container">
+        <div class="split-row reveal">
+            <div class="content-box">
+                <h2>RADIAL TEMPORAL LOGIC</h2>
+                <p>The SMARTCLOCK doesn't just measure time; it projects it. Using the Azimuthal map as a baseline, we calculate temporal drift across 24 sectors simultaneously, ensuring your network remains perfectly phase-aligned.</p>
+                <a href="#" class="cta-btn" style="background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan);">VIEW_SPECS</a>
+            </div>
+            </div>
+
+        <div class="split-row reverse reveal" id="specs">
+            <div class="content-box">
+                <h2>GLOBAL_SYNC HARMONICS</h2>
+                <p>Designed for the digital-native operative. The BUHS system utilizes low-frequency oscillation to reduce jitter in high-frequency trading and neural-link environments. It is the heartbeat of the modern machine.</p>
+            </div>
+            </div>
+    </section>
+
+    
+
+    <section id="faq" class="container reveal">
+        <h2 style="margin-bottom: 40px;">// SYSTEM_QUERY</h2>
+        <div class="faq-item">
+            <div class="faq-question">What is Azimuthal Projection in timekeeping? <span>+</span></div>
+            <div class="faq-answer">It is a mapping method that calculates the shortest distance between temporal nodes, reducing packet delay across global networks.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">Is the system compatible with older hardware? <span>+</span></div>
+            <div class="faq-answer">BUHS SMARTCLOCK supports legacy 64-bit architecture but performs optimally on quantum-ready neural interfaces.</div>
+        </div>
+    </section>
+
+    <footer id="footer">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <h2 style="margin-bottom: 15px;">BUHS_SC</h2>
+                <p style="color: #444;">EST. 2026. The definitive standard for azimuthal time mapping and orbital synchronization.</p>
+            </div>
+            <div class="footer-col">
+                <h4>// NAVIGATION</h4>
+                <a href="#hero">HOME</a>
+                <a href="#about">SYNC</a>
+                <a href="#pricing">PRICING</a>
+            </div>
+            <div class="footer-col">
+                <h4>// SOCIAL</h4>
+                <a href="#">X_CORP</a>
+                <a href="#">GITHUB</a>
+                <a href="#">TERMINAL</a>
+            </div>
+            <div class="footer-col">
+                <h4>// NEWSLETTER</h4>
+                <form class="newsletter">
+                    <input type="email" placeholder="ENTER_EMAIL">
+                    <button class="cta-btn" style="width: 100%; padding: 10px;">SUBSCRIBE</button>
+                </form>
+            </div>
+        </div>
+        <div class="container footer-bottom">
+            <span>COPYRIGHT 2026 BUHS_ELECTRONICS</span>
+            <span>DATA_CENTER: 48.8566° N, 2.3522° E</span>
+        </div>
+    </footer>
+
+    <script>
+        // --- Navigation ---
+        const trigger = document.getElementById('navTrigger');
+        const nav = document.getElementById('fullNav');
+
+        trigger.addEventListener('click', () => {
+            trigger.classList.toggle('active');
+            nav.classList.toggle('active');
+            document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : 'auto';
+        });
+
+        function closeNav() {
+            trigger.classList.remove('active');
+            nav.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // --- FAQ Accordion ---
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.addEventListener('click', () => {
+                item.classList.toggle('active');
+                const sign = item.querySelector('.faq-question span');
+                sign.innerText = item.classList.contains('active') ? '-' : '+';
+            });
+        });
+
+        // --- Reveal on Scroll ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    if(entry.target.querySelector('.number')) {
+                        startCounter(entry.target.querySelector('.number'));
+                    }
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // --- Stats Counter ---
+        function startCounter(el) {
+            const target = +el.dataset.target;
+            const count = +el.innerText;
+            const speed = 200; 
+            const inc = target / speed;
+
+            if (count < target) {
+                el.innerText = (count + inc).toFixed(target % 1 === 0 ? 0 : 1);
+                setTimeout(() => startCounter(el), 1);
+            } else {
+                el.innerText = target;
+            }
+        }
+
+        // --- Sticky CTA visibility on scroll ---
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const cta = document.getElementById('stickyCta');
+            if (scrolled > 500) {
+                cta.style.display = 'block';
+            } else {
+                cta.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
