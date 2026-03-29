@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BUHS Jukebox - Tactical Audio v2</title>
+    
+    <style>
+        :root {
+            --bg: #0b0c10;
+            --panel: #151b25;
+            --accent: #b87333; /* Changé pour ton Cuivre "Control Tower" */
+            --radar: #9af7be;  /* Vert Radar conservé pour les détails */
+            --gold: #d4af37;
+            --red: #ff3b3b;
+            --border: #2a3446;
+            --glass: rgba(184, 115, 51, 0.1);
+        }
+
+        body { 
+            margin: 0; background: var(--bg); color: #e5e7eb; 
+            font-family: 'Courier New', monospace;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            padding: 20px;
+            background: radial-gradient(circle at center, #1a1f2b 0%, #050505 100%);
+        }
+
+        .jukebox-container {
+            width: 100%; max-width: 400px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* --- ÉCRAN TACTIQUE --- */
+        .screen-frame {
+            background: #000;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(184, 115, 51, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Overlay type radar/scansion */
+        .screen-frame::after {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: rgba(154, 247, 190, 0.2);
+            animation: scan 4s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+
+        #big-thumb { 
+            width: 100%; aspect-ratio: 16/9; object-fit: cover; 
+            border-radius: 4px; opacity: 0.7; 
+            transition: 0.5s;
+            filter: sepia(0.2) contrast(1.1);
+        }
+
+        #current-title {
+            font-size: 11px; margin-top: 10px; height: 35px;
+            color: var(--radar); overflow: hidden;
+            letter-spacing: 1px; line-height: 1.2;
+            text-transform: uppercase;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center;
+        }
+
+        /* --- GRILLE DE SÉLECTION --- */
+        .grid-nav { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; 
+            max-height: 180px; overflow-y: auto; padding-right: 5px;
+        }
+        
+        /* Scrollbar stylisée */
+        .grid-nav::-webkit-scrollbar { width: 4px; }
+        .grid-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        .pl-btn {
+            background: rgba(26, 33, 44, 0.6);
+            border: 1px solid var(--border);
+            color: #888; font-size: 10px;
+            padding: 12px 5px; border-radius: 4px; cursor: pointer;
+            text-transform: uppercase; transition: 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .pl-btn:hover { border-color: var(--accent); color: var(--text); }
+
+        .pl-btn.active { 
+            border-color: var(--accent); color: #fff;
+            background: var(--glass);
+            box-shadow: inset 0 0 10px rgba(184, 115, 51, 0.2);
+        }
+
+        /* --- CONTRÔLES TRANSPORT --- */
+        .panel-controls {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 15px; border-top: 1px solid var(--border);
+        }
+
+        .btn-transport {
+            background: transparent; border: 1px solid var(--border);
+            color: var(--accent); border-radius: 50%; width: 45px; height: 45px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; font-size: 18px;
+        }
+
+        .btn-transport:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
+        
+        .btn-transport.main { 
+            width: 65px; height: 65px; 
+            border-color: var(--accent); 
+            background: var(--glass);
+            color: #fff; font-size: 28px;
+            box-shadow: 0 0 15px rgba(184, 115, 51, 0.3);
+        }
+
+        #shuf-btn.active { color: var(--red); border-color: var(--red); box-shadow: 0 0 10px rgba(255, 59, 59, 0.2); }
+
+        /* Masquer le vrai lecteur */
+        #yt-player-container { position: absolute; top: -1000px; visibility: hidden; }
+    </style>
+</head>
+<body>
+
+    <div class="jukebox-container">
+        <div style="font-size: 10px; color: var(--accent); margin-bottom: 12px; text-align: center; letter-spacing: 4px; font-weight: bold;">
+            BIGTREE TACTICAL AUDIO
+        </div>
+
+        <div class="screen-frame">
+            <img id="big-thumb" src="https://via.placeholder.com/400x225/000/b87333?text=STATION_IDLE">
+            <div id="current-title">SCANNING SYSTEM...</div>
+        </div>
+
+        <div class="grid-nav" id="nav">
+            </div>
+
+        <div class="panel-controls">
+            <button class="btn-transport" onclick="toggleShuffle()" id="shuf-btn" title="Aléatoire">🔀</button>
+            <button class="btn-transport" onclick="player.previousVideo()">⏮</button>
+            <button class="btn-transport main" id="play-btn" onclick="togglePlay()">▶</button>
+            <button class="btn-transport" onclick="player.nextVideo()">⏭</button>
+        </div>
+    </div>
+
+    <div id="yt-player-container">
+        <div id="player"></div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        const myPlaylists = [
+            { name: "Reggae Modern", id: "PL9D-qI9DCdypGs8n_c1OCUiTsLhGIymVS" },
+            { name: "Reggae Classic", id: "PL9D-qI9DCypFiwBzbGQwXw2JIwbbNkWb" },
+            { name: "Jazz Select", id: "PL9D-qI9DCdyqxLpZu6LRo4mpr6Gd_zwe3" },
+            { name: "HipHop Old", id: "PL9D-qI9DCdyo5zA9ip_PUOswT5utKMP63" },
+            { name: "Soul R&B", id: "PL9D-qI9DCdyqrriTLtefKRw7Xhp26x_g2" },
+            { name: "Various Mix", id: "PL9D-qI9DCdyquTkdVKSsias9oCACu5hBD" }
+        ];
+
+        let player;
+        let isShuffle = false;
+
+        // Génération des boutons de navigation
+        const nav = document.getElementById('nav');
+        myPlaylists.forEach((pl, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'pl-btn' + (index === 0 ? ' active' : '');
+            btn.innerText = pl.name;
+            btn.onclick = () => changePlaylist(pl.id, btn);
+            nav.appendChild(btn);
+        });
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '0', width: '0',
+                playerVars: { 
+                    listType: 'playlist', 
+                    list: myPlaylists[0].id, 
+                    autoplay: 0,
+                    controls: 0
+                },
+                events: { 
+                    'onStateChange': onStateChange, 
+                    'onReady': onReady 
+                }
+            });
+        }
+
+        function onReady() {
+            document.getElementById('current-title').innerText = "SYSTEM READY - PRESS PLAY";
+        }
+
+        function changePlaylist(playlistId, element) {
+            document.querySelectorAll('.pl-btn').forEach(b => b.classList.remove('active'));
+            element.classList.add('active');
+            
+            player.loadPlaylist({
+                list: playlistId,
+                listType: 'playlist',
+                index: 0
+            });
+            
+            if(isShuffle) {
+                setTimeout(() => { 
+                    player.setShuffle(true); 
+                    player.nextVideo(); 
+                }, 600);
+            }
+        }
+
+        function onStateChange(e) {
+            const btn = document.getElementById('play-btn');
+            const titleElement = document.getElementById('current-title');
+            const thumbElement = document.getElementById('big-thumb');
+
+            if (e.data == YT.PlayerState.PLAYING) {
+                btn.innerText = "pause"; // On peut aussi utiliser ⏸
+                btn.style.fontFamily = 'serif'; // Pour un look plus propre sur le symbole
+                
+                const data = player.getVideoData();
+                titleElement.innerText = data.title;
+                
+                // Correction de l'affichage de la miniature
+                if(data.video_id) {
+                    thumbElement.src = `https://img.youtube.com/vi/${data.video_id}/hqdefault.jpg`;
+                    thumbElement.style.opacity = "1";
+                }
+            } else {
+                btn.innerText = "▶";
+                btn.style.fontFamily = 'inherit';
+            }
+        }
+
+        function togglePlay() {
+            const state = player.getPlayerState();
+            if (state == YT.PlayerState.PLAYING) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
+            }
+        }
+
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            player.setShuffle(isShuffle);
+            document.getElementById('shuf-btn').classList.toggle('active', isShuffle);
+        }
+    </script>
+</body>
+</html>
