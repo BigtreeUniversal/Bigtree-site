@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIGTREE | Connection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #F59E0B; /* Amber */
+            --bg-dark: #1C1917; /* Warm Dark Stone */
+            --card-bg: #292524;
+            --text-main: #E7E5E4;
+            --text-muted: #A8A29E;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* --- BASE & RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .nav-logo { font-family: 'Bebas Neue', cursive; letter-spacing: 1px; }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(28, 25, 23, 0.9);
+            backdrop-filter: blur(12px);
+            padding: 0.8rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.1);
+        }
+
+        .nav-logo { font-size: 2.2rem; color: var(--primary); text-decoration: none; transition: var(--transition); }
+        .nav-logo:hover { opacity: 0.8; }
+
+        .nav-links { display: flex; list-style: none; gap: 2rem; align-items: center; }
+        .nav-links a {
+            text-decoration: none; color: var(--text-main);
+            font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
+            transition: var(--transition);
+        }
+        .nav-links a:hover { color: var(--primary); }
+
+        .hamburger { display: none; cursor: pointer; color: var(--primary); font-size: 1.5rem; }
+
+        /* --- HERO SLIDER --- */
+        .hero-slider {
+            height: 100vh; width: 100%; position: relative; overflow: hidden;
+        }
+
+        .slide {
+            position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease-in-out;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+        }
+        .slide.active { opacity: 1; }
+
+        .slide-bg {
+            position: absolute; inset: 0; background-size: cover; background-position: center;
+            filter: brightness(0.4); z-index: -1; transform: scale(1.1); transition: transform 6s linear;
+        }
+        .slide.active .slide-bg { transform: scale(1); }
+
+        .hero-content { z-index: 10; padding: 0 20px; }
+        .hero-content h1 { font-size: clamp(3rem, 12vw, 8rem); color: var(--primary); margin-bottom: 0.5rem; line-height: 0.9; }
+        .hero-content p { font-size: 1.2rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 3px; }
+
+        /* --- SECTIONS --- */
+        section { padding: 80px 8%; position: relative; }
+        .section-title { font-size: 3.5rem; margin-bottom: 40px; color: var(--primary); }
+
+        /* --- GRID & CARDS --- */
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg); padding: 2.5rem; border-radius: 12px;
+            transition: var(--transition); border: 1px solid rgba(255,255,255,0.03);
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+        .card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .card i { font-size: 2.5rem; color: var(--primary); }
+        .card h3 { font-size: 1.8rem; }
+
+        /* --- GALLERY DYNAMIQUE --- */
+        .gallery-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 20px;
+        }
+
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 1/1; 
+            overflow: hidden; 
+            border-radius: 12px; 
+            display: block;
+            text-decoration: none;
+        }
+
+        .gallery-item img {
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Overlay d'information */
+        .gallery-info {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+            display: flex;
+            align-items: flex-end;
+            padding: 25px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease-out;
+            z-index: 2;
+        }
+
+        .gallery-info h3 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            line-height: 0.9;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        /* Hover Effects */
+        .gallery-item:hover img {
+            transform: scale(1.1);
+            filter: brightness(0.7);
+        }
+
+        .gallery-item:hover .gallery-info {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- PARALLAX TEXTURE --- */
+        .parallax-section {
+            background-attachment: fixed; background-size: cover; background-position: center;
+            height: 400px; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* --- ANIMATIONS --- */
+        .reveal { opacity: 0; transform: translateY(40px); transition: 1s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* --- BACK TO TOP --- */
+        #btt {
+            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
+            background: var(--primary); color: #000; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 999; border: none; font-size: 1.2rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: var(--transition);
+        }
+
+        /* --- FOOTER --- */
+        footer { background: #12100E; padding: 60px 8% 20px; border-top: 1px solid #292524; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+        .f-col h4 { font-family: 'Bebas Neue'; color: var(--primary); font-size: 1.6rem; margin-bottom: 20px; }
+        .f-col p, .f-col a { font-size: 0.9rem; color: var(--text-muted); text-decoration: none; display: block; margin-bottom: 10px; transition: 0.3s; }
+        .f-col a:hover { color: var(--primary); transform: translateX(5px); }
+        
+        .socials { display: flex; gap: 15px; margin-top: 20px; }
+        .socials a { color: var(--primary); font-size: 1.3rem; margin: 0; }
+
+        .copy { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #292524; font-size: 0.8rem; color: #57534E; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed; top: 0; right: -100%; height: 100vh; width: 70%;
+                background: var(--bg-dark); flex-direction: column; justify-content: center;
+                transition: 0.5s ease-in-out;
+            }
+            .nav-links.active { right: 0; }
+            .hamburger { display: block; z-index: 1001; }
+            .hero-content h1 { font-size: 4rem; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .gallery-info { opacity: 1; transform: translateY(0); } /* Toujours visible sur mobile */
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="nav-logo">BUHS</a>
+        <div class="hamburger" id="mobMenu"><i class="fas fa-bars"></i></div>
+        <ul class="nav-links" id="navLnk">
+            <li><a href="#home">Home</a></li>
+            <li><a href="https://bigtreeconnection.carrd.co/">Music</a></li>
+            <li><a href="https://bigtreeuniversal.carrd.co/">Litterature</a></li>
+            <li><a href="https://buhs.carrd.co/">Innovation</a></li>
+            <li><a href="https://bigtreeconnection.com/portail/newsletters2.html">Newsletter</a></li>
+            <li><a href="https://paragraph.com/@bigtree.buhs">Web3</a></li>
+            <li><a href="https://bigtreeconnection.com/gateway/index.html">Gateway</a></li>
+            <li><a href="https://bigtreeconnection.com/portailmusique/oliverbigtree/booking_oliver.html">about</a></li>
+            <li><a href="#footer">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section id="home" class="hero-slider">
+        <div class="slide active">
+            <div class="slide-bg" style="background-image: url('28.jpg')"></div>
+            <div class="hero-content">
+                <h1>BIGTREE CONNECTION</h1>
+                <p>Merging Music • Literature • Arts • Innovation</p>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="slide-bg" style="background-image: url('11.webp')"></div>
+            <div class="hero-content">
+                <h1>WEB3 REVOLUTION</h1>
+                <p>Decentralizing Creativity</p>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="slide-bg" style="background-image: url('25.jpg')"></div>
+            <div class="hero-content">
+                <h1>DIGITAL PRODUCTION</h1>
+                <p>Enter the BigTree Laboratory</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="vision" class="reveal">
+        <h2 class="section-title">vision</h2>
+        <div class="grid">
+            <div class="card">
+                <i class="fas fa-headphones"></i>
+                <h3>MUSIC LABEL</h3>
+                <p>Music with intent since 1999. BTC Prod (Bigtree Connection) has been a cornerstone of Reggae, Dub, Dancehall, and World Music for over two decades. With a catalog of 150+ tracks registered with SACEM and collaborations featuring international artists, our journey is rooted in authentic vibrations.
+
+Through Awakening Soundz, we push the boundaries further—exploring the "interstitial spaces" of sound, frequencies, and sonic textures to create a truly immersive experience.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-link"></i>
+                <h3>Web3 & Beyond</h3>
+                <p>XYZ Portal: Engineering the future of DeepTech innovation. infrastructure anchored by Infomaniak’s Zurich-based servers (Tier 1), leverages custom Nginx workflows to achieve industrial-grade precision.
+
+The Heartbeat of our Syncro-Link server at 2Hz (120 BPM), all data transiting through the module maintains temporal alignment. This architecture delivers Audio/MIDI synchronization standards comparable to aerospace modular systems, secured and timestamped via Blockchain Technology.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-bolt"></i>
+                <h3>Programming</h3>
+                <p>plugins and applications inspired by the Science of the Tetragrammaton.specialized modules based on the scientific research of Oliver Bigtree. These tools operate on "gravity-exempt" principles, rooted in the coding of the Ancient World and the Tree of Life, treated as a sophisticated technical manual. By decoding Hebrew and Guematria, we bridge the gap between ancestral wisdom and modern software engineering, creating unique algorithms that transcend conventional digital boundaries.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="parallax-section" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('11.webp');">
+        <h2 style="font-family:'Bebas Neue'; font-size: 4rem; color: var(--primary);"></h2>
+    </div>
+
+    <section id="gallery" class="reveal">
+        <h2 class="section-title">Access Points</h2>
+        <div class="gallery-grid">
+            <a href="https://bigtreeconnection.carrd.co/" class="gallery-item">
+                <img src="33.jpg" alt="Music Production">
+                <div class="gallery-info"><h3>Music<br>Label</h3></div>
+            </a>
+            <a href="https://bigtreeconnection.com/buhs/RadarClock/Bigtree_WorldCam_Explorer.html" class="gallery-item">
+                <img src="29.png" alt="Control Tower">
+                <div class="gallery-info"><h3>Control<br>Tower</h3></div>
+            </a>
+            
+            <a href="https://bigtreeconnection.com/radio/index.html" class="gallery-item">
+                <img src="48.png" alt="Radio">
+                <div class="gallery-info"><h3>Bigtree<br>Radio</h3></div>
+            </a>
+            <a href="https://bigtreeconnection.com/jukebox/index.html" class="gallery-item">
+                <img src="64.png" alt="Jukebox">
+                <div class="gallery-info"><h3>Bigtree<br>Jukebox</h3></div>
+            </a>
+            <a href="https://bigtreeconnection.com/buhs/smartclock/SMARTCLOCK_index.html" class="gallery-item">
+                <img src="17.png" alt="Radar BUHS">
+                <div class="gallery-info"><h3>Radar<br>SmartClock</h3></div>
+            </a>
+            
+            <a href="https://bigtreeconnection.com/bubble/Earth_home.html" class="gallery-item">
+                <img src="ja.png" alt="BUHS Earth">
+                <div class="gallery-info"><h3>BUHS<br>Earth</h3></div>
+            </a>
+            
+            <a href="https://bigtreeuniversal.substack.com/" class="gallery-item">
+                <img src="55.png" alt="Articles">
+                <div class="gallery-info"><h3>Bigtree Universal<br>Newsletter</h3></div>
+            </a>
+            <a href="https://bigtreeuniversal.carrd.co/" class="gallery-item">
+                <img src="22.jpg" alt="Books">
+                <div class="gallery-info"><h3>Books<br>Litterature</h3></div>
+            </a>
+            <a href="https://bigtreeconnection.com/portailmusique/ancient_spirit/ancient_spirit.html" class="gallery-item">
+                <img src="87.png" alt="Echoes">
+                <div class="gallery-info"><h3>Ancient<br>Spirit</h3></div>
+            </a>
+            
+            <a href="https://app.doppler.lol/tokens/base/0x14e732bbba1cd07685d2081869ca5062ac32463a" class="gallery-item">
+                <img src="logo.webp" alt="Bigtree Token">
+                <div class="gallery-info"><h3>Market<br>Cap</h3></div>
+            </a>
+            
+            <a href="https://buhs.carrd.co/" class="gallery-item">
+                <img src="12.webp" alt="BUHS">
+                <div class="gallery-info"><h3>BUHS<br>Web Site</h3></div>
+            </a>
+            
+            
+            <a href="https://paragraph.com/@bigtree.buhs/" class="gallery-item">
+                <img src="27.png" alt="Tech Articles">
+                <div class="gallery-info"><h3>BUHS<br>Articles</h3></div>
+            </a>
+            
+            <a href="https://bigtreeconnection.com/buhs/xylem/xylem_index.html" class="gallery-item">
+                <img src="99.png" alt="Xylem Protocol">
+                <div class="gallery-info"><h3>Xylem<br>Protocol</h3></div>
+            </a>
+            
+            <a href="https://bigtreeconnection.com/gateway/index.html" class="gallery-item">
+                <img src="54.png" alt="$ Gateway $">
+                <div class="gallery-info"><h3>Bigtree<br>Gateway</h3></div>
+            </a>
+            <a href="https://bigtreeconnection.com/soon.html" class="gallery-item">
+                <img src="15.png" alt="Syncro-Loop">
+                <div class="gallery-info"><h3>Syncro<br>Loop</h3></div>
+            </a>
+            <a href="https://bigtreeconnection.com/soon.html" class="gallery-item">
+                <img src="12.png" alt="Density Calculator">
+                <div class="gallery-info"><h3>Density<br>Calc</h3></div>
+            </a>
+            <a href="https://bigtreeconnection.com/soon.html" class="gallery-item">
+                <img src="04.png" alt="No Gravity">
+                <div class="gallery-info"><h3>No Gravity<br>DC Calc</h3></div>
+            </a>
+            <a href="https://bigtreeconnection.com/soon.html" class="gallery-item">
+                <img src="74.png" alt="No Gravity">
+                <div class="gallery-info"><h3>No Gravity<br>EC Aerion</h3></div>
+            </a>
+            <a href="https://bigtreeconnection.com/soon.html" class="gallery-item">
+                <img src="86.png" alt="No Gravity">
+                <div class="gallery-info"><h3>BUHS<br>Crypto S1</h3></div>
+            </a>
+        </div>
+    </section>
+
+    <footer id="footer">
+        <div class="footer-grid">
+            <div class="f-col">
+                <h4>BIGTREE CONNECTION</h4>
+                <p>BigTree Connection is a Laboratory Production of Music, Litterature, Innovations, DeepTech & Arts.</p>
+                <div class="socials">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="f-col">
+                <h4>Menu</h4>
+                <a href="#home">Home</a>
+                <a href="#vision">Vision</a>
+                <a href="#gallery">Shortcuts</a>
+            </div>
+            <div class="f-col">
+                <h4>links</h4>
+                <a href="#">XYZ Portal</a>
+                <a href="#">DOCUMENTATION</a>
+            </div>
+            <div class="f-col">
+                <h4>Contact</h4>
+                <p>bigtreeuniversal@proton.me</p>
+                <p>zurich • Earth • Cloud</p>
+            </div>
+        </div>
+        <div class="copy">&copy; 2026 BIGTREE CONNECTION</div>
+    </footer>
+
+    <button id="btt"><i class="fas fa-chevron-up"></i></button>
+
+    <script>
+        // --- MOBILE MENU ---
+        const mobMenu = document.getElementById('mobMenu');
+        const navLnk = document.getElementById('navLnk');
+        mobMenu.onclick = () => {
+            navLnk.classList.toggle('active');
+            mobMenu.querySelector('i').classList.toggle('fa-bars');
+            mobMenu.querySelector('i').classList.toggle('fa-times');
+        };
+
+        // --- HERO SLIDER ---
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        setInterval(nextSlide, 5000);
+
+        // --- SCROLL ANIMATIONS ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // --- BACK TO TOP ---
+        window.onscroll = () => {
+            const btt = document.getElementById('btt');
+            if (window.pageYOffset > 400) btt.style.display = 'flex';
+            else btt.style.display = 'none';
+        };
+        document.getElementById('btt').onclick = () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    </script>
+</body>
+</html>
