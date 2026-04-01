@@ -196,12 +196,17 @@
   // DONNÉES CAMS (Identique v2.6)
   const cams = [
     { id: "tnBqtD7UVEE", title: "The Windmill Bar", loc: "St. John, USVI" },
-    { id: "pwlA66hgV3M", title: "Kingston Harbour LIVE 24/7 ", loc: "Jamaica 🇯🇲" },
+    { id: "iiUmX8XxB1k", title: "Coral Bay", loc: "British Virgin Islands" },
+    { id: "N5Mb2bjYwZo", title: "Philipsburg ", loc: "Saint Martin 🌴💦🛳️" },
     { id: "0ImA9IcyQwA", title: "Mermaid Boat Trips 🌴💦☀️ ", loc: "Curaçao" },
+    { id: "zaXzE6ZJAE8", title: "Port de Gustavia ", loc: "SAINT-BARTHÉLEMY" },
+    { id: "PsRa6WGjbBo", title: "Seven Mile Beach ", loc: "Grand Cayman" },
+    { id: "EcumU_n6fTY", title: "Dunkerbeck Pro Center ", loc: "Bonaire 🏄💦🌴" },
     { id: "cWR8KGKftUw", title: "Statue of Liberty", loc: "New York, NY" },
     { id: "2_PDaUJbfuI", title: "SUMMIT One Vanderbilt", loc: "New York City, NY" },
     { id: "YEAhxXd-TiY", title: "Anglins Pier", loc: "Lauderdale-By-The-Sea, FL" },
     { id: "skM8DTCx3gM", title: "Fort Myers Beach", loc: "Fort Myers, FL" },
+    { id: "DxZziUUr6CY", title: "Port Miami Webcam ", loc: "FL USA" },
     { id: "O0UGT7AT3aw", title: "Chicago Skydeck", loc: "Chicago, IL" },
     { id: "qx7gry390YA", title: "Niagara Falls", loc: "Canada / USA" },
     { id: "iHqqkh_Lths", title: "Terminal Tower Cam", loc: "Cleveland, OH" },
@@ -232,29 +237,12 @@
     { id: "OzYp4NRZlwQ", title: "Vue Tour Eiffel", loc: "Paris" },
     { id: "PMhVgTcDd1o", title: "Tamariu Beach", loc: "Spain" },
     { id: "RV2Iu0wbgec", title: "Los Bolichos Beach ", loc: "Costa del Sol - SPAIN" },
-    { id: "Pgjsoeq7iGM", title: "🌞Webcam Santa Ponsa Beach 4K UHD 24/7", loc: "Mallorca" },
+    { id: "Pgjsoeq7iGM", title: "🌞Webcam Santa Ponsa Beach", loc: "Mallorca" },
     { id: "BuL1tgahkXM", title: "Webcam Live @ Ponta do Sol - Madeira", loc: "Madeira" },
-    { id: "AfD16cDYBbE", title: "PUERTO del CARMEN BEACH ", loc: "Lanzarote, Canary Islands" },
+    { id: "AfD16cDYBbE", title: "PUERTO del CARMEN", loc: "Lanzarote, Canary Islands" },
     { id: "tYgGEC-ESTw", title: "Reykjavik, Iceland LIVE", loc: "Reykjavik, Iceland" },
     { id: "kxD9qBk6WQ8", title: "Copacabana Posto 6", loc: "Rio Brasil" },
     { id: "2u4GnVNtlsY", title: "BEACH LIVE 24/7 🌊 Villa Gesell", loc: "ARGENTINA" }
-  ];
-
-  const radioStations = [
-    { name: "OFF", url: "" },
-    { name: "Reggae Mix Station", url: "https://france1.coollabel-productions.com/proxy/reggaemix340/stream.pls" },
-    { name: "BigTree Radio", url: "https://rent-qualification-activists-newman.trycloudflare.com/stream" },
-    { name: "1.FM REGGAE", url: "https://strm112.1.fm/reggae_mobile_mp3" },
-    { name: "LA GROSSE RADIO", url: "https://hd.lagrosseradio.info/lagrosseradio-reggae-192.mp3" },
-    { name: "HEARTICAL FM", url: "https://manager.conceptradio.fr/Hearticalfm" },
-    { name: "Jahfari", url: "https://stream.laut.fm/jahfari" },
-    { name: "FIP REGGAE (Hifi)", url: "https://stream.radiofrance.fr/fipreggae/fipreggae_hifi.m3u8" },
-    { name: "Rastamusic", url: "https://alphaboys-live.streamguys1.com/alphaboys.aac" },
-    { name: "Roots Legacy Dub", url: "https://n.rootslegacy.fr/stream.pls" },
-    { name: "BIG UP", url: "https://stream.laut.fm/big-up" },
-    { name: "Sensi Dancehall", url: "https://sensidancehall.radioca.st/stream.pls" },
-    { name: "Joint Radio Reggae", url: "https://betelgeuse.nucast.co.uk/stream/jrn-reggae" },
-    { name: "112", url: "https://strm112.1.fm/reggae_mobile_mp3" }
   ];
 
   let camIdx = 0; let radIdx = 0; let autoTimer = null; let isPlaying = false;
