@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIGTREE RADIO | The Jazz Corner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --accent: #b87333; /* Ton cuivre Control Tower */
+            --text: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+        }
+
+        /* --- RADIO CARD --- */
+        .radio-card {
+            background: var(--card-bg);
+            width: 340px;
+            padding: 30px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .radio-visual {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 25px;
+            border-radius: 30px;
+            background: url('logo.webp') center/cover;
+            border: 2px solid var(--accent);
+            box-shadow: 0 10px 30px rgba(184, 115, 51, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visual-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: 0.3s;
+        }
+        .playing .visual-overlay { opacity: 1; }
+
+        .wave {
+            width: 4px; height: 20px; background: var(--accent); margin: 0 3px;
+            animation: wave 1s ease-in-out infinite; display: none;
+        }
+        .playing .wave { display: block; }
+        .wave:nth-child(2) { animation-delay: 0.2s; }
+        .wave:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes wave {
+            0%, 100% { height: 15px; }
+            50% { height: 40px; }
+        }
+
+        h1 { 
+            font-family: 'Bebas Neue'; 
+            font-size: 2rem; 
+            letter-spacing: 2px; 
+            color: #fff; 
+            margin-bottom: 5px;
+            transition: 0.3s;
+        }
+        
+        /* Classe pour l'animation de changement de texte */
+        .fade-text { opacity: 0; transform: translateY(5px); }
+
+        .genre-label { 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            font-size: 0.7rem; 
+            letter-spacing: 2px; 
+            font-weight: 600; 
+            margin-bottom: 25px;
+            height: 15px;
+        }
+
+        /* --- CONTROLS --- */
+        .main-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn-nav {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(184, 115, 51, 0.2);
+            color: var(--accent);
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .btn-nav:hover {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .btn-play {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 20px rgba(184, 115, 51, 0.3);
+        }
+
+        .btn-play:hover { transform: scale(1.1); filter: brightness(1.1); }
+
+        .status {
+            margin-top: 20px;
+            font-size: 0.65rem;
+            color: #555;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        .close-btn {
+            position: absolute; top: 15px; right: 20px;
+            background: none; border: none; color: #444;
+            font-size: 1.2rem; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="radio-card" id="playerContainer">
+        <button class="close-btn" onclick="window.close()">×</button>
+        
+        <div class="radio-visual" id="visual">
+            <div class="visual-overlay">
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+            </div>
+        </div>
+
+        <h1 id="stationTitle">BIGTREE RADIO</h1>
+        <p class="genre-label" id="stationGenre">LIVE STREAM</p>
+
+        <div class="main-controls">
+            <button class="btn-nav" onclick="changeStation(-1)">«</button>
+            <button class="btn-play" id="playBtn" onclick="toggleRadio()">▶</button>
+            <button class="btn-nav" onclick="changeStation(1)">»</button>
+        </div>
+
+        <div class="status" id="status">SYSTEM READY</div>
+    </div>
+
+    <audio id="radioAudio" preload="none"></audio>
+
+    <script>
+        const audio = document.getElementById('radioAudio');
+        const playBtn = document.getElementById('playBtn');
+        const container = document.getElementById('playerContainer');
+        const status = document.getElementById('status');
+        const titleDisplay = document.getElementById('stationTitle');
+        const genreDisplay = document.getElementById('stationGenre');
+
+        // --- CONFIGURATION DE TES STATIONS ---
+        const stations = [
+            
+            {
+                name: "Jazz 24",
+                genre: "Jazz Radio",
+                url: "https://knkx-live-a.edge.audiocdn.com/6285_128k?aw_0_1st.playerid=radio.net"
+            },
+            {
+                name: "Just Jazz",
+                genre: "Jazz Radio",
+                url: "https://drive.uber.radio/uber/jjrbillevans/icecast.audio"
+            },
+            
+            {
+                name: "Radio Swiss Jazz",
+                genre: "Jazz Radio",
+                url: "https://livestreaming-node-1.srg-ssr.ch/srgssr/rsj/mp3/128"
+            },
+            
+            {
+                name: "TSF Radio",
+                genre: "jAZZ Radio",
+                url: "https://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3?token=exp=1775055846~acl=/tsfjazz-high.mp3" 
+            },
+            {
+                name: "Jazz Radio",
+                genre: "Jazz Radio",
+                url: "https://jazzradio.ice.infomaniak.ch/frequencejazz-high.mp3?token=exp=1775055960~acl=/frequencejazz-high.mp3"
+            },
+            {
+                name: "AllZic",
+                genre: "Jazz Radio",
+                url: "https://allzic40.ice.infomaniak.ch/allzic40.mp3?token=exp=1775056064~acl=/allzic40.mp3"
+            },
+            
+            
+            {
+                name: "Jazz Radio New york",
+                genre: "Jazz Radio",
+                url: "https://jazzladiescrooners.ice.infomaniak.ch/jazzladiescrooners-high.mp3"
+            }
+            
+        ];
+
+        let currentIndex = 0;
+        let isPlaying = false;
+
+        // Mise à jour de l'affichage
+        function updateDisplay() {
+            titleDisplay.classList.add('fade-text');
+            genreDisplay.classList.add('fade-text');
+            
+            setTimeout(() => {
+                titleDisplay.textContent = stations[currentIndex].name;
+                genreDisplay.textContent = stations[currentIndex].genre;
+                titleDisplay.classList.remove('fade-text');
+                genreDisplay.classList.remove('fade-text');
+            }, 300);
+        }
+
+        function toggleRadio() {
+            if (!isPlaying) {
+                status.textContent = "CONNEXION AU FLUX...";
+                // On s'assure que la source est la bonne avant de lire
+                if (!audio.src || audio.src !== stations[currentIndex].url) {
+                    audio.src = stations[currentIndex].url;
+                }
+                
+                audio.play()
+                .then(() => {
+                    isPlaying = true;
+                    playBtn.textContent = "■";
+                    container.classList.add('playing');
+                    status.textContent = "EN DIRECT : " + stations[currentIndex].name;
+                })
+                .catch(error => {
+                    console.error("Erreur:", error);
+                    status.textContent = "ERREUR DE FLUX";
+                });
+            } else {
+                audio.pause();
+                // On vide la source pour stopper le chargement de données en arrière-plan
+                audio.src = ""; 
+                isPlaying = false;
+                playBtn.textContent = "▶";
+                container.classList.remove('playing');
+                status.textContent = "PAUSE";
+            }
+        }
+
+        function changeStation(direction) {
+            // Calcul du nouvel index (boucle infinie)
+            currentIndex += direction;
+            if (currentIndex < 0) currentIndex = stations.length - 1;
+            if (currentIndex >= stations.length) currentIndex = 0;
+
+            updateDisplay();
+
+            // Si la radio était en train de jouer, on relance automatiquement le nouveau flux
+            if (isPlaying) {
+                audio.pause();
+                audio.src = stations[currentIndex].url;
+                audio.play();
+                status.textContent = "EN DIRECT : " + stations[currentIndex].name;
+            } else {
+                // Sinon on prépare juste la nouvelle source
+                audio.src = stations[currentIndex].url;
+            }
+        }
+
+        // Initialisation au démarrage
+        window.onload = () => {
+            audio.src = stations[currentIndex].url;
+            updateDisplay();
+        };
+    </script>
+</body>
+</html>
