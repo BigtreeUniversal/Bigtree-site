@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oliver Bigtree | Artist & Engineer</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:100,200,400">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --main-color: #fff;
+            --background-image: url('https://bigtreeconnection.com/portailmusique/oliverbigtree/oliver_page_background.jpg');
+            --overlay-color: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 100%);
+            --hover-color: #08c;
+            --white-bg: rgba(240, 240, 240, 0.9);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            color: var(--main-color);
+            font-family: 'Raleway', sans-serif;
+            background: #222 var(--background-image) center no-repeat;
+            background-size: cover;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay-color);
+            z-index: 0;
+        }
+
+        main {
+            position: relative;
+            z-index: 1;
+            padding-left: 10%;
+            max-width: 800px;
+        }
+
+        .avatar {
+            height: 120px;
+            width: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            margin-bottom: 20px;
+            transition: all 0.5s ease;
+        }
+
+        .avatar:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.4);
+        }
+
+        h1 {
+            font-size: 3.5em;
+            font-weight: 100;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            display: block;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        /* Grille des liens forcée sur 2 lignes (5 par ligne) */
+        .links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            max-width: 300px; /* Force le passage à la ligne après ~5 icônes */
+        }
+
+        .links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.4rem;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .links a:hover {
+            background: var(--hover-color);
+            border-color: var(--hover-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        body.white { color: #222; }
+        body.white::before { background: var(--white-bg); }
+        body.white .links a { color: #222; border-color: #ccc; }
+
+        footer {
+            position: absolute;
+            bottom: 20px;
+            left: 10%;
+            z-index: 1;
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 600px) {
+            main { padding-left: 5%; }
+            h1 { font-size: 2.5em; }
+            .links { max-width: 200px; } /* Plus serré sur mobile (3 ou 4 par ligne) */
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <img src="https://bigtreeconnection.com/portailmusique/oliverbigtree/Label18.jpg" class="avatar" alt="Oliver Bigtree">
+        
+        <h1>Oliver Bigtree</h1>
+        <span class="subtitle">Artist & Engineer</span>
+
+        <div class="links">
+            <a href="https://www.facebook.com/profile.php?id=100005549265828" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/Oliverbigtree" title="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://github.com/BigtreeUniversal" title="Github"><i class="fab fa-github"></i></a>
+            <a href="https://bigtreeuniversal.substack.com/" title="Substack"><i class="fas fa-envelope-open-text"></i></a>
+            <a href="https://paragraph.com/@bigtree.buhs" title="Paragraph"><i class="fas fa-paragraph"></i></a>
+            <a href="https://open.spotify.com/intl-fr/artist/5FzRpdM9GuAXpAVW9PPlKm" title="Spotify"><i class="fab fa-spotify"></i></a>
+            <a href="https://www.youtube.com/channel/UC7Mnhqve6eoQE4fS0XsjEDA" title="Youtube"><i class="fab fa-youtube"></i></a>
+            <a href="https://tidal.com/artist/24536424" title="Tidal"><i class="fas fa-wave-square"></i></a>
+            <a href="https://farcaster.xyz/oliverbigtree" title="Farcaster"><i class="fas fa-broadcast-tower"></i></a>
+            <a href="#" title="Lens"><i class="fas fa-leaf"></i></a>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2026 Oliver Bigtree | <a href="#" onclick="document.body.classList.toggle('white')">Light Mode</a>
+    </footer>
+
+</body>
+</html>
