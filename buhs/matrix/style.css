@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+    :root {
+      --neon-glow: 0 0 10px rgba(0, 255, 0, 0.5), 
+                   0 0 20px rgba(0, 255, 0, 0.3),
+                   0 0 30px rgba(0, 255, 0, 0.1);
+    }
+
+    body {
+      margin: 0;
+      background: #000;
+      font-family: 'Share Tech Mono', monospace;
+      color: #0f0;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .nav {
+      width: 200px;
+      background: rgba(0, 20, 0, 0.9);
+      padding: 20px;
+      border-right: 1px solid #0f0;
+      height: 100vh;
+      position: relative;
+      z-index: 2;
+    }
+
+    .nav::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        transparent 0px,
+        transparent 1px,
+        rgba(0, 255, 0, 0.03) 2px,
+        rgba(0, 255, 0, 0.03) 3px
+      );
+      pointer-events: none;
+      animation: scan 10s linear infinite;
+    }
+
+    .nav-item {
+      margin: 20px 0;
+      padding: 10px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    /* System Ready - Smooth gradient shift */
+    .nav-item:nth-child(1):hover {
+      background: linear-gradient(45deg, #00ff00, #00ffff, #0088ff);
+      background-size: 200% 200%;
+      animation: gradientShift 3s ease infinite;
+      color: black;
+      text-shadow: none;
+    }
+
+    /* Neural Link - Flowing color wave */
+    .nav-item:nth-child(2):hover {
+      background: linear-gradient(90deg, #ff00ff, #00ffff, #ff00ff);
+      background-size: 300% 100%;
+      animation: wave 3s ease infinite;
+      color: black;
+      text-shadow: none;
+    }
+
+    /* Cyber Pulse - Pulsing multi-color */
+    .nav-item:nth-child(3):hover {
+      animation: pulse 2s ease infinite;
+      color: black;
+      text-shadow: none;
+    }
+
+    /* Matrix Core - Radial shift */
+    .nav-item:nth-child(4):hover {
+      background: radial-gradient(circle at center, #00ff00, #00ffaa, #00ff00);
+      background-size: 200% 200%;
+      animation: radialPulse 3s ease infinite;
+      color: black;
+      text-shadow: none;
+    }
+
+    .content {
+      flex-grow: 1;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    #matrix-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .code-display {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
+      line-height: 1.4;
+      padding: 20px;
+      background: rgba(0, 20, 0, 0.9);
+      border: 1px solid #0f0;
+      box-shadow: var(--neon-glow);
+      position: relative;
+      width: 80%;
+      max-width: 600px;
+      display: none;
+    }
+
+    .code-display.active {
+      display: block;
+      animation: glitchIn 0.3s ease-out;
+    }
+
+    @keyframes scan {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(100px); }
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes wave {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    @keyframes pulse {
+      0% { background: #ff00ff; }
+      33% { background: #00ffff; }
+      66% { background: #ffff00; }
+      100% { background: #ff00ff; }
+    }
+
+    @keyframes radialPulse {
+      0% { background-size: 100% 100%; }
+      50% { background-size: 200% 200%; }
+      100% { background-size: 100% 100%; }
+    }
+
+    @keyframes glitchIn {
+      0% {
+        clip-path: inset(50% 50% 50% 50%);
+        transform: scale(0);
+      }
+      100% {
+        clip-path: inset(0% 0% 0% 0%);
+        transform: scale(1);
+      }
+    }
