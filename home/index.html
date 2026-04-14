@@ -424,7 +424,7 @@ The Heartbeat of our Syncro-Link server at 2Hz (120 BPM), all data transiting th
             entries.forEach(entry => {
                 if (entry.isIntersecting) entry.target.classList.add('active');
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.01 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
         // --- BACK TO TOP ---
