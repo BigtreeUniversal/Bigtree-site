@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="THE REDLINE PROTOCOL — Magazine & Journal technique de certification temporelle et céleste. Registres Redline et Xylem par Oliver Bigtree.">
+    <meta name="keywords" content="Redline Protocol, Xylem Registry, RadarClock Bigtree, OpenTimestamps, Bitcoin Ledger, BUHS Zurich, Stratum 1">
+    <meta name="author" content="Oliver Bigtree">
+    <title>THE REDLINE PROTOCOL | Terminal Magazine</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- CORE TERMINAL VARIABLES (PERMANENT RED ALIGNMENT) --- */
+        :root {
+            --bg: #0a0a0a;
+            --surface: #121212;
+            --surface-edge: #1a1a1a;
+            --primary: #ff3333;      /* Rouge Électrique / Alerte Terminal */
+            --primary-dim: #990000;
+            --secondary: #330000;    /* Rouge Foncé Console */
+            --text: #e0e0e0;
+            --text-muted: #888888;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-console: 'Share Tech Mono', monospace;
+            --glitch-speed: 2s;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* --- RESET & UTILITIES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+            transition: var(--transition);
+        }
+        
+        /* CRT Scanline Overlay réaligné sur spectre rouge */
+        body::before {
+            content: " ";
+            display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 0, 0, 0.02), rgba(255, 0, 0, 0.04));
+            z-index: 9999; background-size: 100% 4px, 6px 100%; pointer-events: none;
+        }
+
+        h1, h2, h3, h4 { font-family: var(--font-console); text-transform: uppercase; letter-spacing: 1px; color: var(--primary); }
+        a { text-decoration: none; color: inherit; transition: var(--transition); }
+        li { list-style: none; }
+        img { width: 100%; height: auto; border: 1px solid var(--surface-edge); filter: grayscale(30%) contrast(115%); }
+        
+        ::selection { background-color: var(--primary); color: var(--bg); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-dim); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        /* --- HEADER & NAVIGATION --- */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            background-color: rgba(10, 10, 10, 0.9);
+            border-bottom: 2px solid var(--secondary);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 4%; z-index: 1000; backdrop-filter: blur(4px); transition: var(--transition);
+        }
+        
+        .logo { font-family: var(--font-console); font-size: 1.4rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .logo span { color: var(--text); font-size: 0.8rem; font-family: var(--font-mono); opacity: 0.7; }
+        
+        .nav-actions { display: flex; align-items: center; gap: 20px; }
+
+        /* Hamburger Structure */
+        .hamburger {
+            width: 28px; height: 18px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer;
+        }
+        .hamburger span { width: 100%; height: 2px; background-color: var(--primary); transition: var(--transition); }
+        .hamburger.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        /* Fullscreen Console Navigation Overlay */
+        .nav-overlay {
+            position: fixed; top: 0; right: -100%; width: 100%; height: 100vh;
+            background-color: rgba(10, 10, 10, 0.98); border-left: 2px solid var(--primary);
+            z-index: 999; display: flex; justify-content: center; align-items: center;
+            transition: all 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .nav-overlay.open { right: 0; }
+        
+        .nav-links { text-align: center; }
+        .nav-links li { margin: 25px 0; }
+        .nav-links a { font-family: var(--font-console); font-size: 2.5rem; color: var(--text); text-transform: uppercase; position: relative; }
+        .nav-links a::before { content: "> "; color: var(--primary); opacity: 0; transition: var(--transition); }
+        .nav-links a:hover::before { opacity: 1; }
+        .nav-links a:hover { color: var(--primary); padding-left: 10px; }
+
+        /* --- HERO (CONSOLE WELCOME BANNER) --- */
+        #hero {
+            padding-top: 140px; padding-bottom: 60px; min-height: 70vh;
+            display: flex; flex-direction: column; justify-content: center;
+            border-bottom: 1px dashed var(--secondary); max-width: 1200px; margin: 0 auto; padding-left: 4%; padding-right: 4%;
+        }
+        .hero-ticker { color: var(--primary); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 15px; font-family: var(--font-console); }
+        .hero-title { font-size: 3.8rem; line-height: 1.05; margin-bottom: 25px; max-width: 900px; }
+        .hero-tagline { max-width: 750px; font-size: 1.05rem; color: var(--text-muted); margin-bottom: 35px; border-left: 2px solid var(--secondary); padding-left: 20px; }
+        
+        .terminal-prompt { font-family: var(--font-console); font-size: 1rem; color: var(--primary); }
+        .terminal-cursor { animation: blink 1s infinite; }
+        @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+        /* --- MAGAZINE STRUCTURE (GRID LAYOUT) --- */
+        .main-container { max-width: 1200px; margin: 0 auto; padding: 60px 4%; display: grid; grid-template-columns: 2fr 1fr; gap: 50px; }
+        
+        .section-heading {
+            font-size: 1.4rem; border-bottom: 2px solid var(--secondary); padding-bottom: 10px;
+            margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .section-heading::after { content: "[ RUNNING ]"; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); }
+
+        /* --- BLOG / ARTICLES POSTS --- */
+        .articles-feed { display: flex; flex-direction: column; gap: 50px; }
+        .post-card { background: var(--surface); border: 1px solid var(--surface-edge); padding: 30px; position: relative; transition: var(--transition); }
+        .post-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        
+        .post-meta { display: flex; gap: 20px; font-size: 0.75rem; color: var(--primary-dim); font-family: var(--font-console); text-transform: uppercase; margin-bottom: 15px; }
+        .post-meta span { display: flex; align-items: center; gap: 6px; }
+        
+        .post-title { font-size: 1.8rem; margin-bottom: 15px; line-height: 1.2; }
+        .post-card h3 a:hover { color: var(--primary); }
+        
+        .post-excerpt { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; text-align: justify; }
+        
+        .post-img-wrapper { position: relative; margin-bottom: 20px; overflow: hidden; background: #000; }
+        .post-img-wrapper img { transition: var(--transition); }
+        .post-card:hover .post-img-wrapper img { opacity: 0.8; transform: scale(1.02); }
+        
+        .radar-badge { position: absolute; top: 15px; left: 15px; background: var(--bg); border: 1px solid var(--primary); color: var(--primary); font-family: var(--font-console); font-size: 0.7rem; padding: 4px 8px; z-index: 2; }
+
+        /* Structure et styles pour le bouton rectangulaire converti en lien hypertexte */
+        .small-action-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-start;
+        }
+        .btn-small-terminal {
+            display: inline-block;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 6px 16px;
+            font-family: var(--font-console);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .btn-small-terminal:hover {
+            background: var(--primary);
+            color: var(--bg);
+        }
+
+        /* Blockquote inside specific analytical posts */
+        .terminal-block { background: var(--bg); border: 1px dashed var(--secondary); padding: 20px; margin: 20px 0; font-size: 0.85rem; color: var(--primary); }
+
+        /* --- SIDEBAR COMPONENTS --- */
+        aside { display: flex; flex-direction: column; gap: 50px; }
+        .sidebar-widget { background: var(--surface); border: 1px solid var(--surface-edge); padding: 25px; }
+        .widget-title { font-size: 1.1rem; margin-bottom: 20px; border-bottom: 1px dashed var(--secondary); padding-bottom: 8px; }
+
+        /* System Metrics Widget */
+        .metric-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 12px; font-family: var(--font-mono); }
+        .metric-label { color: var(--text-muted); }
+        .metric-value { color: var(--primary); font-weight: bold; }
+        
+        /* Registry Quick List */
+        .registry-item { display: flex; flex-direction: column; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--surface-edge); }
+        .registry-item:last-child { margin-bottom: 0; padding-bottom: 0; border: none; }
+        .registry-id { font-family: var(--font-console); font-size: 0.85rem; color: var(--primary); }
+        .registry-ts { font-size: 0.7rem; color: var(--text-muted); }
+
+        /* --- NEWSLETTER SUBSCRIPTION FORM --- */
+        .newsletter-box p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 10px; }
+        .terminal-input {
+            background: var(--bg); border: 1px solid var(--surface-edge); padding: 12px;
+            color: var(--text); font-family: var(--font-mono); font-size: 0.8rem; width: 100%;
+        }
+        .terminal-input:focus { border-color: var(--primary); outline: none; }
+        
+        .terminal-btn {
+            background: var(--secondary); border: 1px solid var(--primary); color: var(--primary);
+            padding: 12px; font-family: var(--font-console); text-transform: uppercase; cursor: pointer;
+            font-weight: bold; letter-spacing: 1px; text-align: center; transition: var(--transition);
+        }
+        .terminal-btn:hover { background: var(--primary); color: var(--bg); }
+
+        /* --- BACK TO TOP BUTTON --- */
+        #back-to-top {
+            position: fixed; bottom: 30px; right: 30px; width: 40px; height: 40px;
+            background-color: var(--surface); border: 1px solid var(--primary); color: var(--primary);
+            cursor: pointer; display: none; justify-content: center; align-items: center;
+            z-index: 500; font-size: 0.9rem; transition: var(--transition);
+        }
+        #back-to-top:hover { background: var(--primary); color: var(--bg); transform: translateY(-3px); }
+
+        /* --- FOOTER LAYOUT --- */
+        footer {
+            background-color: #050505; border-top: 2px solid var(--secondary);
+            padding: 60px 4% 40px; font-size: 0.8rem; color: var(--text-muted);
+        }
+        .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr; gap: 40px; margin-bottom: 40px; }
+        .footer-about h3 { color: var(--text); margin-bottom: 15px; }
+        .footer-about p { max-width: 600px; line-height: 1.6; }
+        
+        .footer-socials { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 15px; }
+        .social-row { display: flex; gap: 15px; }
+        .social-icon {
+            width: 36px; height: 36px; background: var(--surface); border: 1px solid var(--surface-edge);
+            color: var(--text); display: flex; justify-content: center; align-items: center; font-size: 1rem; transition: var(--transition);
+        }
+        .social-icon:hover { border-color: var(--primary); color: var(--primary); transform: scale(1.05); }
+
+        .footer-bottom { max-width: 1200px; margin: 0 auto; border-top: 1px dashed var(--surface-edge); padding-top: 25px; display: flex; justify-content: space-between; font-family: var(--font-console); }
+
+        /* --- RESPONSIVE WORK --- */
+        @media (max-width: 1024px) {
+            .main-container { grid-template-columns: 1fr; gap: 60px; }
+            .hero-title { font-size: 2.8rem; }
+        }
+        @media (max-width: 768px) {
+            header { padding: 0 6%; }
+            #hero { padding-left: 6%; padding-right: 6%; }
+            .hero-title { font-size: 2.2rem; }
+            .main-container { padding: 40px 6%; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-socials { align-items: flex-start; }
+            .footer-bottom { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">REDLINE_LOG<span>v1.6.26</span></a>
+        <div class="nav-actions">
+            <div class="hamburger" id="hamburger-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav-overlay" id="nav-overlay">
+        <ul class="nav-links">
+            <li><a href="#hero" class="nav-anchor">Index</a></li>
+            <li><a href="#feed" class="nav-anchor">Journal</a></li>
+            <li><a href="#about" class="nav-anchor">Spécifications</a></li>
+        </ul>
+    </nav>
+
+    <section id="hero">
+        <div class="hero-ticker">// INITIALIZATION SUCCESSFUL // NODES SYNCED</div>
+        <h1 class="hero-title">THE REDLINE PROTOCOL</h1>
+        <p class="hero-tagline">The snapshots capture celestial positions (Sun/Moon) and the lunar phase on the RadarClock Bigtree 1.6 to enhance clarity and demonstrate the radar's precision.</p>
+        <div class="terminal-prompt">
+            <span>root@etheric_os:~#</span> <span id="typed-text"></span><span class="terminal-cursor">█</span>
+        </div>
+    </section>
+
+    <div class="main-container">
+        
+        <main id="feed" class="articles-feed">
+            <h2 class="section-heading">Dépêches & Analyses de Flux</h2>
+
+            <article class="post-card">
+                <div class="post-meta">
+                    <span><i class="fas fa-terminal"></i> Core.log</span>
+                    <span><i class="far fa-clock"></i> 28/05/2026</span>
+                    <span><i class="fas fa-fingerprint"></i> SHA-256</span>
+                </div>
+                <div class="post-img-wrapper">
+                    <div class="radar-badge">RADARCLOCK v1.6</div>
+                    <img src="https://gateway.pinata.cloud/ipfs/bafybeiaxqqflwb37e7dirr4lozmt2pz4y34rovzrfwd6tuemw6rzwrhj5m">
+                </div>
+                
+                <div class="small-action-container">
+                    <a href="https://gateway.pinata.cloud/ipfs/bafybeiaxqqflwb37e7dirr4lozmt2pz4y34rovzrfwd6tuemw6rzwrhj5m" target="_blank" rel="noopener noreferrer" class="btn-small-terminal">Redline Log</a>
+                </div>
+
+                <h3 class="post-title"><a href="#">Analyse Structurale : Alignement des Données Célestes</a></h3>
+                <p class="post-excerpt">Ces snapshots manuels forment le Registre Redline. L'intégralité des captures est issue de flux vidéos publics intégrés via une iframe sécurisée au sein du module JavaScript de contrôle BUHS "Control Tower". L'analyse croisée permet de cartographier avec une exactitude mathématique absolue le passage solaire et sa résonance au sein du canevas atmosphérique.</p>
+                <div class="terminal-block">
+                    [SYSTEM CONFIGURATION]<br>
+                    Captured manually from a Linux PC terminal (Etheric OS 24.04 LTS and Zorin 17.3) by Oliver Bigtree. Every snapshot is guaranteed to be in real time, with no modifications or alterations.
+                </div>
+            </article>
+
+            <article class="post-card">
+                <div class="post-meta">
+                    <span><i class="fas fa-network-wired"></i> Network.log</span>
+                    <span><i class="far fa-clock"></i> 24/05/2026</span>
+                    <span><i class="fas fa-cube"></i> Block 845012</span>
+                </div>
+                <div class="post-img-wrapper">
+                    <div class="radar-badge">LEDGER VERIFIED</div>
+                    <img src="https://gateway.pinata.cloud/ipfs/bafybeicifhnqighuqncqhrpxuxvd4rph7xyy5h6giqd6rjhvdw2jvbz5kq" alt="IPFS Storage Node Schema">
+                </div>
+
+                <div class="small-action-container">
+                    <a href="https://gateway.pinata.cloud/ipfs/bafybeicifhnqighuqncqhrpxuxvd4rph7xyy5h6giqd6rjhvdw2jvbz5kq" target="_blank" rel="noopener noreferrer" class="btn-small-terminal">Redline Log</a>
+                </div>
+
+                <h3 class="post-title"><a href="#">Horodatage et Distribution Immuable via OpenTimestamps</a></h3>
+                <p class="post-excerpt">The best captures are uploaded to the IPFS network for sharing and downloading. Additionally, snapshots are timestamped individually or in blocks via OpenTimestamps (Bitcoin blockchain) to certify their archival in the ledger. Cela garantit qu'aucune entité ne peut modifier l'empreinte temporelle de la lumière enregistrée à un instant T.</p>
+            </article>
+
+            <article class="post-card">
+                <div class="post-meta">
+                    <span><i class="fas fa-server"></i> Server.log</span>
+                    <span><i class="far fa-clock"></i> 19/05/2026</span>
+                    <span><i class="fas fa-microchip"></i> Stratum 1</span>
+                </div>
+                <div class="post-img-wrapper">
+                    <div class="radar-badge">XYLEM AUTO</div>
+                    <img src="https://gateway.pinata.cloud/ipfs/QmdyWC96Lv47cToKTQTZCFyFucUYRTS3KcLjbsWsHHQ6tS" alt="Server Infrastructure Room">
+                </div>
+
+                <div class="small-action-container">
+                    <a href="https://gateway.pinata.cloud/ipfs/QmdyWC96Lv47cToKTQTZCFyFucUYRTS3KcLjbsWsHHQ6tS" target="_blank" rel="noopener noreferrer" class="btn-small-terminal">Redline Log</a>
+                </div>
+
+                <h3 class="post-title"><a href="#">Synchronisation Nanoseconde : Le Registre XYLEM</a></h3>
+                <p class="post-excerpt">Automatic snapshots are executed directly from the BUHS server in Zurich and form the XYLEM Registry. Ce serveur d'infrastructure opère sur une horloge de niveau Stratum 1 synchronisée via Chrony/Nginx, assurant une précision temporelle sans faille face aux anomalies géométriques de la distribution réseau standard.</p>
+            </article>
+        </main>
+
+        <aside id="about">
+            
+            <div class="sidebar-widget">
+                <h3 class="widget-title">Statut Infrastructure</h3>
+                <div class="metric-row">
+                    <span class="metric-label">Noyau Réseau :</span>
+                    <span class="metric-value">BUHS Zurich Server</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Horloge Maîtresse :</span>
+                    <span class="metric-value">Stratum 1 (Chrony)</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Précision Sync :</span>
+                    <span class="metric-value">Nanosecond-level</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Intégrité Média :</span>
+                    <span class="metric-value">0% Alteration</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Modules Node :</span>
+                    <span class="metric-value">Control Tower JS</span>
+                </div>
+            </div>
+
+            <div class="sidebar-widget">
+                <h3 class="widget-title">Dernières Empreintes Log</h3>
+                <div class="registry-item">
+                    <span class="registry-id">> QmSJxEBCtiLxkyuj7jCMUvqiSY...</span>
+                    <span class="registry-ts">XYLEM_SCAN // 28/05/2026 21:00:02</span>
+                </div>
+                <div class="registry-item">
+                    <span class="registry-id">> QmZ9PRiySdbWB7AR4eYUeovt53...</span>
+                    <span class="registry-ts">XYLEM_SCAN // 28/05/2026 20:00:01</span>
+                </div>
+                <div class="registry-item">
+                    <span class="registry-id">> QmTn9R4ZVY5cbYot8NR6wvLBQR...</span>
+                    <span class="registry-ts">REDLINE_MAN // 28/05/2026 19:00:01</span>
+                </div>
+            </div>
+
+            <div class="sidebar-widget newsletter-box">
+                <h3 class="widget-title">Abonnement Flux Ledger</h3>
+                <p>Enregistrez votre clé ou email pour recevoir les hashes des blocs d'horodatage OpenTimestamps.</p>
+                <form class="input-group" onsubmit="event.preventDefault(); alert('Empreinte d\'abonnement insérée dans la queue.'); this.reset();">
+                    <input type="email" class="terminal-input" placeholder="user@node-domain.xyz" required>
+                    <button type="submit" class="terminal-btn">EXECUTE_SUBMIT</button>
+                </form>
+            </div>
+        </aside>
+    </div>
+
+    <button id="back-to-top" aria-label="Remonter la console"><i class="fas fa-chevron-up"></i></button>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-about">
+                <h3>METHODE DE VERIFICATION ULTIME</h3>
+                <p>The ultimate verification method is to visit the source webcam websites directly to cross-reference and validate identical observations. L'immutabilité et l'honnêteté scientifique reposent sur la vérifiabilité décentralisée par des pairs indépendants.</p>
+            </div>
+            <div class="footer-socials">
+                <div class="social-row">
+                    <a href="#" class="social-icon" aria-label="Network Database"><i class="fas fa-database"></i></a>
+                    <a href="#" class="social-icon" aria-label="Terminal Source"><i class="fas fa-terminal"></i></a>
+                    <a href="#" class="social-icon" aria-label="Cryptographic Nodes"><i class="fas fa-cubes"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>&copy; 2026 THE REDLINE PROTOCOL // EXECUTED BY OLIVER BIGTREE</div>
+            <div>STATUS: UNALTERED_TEMPORAL_MARK_OK</div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // --- 1. TYPEWRITER EFFECT IN HERO ---
+            const textToType = "cat /etc/buhs/control-tower/protocol_specs.md";
+            const typedTextElement = document.getElementById("typed-text");
+            let characterIndex = 0;
+
+            function typeWriterAnimation() {
+                if (characterIndex < textToType.length) {
+                    typedTextElement.textContent += textToType.charAt(characterIndex);
+                    characterIndex++;
+                    setTimeout(typeWriterAnimation, 70);
+                }
+            }
+            setTimeout(typeWriterAnimation, 600);
+
+            // --- 2. RESPONSIVE HAMBURGER MENU OVERLAY ---
+            const hamburgerBtn = document.getElementById("hamburger-btn");
+            const navOverlay = document.getElementById("nav-overlay");
+            const navAnchors = document.querySelectorAll(".nav-anchor");
+
+            function toggleNavigation() {
+                hamburgerBtn.classList.toggle("active");
+                navOverlay.classList.toggle("open");
+                document.body.style.overflow = navOverlay.classList.contains("open") ? "hidden" : "";
+            }
+
+            hamburgerBtn.addEventListener("click", toggleNavigation);
+
+            navAnchors.forEach(anchor => {
+                anchor.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    toggleNavigation();
+                    
+                    const targetId = anchor.getAttribute("href");
+                    const targetSection = document.querySelector(targetId);
+                    
+                    if(targetSection) {
+                        targetSection.scrollIntoView({ behavior: "smooth" });
+                    }
+                });
+            });
+
+            // --- 3. BACK TO TOP SCROLL MONITORING ---
+            const backToTopBtn = document.getElementById("back-to-top");
+
+            window.addEventListener("scroll", () => {
+                if (window.scrollY > 400) {
+                    backToTopBtn.style.display = "flex";
+                } else {
+                    backToTopBtn.style.display = "none";
+                }
+            });
+
+            backToTopBtn.addEventListener("click", () => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+        });
+    </script>
+</body>
+</html>
