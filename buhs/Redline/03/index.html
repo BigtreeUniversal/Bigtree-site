@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>🔴 REDLINE_LOG_3</title>
+    <style>
+        body { background: #0a0a0a; color: #eee; font-family: monospace; padding: 30px; line-height: 1.6; }
+        h1 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 10px; font-weight: 300; letter-spacing: 1px; margin-bottom: 20px; }
+        .ascii-header { color: #ff4444; font-family: monospace; white-space: pre; margin-bottom: 20px; font-size: 0.9em; }
+        .metadata-box { background: #111; border: 1px solid #222; padding: 20px; margin-bottom: 30px; border-radius: 4px; }
+        .metadata-box table { width: 100%; border-collapse: collapse; }
+        .metadata-box td { padding: 5px 10px; vertical-align: top; }
+        .label { color: #ff4444; font-weight: bold; width: 150px; }
+        
+        table.log-table { width: 100%; border-collapse: collapse; background: #111; margin-top: 20px; }
+        table.log-table th, table.log-table td { border: 1px solid #222; padding: 12px; text-align: left; }
+        table.log-table th { background: #1a1a1a; color: #ff4444; font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .snapshot-row:hover { background: #151515; }
+        .timestamp { color: #888; font-size: 0.9em; }
+        .badge { padding: 2px 6px; border-radius: 3px; font-size: 0.8em; font-weight: bold; }
+        .badge-initiale { background: #3b2020; color: #ff4444; border: 1px solid #ff4444; }
+        .badge-manuel { background: #202b3b; color: #4499ff; border: 1px solid #4499ff; }
+        
+        /* Style des boutons simplifiés pour corrélation rapide */
+        .cid-btn { 
+            display: inline-block; 
+            background: #222; 
+            color: #ff4444; 
+            text-decoration: none; 
+            border: 1px solid #ff4444; 
+            padding: 4px 12px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            font-size: 1em;
+            transition: all 0.2s ease;
+        }
+        .cid-btn:hover { 
+            background: #ff4444; 
+            color: #000; 
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
+        }
+        .filename { color: #aaa; font-size: 0.9em; }
+        
+        .footer { margin-top: 50px; text-align: center; border-top: 1px solid #222; padding-top: 20px; font-size: 0.8em; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="ascii-header">
+####################################################
+    ____  _       __
+   / __ )(_)___ _/ /_________  ___
+  / __  / / __ `/ __/ ___/ _ \/ _ \ 
+ / /_/ / / /_/ / /_/ /  /  __/  __/     *
+/_____/_/\__,_/\__/_/   \___/\___/ @REDLINE-PROTOCOL
+        /____/
+####################################################
+    </div>
+
+    <h1>REDLINE REGISTRY - SYSTEM LOG</h1>
+
+    <div class="metadata-box">
+        <table>
+            <tr><td class="label">LOG NUMBER:</td><td>3</td></tr>
+            <tr><td class="label">TITLE:</td><td>REDLINE_LOG_3</td></tr>
+            <tr><td class="label">OS HUB:</td><td>BUHS Etheric OS 24.04.LTS</td></tr>
+            <tr><td class="label">SOURCE NODE:</td><td>BUHS Control Tower</td></tr>
+            <tr><td class="label">PROTOCOL:</td><td>@monitor-version5</td></tr>
+            <tr><td class="label">TIMESTAMP:</td><td>2026-06-01</td></tr>
+            <tr><td class="label">OBSERVATIONS:</td><td><span style="color: #00ff66;">KILAUEA ERUPTION</span></td></tr>
+        </table>
+    </div>
+
+    <table class="log-table">
+        <thead>
+            <tr>
+                <th style="width: 8%;">INDEX</th>
+                <th style="width: 20%;">TIMESTAMP UTC</th>
+                <th style="width: 12%;">TYPE</th>
+                <th style="width: 45%;">FICHIER SOURCE</th>
+                <th style="width: 15%;">ACCÈS IPFS</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">1</td>
+                <td class="timestamp">[2026-06-01_18-03-37]</td>
+                <td><span class="badge badge-initiale">INITIALE</span></td>
+                <td class="filename">SESSION_INITIALE_2026-06-01_18-03-37.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeielsudcdovsxwkiq2q7lsq7tq4rqufaygkkxqiah75mdm2r6kg6ke" target="_blank" class="cid-btn" title="CID: bafybeielsudcdovsxwkiq2q7lsq7tq4rqufaygkkxqiah75mdm2r6kg6ke">
+                        1
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">2</td>
+                <td class="timestamp">[2026-06-01_18-05-53]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_18-05-53.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeifrgfbcysen363i423ctmfdlttdbtq33chxkhn5x3apri2enkuqnq" target="_blank" class="cid-btn" title="CID: bafybeifrgfbcysen363i423ctmfdlttdbtq33chxkhn5x3apri2enkuqnq">
+                        2
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">3</td>
+                <td class="timestamp">[2026-06-01_18-07-15]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_18-07-15.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeicbizgqj64do6nocer4zfqilf2kyjhndpojgz2sc6xhqohfmkaau4" target="_blank" class="cid-btn" title="CID: bafybeicbizgqj64do6nocer4zfqilf2kyjhndpojgz2sc6xhqohfmkaau4">
+                        3
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">4</td>
+                <td class="timestamp">[2026-06-01_18-08-49]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_18-08-49.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeiblna4nxohlmy7mqpbrm3fxvxrnktdlewztbly5s75mpp4fjzz3oq" target="_blank" class="cid-btn" title="CID: bafybeiblna4nxohlmy7mqpbrm3fxvxrnktdlewztbly5s75mpp4fjzz3oq">
+                        4
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">5</td>
+                <td class="timestamp">[2026-06-01_18-16-00]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_18-16-00.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeifk6ozwptu4g3tlemdiuintcyo6zqaydfcnajrez442oorivy3pz4" target="_blank" class="cid-btn" title="CID: bafybeifk6ozwptu4g3tlemdiuintcyo6zqaydfcnajrez442oorivy3pz4">
+                        5
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">6</td>
+                <td class="timestamp">[2026-06-01_18-16-44]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_18-16-44.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeihloxy35zddyzh3ixvidp4lf7x2sf3y5yrcdt7vrjn4w7pd3w6bv4" target="_blank" class="cid-btn" title="CID: bafybeihloxy35zddyzh3ixvidp4lf7x2sf3y5yrcdt7vrjn4w7pd3w6bv4">
+                        6
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">7</td>
+                <td class="timestamp">[2026-06-01_18-19-14]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_18-19-14.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeig4j2bjhacb3fdr2grbiabztiffsmq4o77j5fspnld2kvg4zpdzg4" target="_blank" class="cid-btn" title="CID: bafybeig4j2bjhacb3fdr2grbiabztiffsmq4o77j5fspnld2kvg4zpdzg4">
+                        7
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">8</td>
+                <td class="timestamp">[2026-06-01_18-46-52]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_18-46-52.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeieg5bd4fmngepemctzz3ecgv6n6qjbjuokkkzwdziqouaa5egleni" target="_blank" class="cid-btn" title="CID: bafybeieg5bd4fmngepemctzz3ecgv6n6qjbjuokkkzwdziqouaa5egleni">
+                        8
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">9</td>
+                <td class="timestamp">[2026-06-01_18-48-42]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_18-48-42.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeid4dlav5siggb7vscrrxom2lz2frwyp47l7onskmqxubqq4uz3kiy" target="_blank" class="cid-btn" title="CID: bafybeid4dlav5siggb7vscrrxom2lz2frwyp47l7onskmqxubqq4uz3kiy">
+                        9
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">10</td>
+                <td class="timestamp">[2026-06-01_18-50-22]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_18-50-22.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeiaovnupvbs3374dub7xdkt7xjtv4ptdh4trwxittqq7n2rp2agiai" target="_blank" class="cid-btn" title="CID: bafybeiaovnupvbs3374dub7xdkt7xjtv4ptdh4trwxittqq7n2rp2agiai">
+                        10
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">11</td>
+                <td class="timestamp">[2026-06-01_19-01-01]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_19-01-01.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeihmcq5yu7rfsqihrtegspssdyccitad7mizwkupb5kn52bhmx5equ" target="_blank" class="cid-btn" title="CID: bafybeihmcq5yu7rfsqihrtegspssdyccitad7mizwkupb5kn52bhmx5equ">
+                        11
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">12</td>
+                <td class="timestamp">[2026-06-01_19-35-27]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_19-35-27.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeiddada2vwih3yp6dehcxvrcxni3egnsij4wu54uo5rcli2o2u2zx4" target="_blank" class="cid-btn" title="CID: bafybeiddada2vwih3yp6dehcxvrcxni3egnsij4wu54uo5rcli2o2u2zx4">
+                        12
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">13</td>
+                <td class="timestamp">[2026-06-01_19-44-07]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_MANUEL_2026-06-01_19-44-07.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeieh4rgvcoyahw2pz7meya3apuoxe2fgwxporsgvoi3n7k4c2muihu" target="_blank" class="cid-btn" title="CID: bafybeieh4rgvcoyahw2pz7meya3apuoxe2fgwxporsgvoi3n7k4c2muihu">
+                        13
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        BUHS Universal Network &copy; 2026 | Archival Security Sealed
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>🔴 REDLINE_LOG_2</title>
+    <style>
+        body { background: #0a0a0a; color: #eee; font-family: monospace; padding: 30px; line-height: 1.6; }
+        h1 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 10px; font-weight: 300; letter-spacing: 1px; margin-bottom: 20px; }
+        .ascii-header { color: #ff4444; font-family: monospace; white-space: pre; margin-bottom: 20px; font-size: 0.9em; }
+        .metadata-box { background: #111; border: 1px solid #222; padding: 20px; margin-bottom: 30px; border-radius: 4px; }
+        .metadata-box table { width: 100%; border-collapse: collapse; }
+        .metadata-box td { padding: 5px 10px; vertical-align: top; }
+        .label { color: #ff4444; font-weight: bold; width: 150px; }
+        
+        table.log-table { width: 100%; border-collapse: collapse; background: #111; margin-top: 20px; }
+        table.log-table th, table.log-table td { border: 1px solid #222; padding: 12px; text-align: left; }
+        table.log-table th { background: #1a1a1a; color: #ff4444; font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .snapshot-row:hover { background: #151515; }
+        .timestamp { color: #888; font-size: 0.9em; }
+        .badge { padding: 2px 6px; border-radius: 3px; font-size: 0.8em; font-weight: bold; }
+        .badge-initiale { background: #3b2020; color: #ff4444; border: 1px solid #ff4444; }
+        .badge-manuel { background: #202b3b; color: #4499ff; border: 1px solid #4499ff; }
+        
+        /* Style des boutons simplifiés pour corrélation rapide */
+        .cid-btn { 
+            display: inline-block; 
+            background: #222; 
+            color: #ff4444; 
+            text-decoration: none; 
+            border: 1px solid #ff4444; 
+            padding: 4px 12px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            font-size: 1em;
+            transition: all 0.2s ease;
+        }
+        .cid-btn:hover { 
+            background: #ff4444; 
+            color: #000; 
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
+        }
+        .filename { color: #aaa; font-size: 0.9em; }
+        
+        .footer { margin-top: 50px; text-align: center; border-top: 1px solid #222; padding-top: 20px; font-size: 0.8em; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="ascii-header">
+####################################################
+    ____  _       __
+   / __ )(_)___ _/ /_________  ___
+  / __  / / __ `/ __/ ___/ _ \/ _ \ 
+ / /_/ / / /_/ / /_/ /  /  __/  __/     *
+/_____/_/\__,_/\__/_/   \___/\___/ @REDLINE-PROTOCOL
+        /____/
+####################################################
+    </div>
+
+    <h1>REDLINE REGISTRY - SYSTEM LOG</h1>
+
+    <div class="metadata-box">
+        <table>
+            <tr><td class="label">LOG NUMBER:</td><td>2</td></tr>
+            <tr><td class="label">TITLE:</td><td>REDLINE_LOG_2</td></tr>
+            <tr><td class="label">OS HUB:</td><td>BUHS Etheric OS 24.04.LTS</td></tr>
+            <tr><td class="label">SOURCE NODE:</td><td>BUHS Control Tower</td></tr>
+            <tr><td class="label">PROTOCOL:</td><td>@monitor-version5</td></tr>
+            <tr><td class="label">TIMESTAMP:</td><td>2026-06-01</td></tr>
+            <tr><td class="label">OBSERVATIONS:</td><td><span style="color: #00ff66;">Sunset in AFRICA - Sunrise in HAWAI</span></td></tr>
+        </table>
+    </div>
+
+    <table class="log-table">
+        <thead>
+            <tr>
+                <th style="width: 8%;">INDEX</th>
+                <th style="width: 20%;">TIMESTAMP UTC</th>
+                <th style="width: 12%;">TYPE</th>
+                <th style="width: 45%;">FICHIER SOURCE</th>
+                <th style="width: 15%;">ACCÈS IPFS</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">1</td>
+                <td class="timestamp">[2026-06-01_17-05-03]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_LOG_2026-06-01_17-05-03.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeicp4skataf3yq7uthtjtyru4ucf35havd46zgx4gsj74p52gjlpqy" target="_blank" class="cid-btn" title="CID: bafybeicp4skataf3yq7uthtjtyru4ucf35havd46zgx4gsj74p52gjlpqy">
+                        1
+                    </a>
+                </td>
+            </tr>
+            <tr class="snapshot-row">
+                <td style="font-weight: bold; color: #ff4444; text-align: center;">2</td>
+                <td class="timestamp">[2026-06-01_17-06-08]</td>
+                <td><span class="badge badge-manuel">MANUEL</span></td>
+                <td class="filename">SESSION_LOG_2026-06-01_17-06-08.png</td>
+                <td>
+                    <a href="https://ipfs.io/ipfs/bafybeig5wuh7m4d3tfyiu3cmfejpi54m5gmofxuq6jbehf4ph457stswoq" target="_blank" class="cid-btn" title="CID: bafybeig5wuh7m4d3tfyiu3cmfejpi54m5gmofxuq6jbehf4ph457stswoq">
+                        2
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        BUHS Universal Network &copy; 2026 | Archival Security Sealed
+    </div>
+
+</body>
+</html>
