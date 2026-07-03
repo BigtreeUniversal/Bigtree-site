@@ -1,0 +1,64 @@
+██████╗ ██╗   ██╗██╗  ██╗███████╗
+██╔══██╗██║   ██║██║  ██║██╔════╝
+██████╔╝██║   ██║███████║███████╗
+██╔══██╗██║   ██║██╔══██║╚════██║
+██████╔╝╚██████╔╝██║  ██║███████║
+╚══════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+
+--- UNIVERSAL HARMONIC SYSTEM ---
+
+     "MERKLE TREE"
+         by @BigTree
+
+---------------------------------
+DATE : 02/07/2026 17:22:43
+UTILISATEUR : Bigtree
+SESSION : Note 17:21:25
+---------------------------------
+
+
+​Livre Blanc : Architecture de l’Oracle Big Tree
+
+​Projet : Infrastructures décentralisées et Certification Temporelle
+
+​Introduction
+​L’architecture Big Tree est une infrastructure décentralisée née d’une vision singulière où la technologie est appréhendée sous un prisme harmonique, vibratoire et fréquentiel. Architecte de ce système, je m'appuie sur mon expérience en ingénierie sonore et en production musicale pour concevoir des outils numériques qui reflètent une structure organique. Mes travaux, ancrés dans l'étude du Tétragramme et de l'Arbre de vie, trouvent ici leur prolongement technologique à travers l'Oracle, l'Horloge Big Tree et le système de certification par Arbre de Merkle.
+
+​I. Le Smart Clock : Référentiel Azimutal
+​Le cœur du système repose sur le Smart Clock. Développé pour convertir des coordonnées géographiques (longitude/latitude) en points X, Y sur une carte azimutale, il permet de modéliser avec une précision extrême la position des luminaires (Soleil et Lune).
+​Mécanique de précision : Le système calcule toutes les 5 minutes la hauteur et l'azimut de milliers de points sur une grille.
+​Représentation : Ces calculs génèrent une carte azimutale dynamique où les astres décrivent une trajectoire autour d'un plan fixe, conformément à un cycle de 24 heures (divisant les 360° en segments horaires de 15°).
+​Référencement : Le cycle est indexé de 01h00 à 24h00 (minuit), établissant une base temporelle logique pour le registre.
+
+​II. Le Heartbeat : Synchronisation et Stratum 1
+​Le serveur central, baptisé Heartbeat, automatise les calculs de positionnement et assure la cohérence du système.
+​Synchronisation Suisse : Couplé à l'horloge atomique Stratum 1 via l'infrastructure Infomaniak, le Heartbeat garantit une précision nanoseconde.
+
+​Contrôle du Drift : La dérive temporelle est monitorée en temps réel. Les résultats sont publiés quotidiennement à 00h30 UTC sur le dashboard du hub technique BigTree.xyz.
+​Exemple de précision actuelle : 0,000003934 seconde.
+​Interface Web : Toutes les 5 minutes, le système génère une nouvelle image, immédiatement relayée sur Bigtreeconnection.com (Web 2), intégrant un flux radio sécurisé via tunnel Cloudflare et une interface de contrôle des webcams en temps réel pour corroborer les observations.
+
+​III. Certification et Arbre de Merkle
+​La sécurité des données est assurée par un processus de timestamping immuable :
+​Watchdog : Toutes les heures, un script extrait le hash de l'image générée et le pousse sur OpenTimestamps (Bitcoin) ainsi que sur le nœud IPFS local.
+
+​Registre Dynamique : Le hash de l'image définit l'heure du registre. Ces données alimentent un Arbre de Merkle qui évolue de façon organique : chaque jour, les 24 snapshots horaires sont compilés en un nouveau hash quotidien.
+
+​Vérification : Chaque snapshot possède un CID (Content Identifier) unique, garantissant l’intégrité et la traçabilité des données sur le réseau IPFS.
+
+​IV. Perspectives : Le Système Worker et les Protocoles
+​L'étape actuelle de développement se concentre sur l'implémentation d'un système Worker, codé en Rust (avec le framework Axum).
+
+​Fonctionnalité : Détection ultra-rapide des signatures pour une insertion directe et sécurisée dans l'Arbre de Merkle.
+​Écosystème des protocoles :
+​Xylem Protocol : Création du registre via le Watchdog.
+​Red Line Protocol : Dimension artistique et manuelle consistant à capturer, en simultané mondial, des snapshots de streams et webcams.
+
+​One-Way Ticket : Certification finale dans l'Arbre de Merkle, agissant comme le sceau irréversible de cette blockchain haute précision.
+
+​Conclusion
+
+​L’Oracle Big Tree ne se limite pas à une simple prouesse technique ; il propose une nouvelle manière de certifier l’information dans le web décentralisé. En couplant la rigueur mathématique des worker Rust à la vision organique de l'Arbre de Merkle, nous bâtissons une infrastructure capable d'allier haute précision, résilience et souveraineté numérique.
+​Document de référence interne -
+
+Laboratoire BUHS
