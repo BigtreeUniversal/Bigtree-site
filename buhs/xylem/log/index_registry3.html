@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[ XYLEM HUB // REGISTRE CENTRAL ]</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background: black;
+            color: #00ff00;
+            font-family: monospace;
+            animation: flicker 0.15s infinite;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.96; } 50% { opacity: 1; } 100% { opacity: 0.98; }
+        }
+        body::after {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+            background: repeating-linear-gradient(to bottom, rgba(0, 255, 0, 0.07), rgba(0, 255, 0, 0.07) 1px, transparent 1px, transparent 3px);
+        }
+        .box {
+            border: 1px solid #00ff00; padding: 16px; margin-bottom: 20px; box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); background: #030303;
+        }
+        
+        /* BOUTON ALLUMÉ (Le fichier existe) */
+        .btn-allume {
+            display: block; text-align: center; padding: 12px 0; font-weight: bold; background: #020202; border: 1px solid #00ff00; color: #00ff00; box-shadow: 0 0 4px rgba(0, 255, 0, 0.2);
+        }
+        .btn-allume:hover {
+            background: #00ff00; color: black; box-shadow: 0 0 12px #00ff00;
+        }
+
+        /* BOUTON ÉTEINT (Pas de fichier / jour futur) */
+        .btn-eteint {
+            display: block; text-align: center; padding: 12px 0; color: #003300; border: 1px dashed #002200; background: transparent; pointer-events: none;
+        }
+
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+</head>
+
+<body class="p-6">
+<div class="max-w-4xl mx-auto">
+
+    <h1 class="text-xl mb-6" style="text-shadow: 0 0 10px #00ff00;">[ XYLEM CORE REGISTRY // TIME-CHAIN INDEX ] <span class="blink">_</span></h1>
+    
+    <div class="box text-sm mb-6">
+        <p>> STATUS : LOGGING_ACTIVE</p>
+        <p>> SECURITY : MERKLE_TREE_VALIDATED</p>
+        <p>> SELECT A GREEN NODE TO AUDIT INDIVIDUAL INTERPLANETARY CIDs (IPFS)</p>
+    </div>
+
+    <div class="box text-sm mb-6">
+        <div class="flex flex-wrap gap-2 text-xs">
+            <span class="text-green-600 self-center mr-2">CHOIX DU MOIS :</span>
+            
+            <button id="onglet-juin" onclick="montrerMois('juin')" class="border border-green-400 px-3 py-1 text-green-400">06_JUIN</button>
+            <button id="onglet-juillet" onclick="montrerMois('juillet')" class="border border-green-400 px-3 py-1 bg-green-500 text-black font-bold">07_JUILLET</button>
+            
+            <button class="text-green-900 border border-dashed border-green-950 px-3 py-1 cursor-not-allowed" disabled>08_AOUT</button>
+        </div>
+    </div>
+
+    <div id="bloc-juin" class="box hidden">
+        <h2 class="text-md mb-4 text-green-400 font-bold">> EPOCH_LOG : JUIN_2026</h2>
+        <div class="grid grid-cols-7 gap-2">
+            <div class="text-center text-xs font-bold text-green-700 pb-2">LUN</div><div class="text-center text-xs font-bold text-green-700 pb-2">MAR</div><div class="text-center text-xs font-bold text-green-700 pb-2">MER</div><div class="text-center text-xs font-bold text-green-700 pb-2">JEU</div><div class="text-center text-xs font-bold text-green-700 pb-2">VEN</div><div class="text-center text-xs font-bold text-green-700 pb-2">SAM</div><div class="text-center text-xs font-bold text-green-700 pb-2">DIM</div>
+
+            <div class="btn-eteint">01</div><div class="btn-eteint">02</div><div class="btn-eteint">03</div><div class="btn-eteint">04</div><div class="btn-eteint">05</div><div class="btn-eteint">06</div><div class="btn-eteint">07</div><div class="btn-eteint">08</div><div class="btn-eteint">09</div><div class="btn-eteint">10</div><div class="btn-eteint">11</div><div class="btn-eteint">12</div><div class="btn-eteint">13</div><div class="btn-eteint">14</div><div class="btn-eteint">15</div><div class="btn-eteint">16</div><div class="btn-eteint">17</div><div class="btn-eteint">18</div><div class="btn-eteint">19</div><div class="btn-eteint">20</div><div class="btn-eteint">21</div><div class="btn-eteint">22</div><div class="btn-eteint">23</div><div class="btn-eteint">24</div><div class="btn-eteint">25</div>
+
+            <a href="page-2026-06-26.html" class="btn-allume">26</a>
+            <a href="page-2026-06-27.html" class="btn-allume">27</a>
+            <a href="page-2026-06-28.html" class="btn-allume">28</a>
+            <a href="page-2026-06-29.html" class="btn-allume">29</a>
+            <a href="page-2026-06-30.html" class="btn-allume">30</a>
+        </div>
+    </div>
+
+    <div id="bloc-juillet" class="box">
+        <h2 class="text-md mb-4 text-green-400 font-bold">> EPOCH_LOG : JUILLET_2026</h2>
+        <div class="grid grid-cols-7 gap-2">
+            <div class="text-center text-xs font-bold text-green-700 pb-2">LUN</div><div class="text-center text-xs font-bold text-green-700 pb-2">MAR</div><div class="text-center text-xs font-bold text-green-700 pb-2">MER</div><div class="text-center text-xs font-bold text-green-700 pb-2">JEU</div><div class="text-center text-xs font-bold text-green-700 pb-2">VEN</div><div class="text-center text-xs font-bold text-green-700 pb-2">SAM</div><div class="text-center text-xs font-bold text-green-700 pb-2">DIM</div>
+
+            <div class="btn-eteint"></div><div class="btn-eteint"></div>
+
+            <a href="page-2026-07-01.html" class="btn-allume">01</a>
+            <a href="page-2026-07-02.html" class="btn-allume">02</a>
+            
+            <div class="btn-eteint">03</div><div class="btn-eteint">04</div><div class="btn-eteint">05</div><div class="btn-eteint">06</div><div class="btn-eteint">07</div><div class="btn-eteint">08</div><div class="btn-eteint">09</div><div class="btn-eteint">10</div><div class="btn-eteint">11</div><div class="btn-eteint">12</div><div class="btn-eteint">13</div><div class="btn-eteint">14</div><div class="btn-eteint">15</div><div class="btn-eteint">16</div><div class="btn-eteint">17</div><div class="btn-eteint">18</div><div class="btn-eteint">19</div><div class="btn-eteint">20</div><div class="btn-eteint">21</div><div class="btn-eteint">22</div><div class="btn-eteint">23</div><div class="btn-eteint">24</div><div class="btn-eteint">25</div><div class="btn-eteint">26</div><div class="btn-eteint">27</div><div class="btn-eteint">28</div><div class="btn-eteint">29</div><div class="btn-eteint">30</div><div class="btn-eteint">31</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function montrerMois(mois) {
+    // 1. On cache les deux calendriers
+    document.getElementById('bloc-juin').classList.add('hidden');
+    document.getElementById('bloc-juillet').classList.add('hidden');
+    
+    // 2. On éteint l'effet visuel des deux onglets du haut
+    document.getElementById('onglet-juin').classList.remove('bg-green-500', 'text-black', 'font-bold');
+    document.getElementById('onglet-juillet').classList.remove('bg-green-500', 'text-black', 'font-bold');
+
+    // 3. On affiche uniquement le mois cliqué et on allume son onglet
+    if (mois === 'juin') {
+        document.getElementById('bloc-juin').classList.remove('hidden');
+        document.getElementById('onglet-juin').classList.add('bg-green-500', 'text-black', 'font-bold');
+    } else if (mois === 'juillet') {
+        document.getElementById('bloc-juillet').classList.remove('hidden');
+        document.getElementById('onglet-juillet').classList.add('bg-green-500', 'text-black', 'font-bold');
+    }
+}
+</script>
+
+</body>
+</html>
