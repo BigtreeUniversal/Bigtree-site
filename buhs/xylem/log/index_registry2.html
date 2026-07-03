@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[ XYLEM HUB // REGISTRE CENTRAL ]</title>
+    <title>[ XYLEM HUB // CENTRAL LOG ]</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -97,28 +97,58 @@
         <p>> SELECT A GREEN NODE TO AUDIT INDIVIDUAL INTERPLANETARY CIDs (IPFS)</p>
     </div>
 
-    <div class="box text-sm">
-    <p class="mb-2">> MOUNT_POINT : SELECT_SYSTEM_LOG_EPOCH</p>
+    <div class="box text-sm mb-6">
+        <p class="mb-2">> MOUNT_POINT : SELECT_SYSTEM_LOG_EPOCH</p>
 
-    <div class="flex gap-4 mb-3 border-b border-green-900 pb-2">
-        <span class="text-green-600">YEAR:</span>
-        <button class="text-green-400 font-bold underline">[ 2026 ]</button>
-        <button class="text-green-800 cursor-not-allowed" disabled>[ 2027 (LOCKED) ]</button>
+        <div class="flex gap-4 mb-3 border-b border-green-900 pb-2">
+            <span class="text-green-600">YEAR:</span>
+            <button class="text-green-400 font-bold underline">[ 2026 ]</button>
+            <button class="text-green-800 cursor-not-allowed" disabled>[ 2027 (LOCKED) ]</button>
+        </div>
+
+        <div class="flex flex-wrap gap-2 text-xs">
+            <span class="text-green-600 self-center mr-2">MONTH:</span>
+            
+            <button id="btn-juin2026" onclick="switchEpoch('juin2026')" class="epoch-btn border border-green-700 px-2 py-1 text-green-400">06_JUIN</button>
+            <button id="btn-juillet2026" onclick="switchEpoch('juillet2026')" class="epoch-btn border border-green-400 px-2 py-1 bg-green-500 text-black font-bold">07_JUILLET</button>
+            
+            <button class="text-green-900 border border-dashed border-green-950 px-2 py-1 cursor-not-allowed" disabled>08_AOUT</button>
+            <button class="text-green-900 border border-dashed border-green-950 px-2 py-1 cursor-not-allowed" disabled>09_SEPT</button>
+            <button class="text-green-900 border border-dashed border-green-950 px-2 py-1 cursor-not-allowed" disabled>10_OCT</button>
+            <button class="text-green-900 border border-dashed border-green-950 px-2 py-1 cursor-not-allowed" disabled>11_NOV</button>
+            <button class="text-green-900 border border-dashed border-green-950 px-2 py-1 cursor-not-allowed" disabled>12_DEC</button>
+        </div>
     </div>
 
-<script>
-function switchEpoch(epochId) {
-    // 1. Masquer tous les calendriers
-    document.querySelectorAll('.epoch-calendar').forEach(el => el.classList.add('hidden'));
-    // 2. Afficher le calendrier sélectionné
-    document.getElementById(epochId).classList.remove('hidden');
+    <div id="juin2026" class="epoch-calendar box hidden">
+        <h2 class="text-md mb-4 text-green-400">> EPOCH_LOG : JUIN_2026</h2>
+        
+        <div class="grid grid-cols-7 gap-2">
+            <div class="text-center text-xs font-bold text-green-700 pb-2">LUN</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">MAR</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">MER</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">JEU</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">VEN</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">SAM</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">DIM</div>
 
-    // 3. Optionnel : Mettre à jour le style visuel des boutons pour voir lequel est actif
-    // (Ajouter/retirer les classes de fond vert)
-}
-</script>
+            <div class="day-node empty">01</div><div class="day-node empty">02</div><div class="day-node empty">03</div>
+            <div class="day-node empty">04</div><div class="day-node empty">05</div><div class="day-node empty">06</div>
+            <div class="day-node empty">07</div><div class="day-node empty">08</div><div class="day-node empty">09</div>
+            <div class="day-node empty">10</div><div class="day-node empty">11</div><div class="day-node empty">12</div>
+            <div class="day-node empty">13</div><div class="day-node empty">14</div><div class="day-node empty">15</div>
+            <div class="day-node empty">16</div><div class="day-node empty">17</div><div class="day-node empty">18</div>
+            <div class="day-node empty">19</div><div class="day-node empty">20</div><div class="day-node empty">21</div>
+            <div class="day-node empty">22</div><div class="day-node empty">23</div><div class="day-node empty">24</div>
+            <div class="day-node empty">25</div><div class="day-node empty">26</div><div class="day-node empty">27</div>
 
-    <div class="box">
+            <a href="page-2026-06-28.html" class="day-node">28</a>
+
+            <div class="day-node empty">29</div><div class="day-node empty">30</div>
+        </div>
+    </div>
+
+    <div id="juillet2026" class="epoch-calendar box">
         <h2 class="text-md mb-4 text-green-400">> EPOCH_LOG : JUILLET_2026</h2>
         
         <div class="grid grid-cols-7 gap-2">
@@ -170,27 +200,43 @@ function switchEpoch(epochId) {
 </div>
 
 <script>
-    // Scanner réseau automatique pour vérifier l'existence des fichiers
-    document.addEventListener("DOMContentLoaded", function() {
-        const links = document.querySelectorAll(".day-node[href]");
-        
-        links.forEach(link => {
-            const url = link.getAttribute("href");
-            
-            // On fait une requête "HEAD" légère pour vérifier si le fichier existe
-            fetch(url, { method: 'HEAD' })
-                .then(response => {
-                    if (!response.ok) {
-                        // Fichier absent (404) -> Le bouton s'éteint
-                        link.classList.add("empty");
-                    }
-                })
-                .catch(() => {
-                    // Erreur réseau -> Par sécurité on éteint le bouton
-                    link.classList.add("empty");
-                });
-        });
+function switchEpoch(epochId) {
+    // 1. Masque tous les calendriers
+    document.querySelectorAll('.epoch-calendar').forEach(el => el.classList.add('hidden'));
+    
+    // 2. Affiche le calendrier sélectionné
+    document.getElementById(epochId).classList.remove('hidden');
+
+    // 3. Réinitialise le style visuel de tous les boutons de mois
+    document.querySelectorAll('.epoch-btn').forEach(btn => {
+        btn.classList.remove('bg-green-500', 'text-black', 'font-bold');
+        btn.classList.add('text-green-400');
     });
+
+    // 4. Allume le bouton actif
+    const activeBtn = document.getElementById('btn-' + epochId);
+    if(activeBtn) {
+        activeBtn.classList.remove('text-green-400');
+        activeBtn.classList.add('bg-green-500', 'text-black', 'font-bold');
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const links = document.querySelectorAll(".day-node[href]");
+    
+    links.forEach(link => {
+        const url = link.getAttribute("href");
+        fetch(url, { method: 'HEAD' })
+            .then(response => {
+                if (!response.ok) {
+                    link.classList.add("empty");
+                }
+            })
+            .catch(() => {
+                link.classList.add("empty");
+            });
+    });
+});
 </script>
 
 </body>
