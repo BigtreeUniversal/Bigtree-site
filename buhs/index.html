@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus AI — Gating New Generation of AI</title>
+    <!-- Google Fonts: JetBrains Mono for the ultimate hacker/terminal aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CSS VARIABLES & THEME CONFIGURATION --- */
+        :root {
+            --bg-pure: #050505;
+            --bg-surface: #0f0f0f;
+            --bg-surface-light: #161616;
+            --accent-electric: #00ff88;
+            --accent-dim: #009955;
+            --accent-dark: #003311;
+            --text-main: #e0e0e0;
+            --text-muted: #888888;
+            --border-color: #222222;
+            --border-glow: rgba(0, 255, 136, 0.15);
+            --font-mono: 'JetBrains Mono', monospace;
+            --transition-speed: 0.3s;
+        }
+
+        /* --- CSS RESET & BASE STYLES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-pure);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Scanline CRT overlay effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        a {
+            color: var(--accent-electric);
+            text-decoration: none;
+            transition: color var(--transition-speed) ease;
+        }
+
+        a:hover {
+            color: #ffffff;
+        }
+
+        button, input {
+            font-family: var(--font-mono);
+        }
+
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-pure);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-dark);
+            border: 1px solid var(--accent-electric);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-dim);
+        }
+
+        /* --- GLOBAL UTILITIES --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .text-accent { color: var(--accent-electric); }
+        .text-muted { color: var(--text-muted); }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            color: var(--accent-electric);
+            border: 1px solid var(--accent-electric);
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
+            transition: all 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            background: var(--accent-electric);
+            color: var(--bg-pure);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-filled {
+            background: var(--accent-electric);
+            color: var(--bg-pure);
+        }
+
+        .btn-filled:hover {
+            background: transparent;
+            color: var(--accent-electric);
+        }
+
+        .terminal-header-tag {
+            display: inline-block;
+            background: var(--accent-dark);
+            color: var(--accent-electric);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            border: 1px solid var(--accent-dim);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        /* --- HEADER & NAVIGATION --- */
+        header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1000;
+            background: rgba(5, 5, 5, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .nav-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-blink {
+            width: 10px;
+            height: 1.5rem;
+            background-color: var(--accent-electric);
+            animation: blink 1s infinite;
+        }
+
+        /* Hamburger Menu Icon */
+        .hamburger {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background-color: var(--accent-electric);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-10px) rotate(-45deg);
+        }
+
+        /* Fullscreen Navigation Menu Overlay */
+        .nav-menu {
+            position: fixed;
+            top: 0; right: -100%;
+            width: 100%; height: 100vh;
+            background: rgba(5, 5, 5, 0.98);
+            border-left: 1px solid var(--accent-dim);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: 1000;
+        }
+
+        @media (min-width: 768px) {
+            .nav-menu {
+                width: 400px;
+            }
+        }
+
+        .nav-menu.active {
+            right: 0;
+        }
+
+        .nav-menu a {
+            font-size: 1.5rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .nav-menu a::before {
+            content: "> ";
+            opacity: 0;
+            transition: opacity var(--transition-speed);
+        }
+
+        .nav-menu a:hover::before {
+            opacity: 1;
+        }
+
+        /* --- HERO ROTATING CAROUSEL --- */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 80px;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hero-slider {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 20%, var(--bg-pure) 80%),
+                        linear-gradient(to right, rgba(5,5,5,0.95), rgba(5,5,5,0.4));
+        }
+
+        .slide.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 700px;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; }
+        }
+
+        .hero-desc {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .slider-controls {
+            position: absolute;
+            bottom: 3rem;
+            right: 2rem;
+            z-index: 4;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border: 1px solid var(--accent-electric);
+            background: transparent;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .slider-dot.active {
+            background: var(--accent-electric);
+            box-shadow: 0 0 10px var(--accent-electric);
+        }
+
+        /* --- STATS COUNTER SECTION --- */
+        .stats-section {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 4rem 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-card {
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            background: var(--bg-pure);
+            position: relative;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--accent-electric);
+            transform: scaleX(0);
+            transition: transform 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-electric);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        /* --- ALTERNATING CONTENT LAYOUT --- */
+        .section-padding {
+            padding: 8rem 0;
+        }
+
+        .alternating-section {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .grid-split {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        @media (min-width: 992px) {
+            .grid-split {
+                grid-template-columns: 1fr 1fr;
+            }
+            .grid-split.reverse {
+                direction: rtl;
+            }
+            .grid-split.reverse .grid-content {
+                direction: ltr;
+            }
+        }
+
+        .grid-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* Code/Terminal Block Styling */
+        .terminal-block {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .terminal-topbar {
+            background: var(--bg-surface-light);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .terminal-dot-sub {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #444;
+        }
+
+        .terminal-dot-sub:nth-child(1) { background: #ff5f56; }
+        .terminal-dot-sub:nth-child(2) { background: #ffbd2e; }
+        .terminal-dot-sub:nth-child(3) { background: #27c93f; }
+
+        .terminal-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .terminal-body {
+            padding: 1.5rem;
+            font-size: 0.9rem;
+            color: #d4d4d4;
+            overflow-x: auto;
+        }
+
+        .code-keyword { color: #569cd6; }
+        .code-string { color: #ce9178; }
+        .code-comment { color: #6a9955; }
+        .code-type { color: #4ec9b0; }
+
+        /* --- PRICING SECTION --- */
+        .pricing-section {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .pricing-card {
+            background: var(--bg-pure);
+            border: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all var(--transition-speed);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent-electric);
+            box-shadow: 0 0 20px var(--border-glow);
+        }
+
+        .pricing-card.featured::after {
+            content: 'RECOMMENDED';
+            position: absolute;
+            top: 0; right: 2rem;
+            transform: translateY(-50%);
+            background: var(--accent-electric);
+            color: var(--bg-pure);
+            padding: 0.15rem 0.5rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .plan-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-electric);
+            margin-bottom: 1.5rem;
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2.5rem;
+        }
+
+        .plan-features li {
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .plan-features li::before {
+            content: '[+]';
+            color: var(--accent-electric);
+            font-size: 0.8rem;
+        }
+
+        /* --- FAQ ACCORDION --- */
+        .faq-section {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .faq-wrapper {
+            max-width: 800px;
+            margin: 4rem auto 0;
+        }
+
+        .faq-item {
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            margin-bottom: 1rem;
+            transition: border-color var(--transition-speed);
+        }
+
+        .faq-item:hover {
+            border-color: var(--accent-dim);
+        }
+
+        .faq-trigger {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 1.5rem;
+            text-align: left;
+            color: var(--text-main);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-icon {
+            font-size: 1.2rem;
+            color: var(--accent-electric);
+            transition: transform var(--transition-speed);
+        }
+
+        .faq-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-speed) ease-out;
+            padding: 0 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .faq-item.active .faq-content {
+            padding-bottom: 1.5rem;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        /* --- NEWSLETTER CONSOLE FORM --- */
+        .newsletter-section {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .console-form {
+            max-width: 600px;
+            margin: 3rem auto 0;
+            border: 1px solid var(--border-color);
+            background: var(--bg-pure);
+        }
+
+        .console-input-row {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .console-prompt {
+            color: var(--accent-electric);
+            margin-right: 0.75rem;
+            font-weight: 700;
+            user-select: none;
+        }
+
+        .console-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .console-submit {
+            background: var(--accent-dark);
+            border: none;
+            border-left: 1px solid var(--border-color);
+            color: var(--accent-electric);
+            padding: 1rem 2rem;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all var(--transition-speed);
+            text-transform: uppercase;
+        }
+
+        .console-submit:hover {
+            background: var(--accent-electric);
+            color: var(--bg-pure);
+        }
+
+        .console-output {
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            min-height: 60px;
+            border-top: 1px solid var(--border-color);
+            display: none;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--bg-pure);
+            padding: 6rem 0 3rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 4rem;
+            margin-bottom: 4rem;
+        }
+
+        .footer-logo-desc {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 768px) {
+            .footer-logo-desc {
+                grid-column: span 1;
+            }
+        }
+
+        .footer-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            color: var(--accent-electric);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-electric);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        @media (min-width: 768px) {
+            .footer-bottom {
+                flex-direction: row;
+            }
+        }
+
+        /* --- STICKY CALL TO ACTION --- */
+        .sticky-cta {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 999;
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
+            100% { box-shadow: 0 0 25px rgba(0, 255, 136, 0.5); }
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Scroll Animation Target */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+    </style>
+</head>
+<body>
+
+    <!-- STICKY CALL TO ACTION -->
+    <a href="#pricing" class="btn btn-filled sticky-cta">> CONSOLE ACCESS</a>
+
+    <!-- HEADER / NAVIGATION -->
+    <header>
+        <div class="container nav-wrapper">
+            <a href="#" class="logo">
+                NEXUS_AI<span class="logo-blink"></span>
+            </a>
+            
+            <button class="hamburger" id="hamburgerBtn" aria-label="Toggle Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav class="nav-menu" id="navMenu">
+                <a href="#hero" class="menu-link">01 // HOME</a>
+                <a href="#features" class="menu-link">02 // FEATURES</a>
+                <a href="#stats" class="menu-link">03 // TELEMETRY</a>
+                <a href="#pricing" class="menu-link">04 // PRICING</a>
+                <a href="#faq" class="menu-link">05 // FAQ</a>
+                <a href="#subscribe" class="menu-link">06 // SUBSCRIBE</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO SECTION (ROTATING CAROUSEL) -->
+    <section class="hero" id="hero">
+        <div class="hero-slider">
+            <!-- Slide 1: Text Gen -->
+            <div class="slide active" style="background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://picsum.photos/1920/1080?random=1');">
+                <div class="container">
+                    <div class="hero-content">
+                        <span class="terminal-header-tag">NODE // 01 // TEXT GENERATION</span>
+                        <h1 class="hero-title">NEXT-GEN TEXT GENERATION</h1>
+                        <p class="hero-desc">Nexus processes neural models to formulate complex, high-fidelity documents, technical copy, and contextual frameworks at speed.</p>
+                        <a href="#features" class="btn">> INITIATE MODULE</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 2: Image Gen -->
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://picsum.photos/1920/1080?random=2');">
+                <div class="container">
+                    <div class="hero-content">
+                        <span class="terminal-header-tag">NODE // 02 // VISUAL SYNTHESIS</span>
+                        <h1 class="hero-title">MULTI-FORMAT IMAGE SYNTHESIS</h1>
+                        <p class="hero-desc">Synthesize vector data, architectural blueprints, and high-resolution conceptual art directly from terminal-grade prompts.</p>
+                        <a href="#features" class="btn">> RUN COMPILER</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 3: Advanced Coding -->
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://picsum.photos/1920/1080?random=3');">
+                <div class="container">
+                    <div class="hero-content">
+                        <span class="terminal-header-tag">NODE // 03 // MULTI-LANGUAGE DEPLOY</span>
+                        <h1 class="hero-title">RUST, JULIA, & KP PROTOCOLS</h1>
+                        <p class="hero-desc">A compiler-aware AI system designed to structure error-free production-ready code blocks across modern deep-tech environments.</p>
+                        <a href="#features" class="btn">> DEPLOY ENVIRONMENT</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slider Controls -->
+        <div class="slider-controls">
+            <button class="slider-dot active" data-slide="0"></button>
+            <button class="slider-dot" data-slide="1"></button>
+            <button class="slider-dot" data-slide="2"></button>
+        </div>
+    </section>
+
+    <!-- STATS COUNTER SECTION -->
+    <section class="stats-section" id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" data-target="9998">0</div>
+                    <div class="stat-label">COMPILER OPS / SEC</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="100">0</div>
+                    <div class="stat-label">DEEP TECH DOMAINS</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="450">0</div>
+                    <div class="stat-label">WEB3 NODES ACTIVE</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="99">0</div>
+                    <div class="stat-label">ACCURACY RATE (%)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ALTERNATING FEATURES SECTION -->
+    <section class="alternating-section section-padding" id="features">
+        <div class="container">
+            
+            <!-- Feature 1: Text & Document Export -->
+            <div class="grid-split reveal">
+                <div class="grid-content">
+                    <span class="terminal-header-tag">ENGINE // TEXT & EXPORT</span>
+                    <h2 class="section-title">NEXUS TEXT SYNTHESIS & DOCUMENT EXPORT</h2>
+                    <p class="section-desc">Generate reports, research whitepapers, and technical manuals. Export your compiled files instantly in Markdown, JSON, PDF, or raw LaTeX formats for seamless deep tech integration.</p>
+                    <ul class="plan-features" style="margin-bottom: 2rem;">
+                        <li style="color: var(--text-main);">Raw LaTeX compilation for scientific papers</li>
+                        <li style="color: var(--text-main);">Multi-format structure preserving syntax trees</li>
+                    </ul>
+                    <div>
+                        <a href="#pricing" class="btn">> INITIATE TERMINAL</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="terminal-block">
+                        <div class="terminal-topbar">
+                            <div class="terminal-dots">
+                                <div class="terminal-dot-sub"></div>
+                                <div class="terminal-dot-sub"></div>
+                                <div class="terminal-dot-sub"></div>
+                            </div>
+                            <div class="terminal-title">nexus_exporter.sh</div>
+                        </div>
+                        <div class="terminal-body">
+                            <code style="color: #a9b7c6;">
+                                <span class="code-comment"># Querying Nexus AI Core</span><br>
+                                <span class="code-keyword">$</span> nexus export --format=latex --out=./document<br>
+                                <span class="code-comment">&gt; Compiling structural nodes...</span><br>
+                                <span class="code-comment">&gt; Parsing document semantics...</span><br>
+                                <span class="code-keyword">SUCCESS</span>: File exported to <span class="code-string">"./document.tex"</span> (4.2MB)<br>
+                                <span class="code-comment">&gt; Telemetry: 100% loss-free export.</span>
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 2: Coding Engine (Rust, Julia, KP) -->
+            <div class="grid-split reverse reveal" style="margin-top: 8rem;">
+                <div class="grid-content">
+                    <span class="terminal-header-tag">COMPILER // MULTI-LANG</span>
+                    <h2 class="section-title">ADVANCED COMPILER INTEROPERABILITY</h2>
+                    <p class="section-desc">Unlike traditional models, Nexus is native to cutting-edge languages. It structures, debugs, and compiles Rust safety frameworks, Julia scientific equations, and KP custom schema parameters without compilation overhead.</p>
+                    <ul class="plan-features" style="margin-bottom: 2rem;">
+                        <li style="color: var(--text-main);">Rust memory-safety validations</li>
+                        <li style="color: var(--text-main);">Julia computational speed frameworks</li>
+                    </ul>
+                    <div>
+                        <a href="#pricing" class="btn">> COMPILE MODULE</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="terminal-block">
+                        <div class="terminal-topbar">
+                            <div class="terminal-dots">
+                                <div class="terminal-dot-sub"></div>
+                                <div class="terminal-dot-sub"></div>
+                                <div class="terminal-dot-sub"></div>
+                            </div>
+                            <div class="terminal-title">rust_verification.rs</div>
+                        </div>
+                        <div class="terminal-body">
+                            <code style="color: #a9b7c6;">
+                                <span class="code-keyword">fn</span> <span class="code-type">verify_nexus_node</span>(id: <span class="code-type">u64</span>) -&gt; <span class="code-type">Result</span>&lt;(), Error&gt; {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">// Thread-safe memory check via Nexus Engine</span><br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">let</span> node = Node::initialize(id)?;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">match</span> node.status() {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status::Active =&gt; <span class="code-type">Ok</span>(()),<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_ =&gt; <span class="code-type">Err</span>(Error::Offline),<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                                }
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 3: Web3 & Deep Tech Integration -->
+            <div class="grid-split reveal" style="margin-top: 8rem;">
+                <div class="grid-content">
+                    <span class="terminal-header-tag">INTEGRATION // WEB3 & DEEP TECH</span>
+                    <h2 class="section-title">DEEP TECH & WEB3 INTERFACING</h2>
+                    <p class="section-desc">Built for the next frontier of physical and digital infrastructure. Nexus connects directly to decentralized storage protocols, zero-knowledge proofs, and deep-tech mathematical modeling frameworks.</p>
+                    <ul class="plan-features" style="margin-bottom: 2rem;">
+                        <li style="color: var(--text-main);">ZK-SNARK proof acceleration schemas</li>
+                        <li style="color: var(--text-main);">IPFS and decentralized storage mapping</li>
+                    </ul>
+                    <div>
+                        <a href="#pricing" class="btn">> CONNECT WALLET</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="terminal-block">
+                        <div class="terminal-topbar">
+                            <div class="terminal-dots">
+                                <div class="terminal-dot-sub"></div>
+                                <div class="terminal-dot-sub"></div>
+                                <div class="terminal-dot-sub"></div>
+                            </div>
+                            <div class="terminal-title">zk_proof_telemetry.sh</div>
+                        </div>
+                        <div class="terminal-body">
+                            <code style="color: #a9b7c6;">
+                                <span class="code-keyword">$</span> nexus-node initiate-zk-proof --id=8831<br>
+                                <span class="code-comment">&gt; Generating proof parameters...</span><br>
+                                <span class="code-comment">&gt; Verification Key Generated: 0x4fA7...31E9</span><br>
+                                <span class="code-keyword">STATUS</span>: <span class="code-string">"VALID"</span><br>
+                                <span class="code-comment">&gt; Proof successfully submitted to L2 mainnet.</span>
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PRICING SECTION -->
+    <section class="pricing-section section-padding" id="pricing">
+        <div class="container">
+            <div style="text-align: center; max-width: 600px; margin: 0 auto 4rem;">
+                <span class="terminal-header-tag">PRICING TIERS</span>
+                <h2 class="section-title">CHOOSE YOUR PROTOCOL</h2>
+                <p class="text-muted">Unshackled computing capacity tailored to your organizational scale.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Sandbox Plan -->
+                <div class="pricing-card reveal delay-1">
+                    <div>
+                        <div class="plan-name">SANDBOX (DEV)</div>
+                        <div class="plan-price">$0 <span>/ forever</span></div>
+                        <ul class="plan-features">
+                            <li>10,000 text ops / month</li>
+                            <li>Basic image outputs</li>
+                            <li>Rust compiler support</li>
+                            <li>Standard export options</li>
+                        </ul>
+                    </div>
+                    <button class="btn" style="width: 100%;">INITIALIZE DEVELOPMENT</button>
+                </div>
+
+                <!-- Mainnet Plan -->
+                <div class="pricing-card featured reveal delay-2">
+                    <div>
+                        <div class="plan-name">MAINNET (PRO)</div>
+                        <div class="plan-price">$49 <span>/ month</span></div>
+                        <ul class="plan-features">
+                            <li>Unlimited text ops</li>
+                            <li>High-res image outputs</li>
+                            <li>Rust, Julia, & KP compilation</li>
+                            <li>Advanced LaTeX & raw export</li>
+                            <li>Web3 integration frameworks</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-filled" style="width: 100%;">UPGRADE CONSOLE</button>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="pricing-card reveal delay-3">
+                    <div>
+                        <div class="plan-name">ENTERPRISE (NODE)</div>
+                        <div class="plan-price">CUSTOM <span>/ annual</span></div>
+                        <ul class="plan-features">
+                            <li>Dedicated cluster allocation</li>
+                            <li>Custom model fine-tuning</li>
+                            <li>Zero-knowledge proof integrations</li>
+                            <li>24/7/365 direct dev console support</li>
+                        </ul>
+                    </div>
+                    <button class="btn" style="width: 100%;">REQUEST DEPLOYMENT</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="faq-section section-padding" id="faq">
+        <div class="container">
+            <div style="text-align: center; max-width: 600px; margin: 0 auto 2rem;">
+                <span class="terminal-header-tag">DOCS & HELP</span>
+                <h2 class="section-title">FREQUENTLY QUERIED PROTOCOLS</h2>
+            </div>
+
+            <div class="faq-wrapper reveal">
+                <!-- FAQ 1 -->
+                <div class="faq-item">
+                    <button class="faq-trigger">
+                        <span>[Q] What exactly is the "KP" coding format?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-content">
+                        <p>KP stands for Kernel Protocol, a proprietary structural syntax used inside deep-tech systems for high-performance data serialization. Nexus is pre-trained on KP structures to allow quick conversion and execution of custom systemic schemas.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="faq-item">
+                    <button class="faq-trigger">
+                        <span>[Q] How does document exporting handle LaTeX?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-content">
+                        <p>Nexus generates document structures with native mathematical syntax support. When exporting as LaTeX, it packages the bibliography, layout parameters, and raw mathematical equations into a structured .tex file ready for direct compilation in Overleaf or local TeX engines.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="faq-item">
+                    <button class="faq-trigger">
+                        <span>[Q] Are my alternative or deep tech queries kept private?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-content">
+                        <p>Yes. Under the BUHS / Bigtree Universal Harmonic System ethical guidelines (June 2026), Nexus AI treats all queries—including highly sensitive, theoretical, or alternative scientific concepts—with complete neutrality, zero judgment, and enterprise-grade end-to-end encryption.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEWSLETTER SUBSCRIPTION -->
+    <section class="newsletter-section section-padding" id="subscribe">
+        <div class="container">
+            <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                <span class="terminal-header-tag">NEWSLETTER SUBSCRIPTION</span>
+                <h2 class="section-title">SUBSCRIBE TO THE PROTOCOL</h2>
+                <p class="text-muted">Receive weekly telemetry reports, technical updates, and deep tech insights directly to your terminal.</p>
+            </div>
+
+            <div class="console-form reveal">
+                <form id="newsletterForm">
+                    <div class="console-input-row">
+                        <span class="console-prompt">nexus_sub:~$</span>
+                        <input type="email" class="console-input" placeholder="enter_developer_email@domain.com" required id="emailInput">
+                        <button type="submit" class="console-submit">EXECUTE</button>
+                    </div>
+                </form>
+                <div class="console-output" id="consoleOutput"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-logo-desc">
+                    <div class="logo" style="margin-bottom: 1.5rem;">
+                        NEXUS_AI<span class="logo-blink"></span>
+                    </div>
+                    <p class="text-muted" style="font-size: 0.9rem; max-width: 400px;">
+                        Gating the Next Generation of AI. High-performance text synthesis, multi-format images, and direct developer compiler integrations.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="footer-title">// NAVIGATION</h3>
+                    <ul class="footer-links">
+                        <li><a href="#hero">01 // HOME</a></li>
+                        <li><a href="#features">02 // FEATURES</a></li>
+                        <li><a href="#stats">03 // TELEMETRY</a></li>
+                        <li><a href="#pricing">04 // PRICING</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="footer-title">// COMPLIANCE</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">SYSTEM STATUS</a></li>
+                        <li><a href="#">ETHICAL CHARTER</a></li>
+                        <li><a href="#">PRIVACY DECREE</a></li>
+                        <li><a href="#">BUHS REQUISITE</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div>
+                    ORGANIZATION: <span class="text-accent">BUHS (Bigtree Universal Harmonic System)</span>
+                </div>
+                <div>
+                    &copy; 2026 NEXUS AI. DESIGNED BY BIGTREE. ALL RIGHTS SECURED.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- --- JAVASCRIPT LOGIC --- -->
+    <script>
+        // --- MOBILE HAMBURGER MENU SYSTEM ---
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const navMenu = document.getElementById('navMenu');
+        const menuLinks = document.querySelectorAll('.menu-link');
+
+        function toggleMenu() {
+            hamburgerBtn.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        }
+
+        hamburgerBtn.addEventListener('click', toggleMenu);
+
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (navMenu.classList.contains('active')) {
+                    toggleMenu();
+                }
+            });
+        });
+
+        // --- HERO ROTATING CAROUSEL SYSTEM ---
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.slider-dot');
+        let currentSlide = 0;
+        let slideInterval;
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+            currentSlide = index;
+        }
+
+        function nextSlide() {
+            let next = (currentSlide + 1) % slides.length;
+            showSlide(next);
+        }
+
+        function startSlideShow() {
+            slideInterval = setInterval(nextSlide, 6000); // Rotate every 6 seconds
+        }
+
+        function resetSlideShow() {
+            clearInterval(slideInterval);
+            startSlideShow();
+        }
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                showSlide(index);
+                resetSlideShow();
+            });
+        });
+
+        startSlideShow();
+
+        // --- ANIMATED STATISTICS COUNTER SYSTEM ---
+        const stats = document.querySelectorAll('.stat-number');
+        const statsSection = document.getElementById('stats');
+        let counted = false;
+
+        function startCounting() {
+            stats.forEach(stat => {
+                const target = parseInt(stat.getAttribute('data-target'), 10);
+                const countTo = target;
+                let current = 0;
+                // Speed curve logic
+                const duration = 2000; 
+                const increment = Math.ceil(target / (duration / 16)); 
+
+                const updateCount = setInterval(() => {
+                    current += increment;
+                    if (current >= countTo) {
+                        stat.innerText = countTo.toLocaleString();
+                        clearInterval(updateCount);
+                    } else {
+                        stat.innerText = current.toLocaleString();
+                    }
+                }, 16);
+            });
+        }
+
+        // --- SCROLL-TRIGGERED REVEAL & STATS TRIGGER ---
+        const reveals = document.querySelectorAll('.reveal');
+
+        const observerOptions = {
+            root: null,
+            threshold: 0.15,
+            rootMargin: "0px"
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    
+                    // Trigger stats if stats element enters view
+                    if (entry.target.id === 'stats' && !counted) {
+                        startCounting();
+                        counted = true;
+                    }
+                }
+            });
+        }, observerOptions);
+
+        reveals.forEach(el => observer.observe(el));
+        observer.observe(statsSection); // Specifically observe stats container
+
+        // --- FAQ ACCORDION INTERACTIVITY ---
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            const trigger = item.querySelector('.faq-trigger');
+            trigger.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                
+                // Close all FAQ items
+                faqItems.forEach(i => {
+                    i.classList.remove('active');
+                    i.querySelector('.faq-content').style.maxHeight = null;
+                });
+
+                // If not previously active, open clicked item
+                if (!isActive) {
+                    item.classList.add('active');
+                    const content = item.querySelector('.faq-content');
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        });
+
+        // --- NEWSLETTER CONSOLE SUBMISSION SYSTEM ---
+        const newsletterForm = document.getElementById('newsletterForm');
+        const emailInput = document.getElementById('emailInput');
+        const consoleOutput = document.getElementById('consoleOutput');
+
+        newsletterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            
+            // Display simulated command line output
+            consoleOutput.style.display = 'block';
+            consoleOutput.innerHTML = `
+                <span style="color: var(--accent-electric);">[INFO]</span> Initializing connection to core subscription nodes...<br>
+                <span style="color: var(--accent-electric);">[INFO]</span> Encoding developer address: <span style="color: #ffffff;">${email}</span><br>
+                <span style="color: var(--accent-electric);">[SUCCESS]</span> Address registered under BUHS-Mainnet. Weekly telemetry scheduled.
+            `;
+            
+            emailInput.value = '';
+        });
+    </script>
+</body>
+</html>
