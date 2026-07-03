@@ -97,6 +97,44 @@
         <p>> SELECT A GREEN NODE TO AUDIT INDIVIDUAL INTERPLANETARY CIDs (IPFS)</p>
     </div>
 
+    <div class="box text-sm">
+    <p class="mb-2">> MOUNT_POINT : SELECT_SYSTEM_LOG_EPOCH</p>
+    
+    <div class="flex gap-4 mb-3 border-b border-green-900 pb-2">
+        <span class="text-green-600">YEAR:</span>
+        <button class="text-green-400 font-bold underline">[ 2026 ]</button>
+        <button class="text-green-800 cursor-not-allowed" disabled>[ 2027 (LOCKED) ]</button>
+    </div>
+
+    <div class="flex flex-wrap gap-2 text-xs">
+        <span class="text-green-600 self-center mr-2">MONTH:</span>
+        
+        <button onclick="switchEpoch('juin2026')" class="epoch-btn border border-green-700 px-2 py-1 hover:bg-green-500 hover:text-black">06_JUIN</button>
+        <button onclick="switchEpoch('juillet2026')" class="epoch-btn border border-green-400 px-2 py-1 bg-green-500 text-black font-bold">07_JUILLET</button>
+        
+        <button class="text-green-900 border border-dashed border-green-950 px-2 py-1 cursor-not-allowed" disabled>08_AOUT</button>
+        <button class="text-green-900 border border-dashed border-green-950 px-2 py-1 cursor-not-allowed" disabled>09_SEPT</button>
+        <button class="text-green-900 border border-dashed border-green-950 px-2 py-1 cursor-not-allowed" disabled>10_OCT</button>
+        <button class="text-green-900 border border-dashed border-green-950 px-2 py-1 cursor-not-allowed" disabled>11_NOV</button>
+        <button class="text-green-900 border border-dashed border-green-950 px-2 py-1 cursor-not-allowed" disabled>12_DEC</button>
+    </div>
+</div>
+
+<div id="juin2026" class="epoch-calendar box hidden"> ... calendrier de juin ... </div>
+<div id="juillet2026" class="epoch-calendar box"> ... calendrier de juillet ... </div>
+
+<script>
+function switchEpoch(epochId) {
+    // 1. Masquer tous les calendriers
+    document.querySelectorAll('.epoch-calendar').forEach(el => el.classList.add('hidden'));
+    // 2. Afficher le calendrier sélectionné
+    document.getElementById(epochId).classList.remove('hidden');
+    
+    // 3. Optionnel : Mettre à jour le style visuel des boutons pour voir lequel est actif
+    // (Ajouter/retirer les classes de fond vert)
+}
+</script>
+
     <div class="box">
         <h2 class="text-md mb-4 text-green-400">> EPOCH_LOG : JUILLET_2026</h2>
         
