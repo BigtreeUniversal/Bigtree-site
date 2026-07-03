@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS XYZ HUB DASHBOARD</title>
+    
+    <!-- Inline PWA Web Manifest via Data URI -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"BUHS Universal Hub","short_name":"BUHS","start_url":".","display":"standalone","background_color":"#050505","theme_color":"#00ff66","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><text y=%2270%22 x=%2210%22 font-family=%22monospace%22 font-size=%2260%22 fill=%22%2300ff66%22>U</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
+    <meta name="theme-color" content="#00ff66" id="theme-color-meta">
+    
+    <style>
+        /* CSS Variables for Themes */
+        :root {
+            --primary: #00ff66;
+            --primary-glow: rgba(0, 255, 102, 0.4);
+            --primary-dim: rgba(0, 255, 102, 0.15);
+            --bg: #050505;
+            --surface: #0f1410;
+            --border: rgba(0, 255, 102, 0.3);
+            --font: 'Courier New', Courier, monospace;
+        }
+
+        .theme-amber {
+            --primary: #ffb000;
+            --primary-glow: rgba(255, 176, 0, 0.4);
+            --primary-dim: rgba(255, 176, 0, 0.15);
+            --surface: #14110f;
+            --border: rgba(255, 176, 0, 0.3);
+        }
+
+        .theme-cyan {
+            --primary: #00e5ff;
+            --primary-glow: rgba(0, 229, 255, 0.4);
+            --primary-dim: rgba(0, 229, 255, 0.15);
+            --surface: #0f1414;
+            --border: rgba(0, 229, 255, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--primary);
+            font-family: var(--font);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* CRT Scanlines and Flicker Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        @keyframes crt-flicker {
+            0% { opacity: 0.98; }
+            50% { opacity: 1; }
+            100% { opacity: 0.99; }
+        }
+
+        .crt-container {
+            width: 100%;
+            max-width: 1000px;
+            animation: crt-flicker 0.15s infinite;
+        }
+
+        /* Header & Theme Switcher */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .ascii-banner {
+            white-space: pre;
+            font-size: 0.75vw;
+            line-height: 1.2;
+            text-shadow: 0 0 5px var(--primary);
+        }
+
+        @media (max-width: 600px) {
+            .ascii-banner {
+                font-size: 5px;
+            }
+            header {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-theme {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 5px 10px;
+            cursor: pointer;
+            font-family: var(--font);
+            font-size: 0.8rem;
+            text-shadow: 0 0 3px var(--primary);
+            transition: all 0.3s;
+        }
+
+        .btn-theme:hover, .btn-theme.active {
+            background-color: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* Digital Clock Panel */
+        .clock-panel {
+            border: 2px solid var(--primary);
+            padding: 20px;
+            background-color: var(--surface);
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 15px var(--primary-dim);
+        }
+
+        .clock-label {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .clock-display {
+            font-size: 2.2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nanoseconds {
+            font-size: 1.6rem;
+            opacity: 0.8;
+            filter: blur(0.6px);
+            transition: filter 0.1s;
+            display: inline-block;
+            width: 140px;
+            text-align: left;
+        }
+
+        /* Grid of Retro Buttons */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .grid-button {
+            border: 1px solid var(--primary);
+            background-color: var(--surface);
+            color: var(--primary);
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 0 5px var(--primary-dim);
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+        }
+
+        .grid-button:hover {
+            background-color: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 0 15px var(--primary);
+            transform: scale(1.02);
+            text-shadow: none;
+        }
+
+        /* Interactive Console & Trigger Area */
+        .interactive-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .interactive-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            border: 1px solid var(--primary);
+            background-color: var(--surface);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel-title {
+            font-size: 1rem;
+            border-bottom: 1px solid var(--primary);
+            padding-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* CLI Terminal style */
+        .terminal-box {
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--border);
+            height: 200px;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .terminal-line {
+            line-height: 1.4;
+        }
+
+        .terminal-input-container {
+            display: flex;
+            border: 1px solid var(--primary);
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .terminal-prompt {
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        .terminal-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            color: var(--primary);
+            font-family: var(--font);
+            padding: 10px 5px;
+            font-size: 0.9rem;
+        }
+
+        /* File Trigger Area */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            padding: 30px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            background-color: var(--primary-dim);
+            border-color: var(--primary);
+        }
+
+        .btn-action {
+            background-color: var(--primary-dim);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 12px;
+            font-family: var(--font);
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background-color: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* Documentation Panel */
+        .doc-section {
+            border: 1px solid var(--primary);
+            background-color: var(--surface);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .doc-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .doc-content p {
+            margin-bottom: 12px;
+        }
+
+        .doc-content ul {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            font-size: 0.75rem;
+            margin-top: auto;
+            padding: 20px 0;
+            border-top: 1px solid var(--border);
+            width: 100%;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-dim);
+            border: 1px solid var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="crt-container">
+    <header>
+        <div class="ascii-banner">██████╗ ██╗   ██╗██╗  ██╗███████╗
+██╔══██╗██║   ██║██║  ██║██╔════╝
+██████╔╝██║   ██║███████║███████╗
+██╔══██╗██║   ██║██╔══██║╚════██║
+██████╔╝╚██████╔╝██║  ██║███████║
+╚══════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+--- UNIVERSAL HARMONIC SYSTEM ---
+     "BUHS XYZ HUB DASHBOARD"
+         by @BigTree</div>
+        
+        <div class="controls">
+            <div style="font-size:0.8rem; text-transform:uppercase;">Select Theme:</div>
+            <div class="theme-selector">
+                <button class="btn-theme active" onclick="setTheme('green')">GREEN</button>
+                <button class="btn-theme" onclick="setTheme('amber')">AMBER</button>
+                <button class="btn-theme" onclick="setTheme('cyan')">CYAN</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Frantic Digital Clock -->
+    <section class="clock-panel">
+        <div class="clock-label">High-Precision Swiss Native Anchor Time (UTC)</div>
+        <div class="clock-display">
+            <span id="clock-base">YYYY-MM-DD HH:MM:SS</span>.<span id="clock-nano" class="nanoseconds">000000000</span>
+        </div>
+    </section>
+
+    <!-- Interactive Section (CLI + Rust Trigger) -->
+    <section class="interactive-section">
+        <!-- Terminal Console -->
+        <div class="panel">
+            <div class="panel-title">System Console</div>
+            <div class="terminal-box" id="terminal-output">
+                <div class="terminal-line">> BUHS XYZ Network connected.</div>
+                <div class="terminal-line">> Infomaniac Swiss Nodes: ONLINE. High-precision clock synced.</div>
+                <div class="terminal-line">> Type /help for available commands.</div>
+            </div>
+            <div class="terminal-input-container">
+                <span class="terminal-prompt">></span>
+                <input type="text" class="terminal-input" id="terminal-cmd" placeholder="Enter command..." autocomplete="off">
+            </div>
+        </div>
+
+        <!-- Rust Worker Merkle Tree Trigger -->
+        <div class="panel">
+            <div class="panel-title">Anchor Trigger (Rust Worker)</div>
+            <div class="drop-zone" id="drop-zone">
+                <span id="drop-text">DRAG & DROP METADATA OR FILE HERE</span>
+                <input type="file" id="file-input" style="display:none;">
+            </div>
+            <button class="btn-action" onclick="triggerAnchor()">Anchor Transaction</button>
+        </div>
+    </section>
+
+    <!-- Navigation Hub Grid -->
+    <section class="grid-container">
+        <a href="https://bigtreeconnection.com/buhs/smartclock/SMARTCLOCK_index.html" target="_blank" class="grid-button">Smart Clock</a>
+        <a href="https://bigtreeconnection.com/buhs/xylem/xylem_index.html" target="_blank" class="grid-button">Documentation</a>
+        <a href="https://bigtreeconnection.com/buhs/xylem/log/merkle.html" target="_blank" class="grid-button">Merkle Tree</a>
+        <a href="https://bigtreeconnection.com/buhs/xylem/log/index_registry3.html" target="_blank" class="grid-button">Xylem Log</a>
+        <a href="https://bigtreeconnection.com/buhs/RadarClock/Bigtree_WorldCam_Explorer.html" target="_blank" class="grid-button">Control Tower</a>
+        <a href="https://bigtreeconnection.com/jukebox/index.html" target="_blank" class="grid-button">Jukebox</a>
+        <a href="https://bigtreeconnection.com/radio/index.html" target="_blank" class="grid-button">Radio</a>
+        <a href="https://bigtreeconnection.com/buhs/Redline/Redline_index.html" target="_blank" class="grid-button">Redline Protocol</a>
+        <a href="https://bigtreeconnection.com/buhs/Redline/Redline_Log_index.html" target="_blank" class="grid-button">Redline Log</a>
+        <a href="http://83.228.222.219/drift.html" target="_blank" class="grid-button">Heartbeat Drift</a>
+        <a href="https://paragraph.com/0x3150808afe0cfb4fd22ee0d2249f48260a7377ac/publications" target="_blank" class="grid-button">Articles XYZ</a>
+        <a href="https://app.doppler.lol/tokens/base/0x14e732bbba1cd07685d2081869ca5062ac32463a" target="_blank" class="grid-button">Market Cap</a>
+        <a href="https://bigtreeconnection.com/buhs/nxs_ai/index.html" target="_blank" class="grid-button">NXS AI</a>
+        <a href="https://buhs.carrd.co/" target="_blank" class="grid-button">BUHS About</a>
+        <a href="https://bigtreeconnection.com/gateway/index.html" target="_blank" class="grid-button">Invest & Donate</a>
+        <a href="https://bigtreeconnection.com" target="_blank" class="grid-button">Bigtree Lab</a>
+    </section>
+
+    <!-- Documentation Section -->
+    <section class="doc-section">
+        <div class="panel-title">Swiss High-Precision Timestamping Infrastructure</div>
+        <div class="doc-content">
+            <p><strong>Overview:</strong> This decentralized Web3 hub leverages high-precision hardware clocks natively supported by our secure Swiss cloud infrastructure at Infomaniac. By bypassing standard virtualization latency, we capture time down to microsecond intervals.</p>
+            <p><strong>Merkle Tree Anchoring:</strong> When you execute a transaction or drop a metadata payload:</p>
+            <ul>
+                <li>The file metadata is hashed using SHA-256.</li>
+                <li>An execution command is sent to our high-performance Rust Worker.</li>
+                <li>The transaction is bundled and structured into a local Merkle Tree.</li>
+                <li>The root hash is anchored with a native, tamper-proof timestamp, ensuring sovereign mathematical proof of existence.</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer>
+        BUHS © 2026 - DECENTRALIZED SOVEREIGN IPFS SYSTEM - POWERED BY RUST & SWISS INFRASTRUCTURE
+    </footer>
+</div>
+
+<script>
+    // Theme Switcher Logic
+    function setTheme(theme) {
+        document.body.className = '';
+        const metaThemeColor = document.getElementById('theme-color-meta');
+        
+        if (theme === 'amber') {
+            document.body.classList.add('theme-amber');
+            metaThemeColor.setAttribute('content', '#ffb000');
+        } else if (theme === 'cyan') {
+            document.body.classList.add('theme-cyan');
+            metaThemeColor.setAttribute('content', '#00e5ff');
+        } else {
+            metaThemeColor.setAttribute('content', '#00ff66');
+        }
+        
+        document.querySelectorAll('.btn-theme').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.textContent.toLowerCase() === theme) {
+                btn.classList.add('active');
+            }
+        });
+    }
+
+    // High-Precision / Frantic Nanosecond Clock Simulation
+    const clockBase = document.getElementById('clock-base');
+    const clockNano = document.getElementById('clock-nano');
+
+    function updateClock() {
+        const now = new Date();
+        
+        // Base UTC Time Formatting
+        const year = now.getUTCFullYear();
+        const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(now.getUTCDate()).padStart(2, '0');
+        const hours = String(now.getUTCHours()).padStart(2, '0');
+        const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+        
+        clockBase.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        
+        // Exact Milliseconds (3 digits)
+        const ms = String(now.getUTCMilliseconds()).padStart(3, '0');
+        
+        // Frantic Microseconds and Nanoseconds simulation (6 digits)
+        // Generates random values fast to simulate high-frequency hardware clock readings
+        const simulatedNanos = Math.floor(Math.random() * 900000 + 100000);
+        
+        clockNano.textContent = `${ms}${simulatedNanos}`;
+        
+        // Dynamic motion blur based on simulated frequency variations
+        const blurFactor = (Math.random() * 0.8 + 0.3).toFixed(1);
+        clockNano.style.filter = `blur(${blurFactor}px)`;
+        
+        requestAnimationFrame(updateClock);
+    }
+    requestAnimationFrame(updateClock);
+
+    // Terminal Emulator Logic
+    const terminalOutput = document.getElementById('terminal-output');
+    const terminalInput = document.getElementById('terminal-cmd');
+
+    function printToTerminal(text, isInput = false) {
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        line.textContent = isInput ? `> ${text}` : text;
+        terminalOutput.appendChild(line);
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    terminalInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const inputVal = this.value.trim();
+            if (inputVal === '') return;
+
+            printToTerminal(inputVal, true);
+            this.value = '';
+
+            // Handle commands
+            const cmd = inputVal.toLowerCase();
+            if (cmd === '/help') {
+                printToTerminal('Available commands:');
+                printToTerminal('  /status   - Check connection to Swiss Rust nodes.');
+                printToTerminal('  /anchor   - Trigger a cryptographic timestamp anchor.');
+                printToTerminal('  /clear    - Clear terminal screen.');
+            } else if (cmd === '/status') {
+                printToTerminal('Node URL: Swiss-Infomaniac-Cluster-01');
+                printToTerminal('Protocol: Rust Worker Native Clock Sync');
+                printToTerminal('Status: ACTIVE (Latency: 0.001ms to local host)');
+            } else if (cmd === '/clear') {
+                terminalOutput.innerHTML = '';
+            } else if (cmd === '/anchor') {
+                triggerAnchor();
+            } else {
+                printToTerminal(`Unknown command: "${inputVal}". Type /help for assistance.`);
+            }
+        }
+    });
+
+    // Drag and Drop & Trigger File Upload Simulation
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    let selectedFile = null;
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+
+    function handleFile(file) {
+        selectedFile = file;
+        document.getElementById('drop-text').textContent = `FILE DETECTED: ${file.name.toUpperCase()} (${file.size} Bytes)`;
+        printToTerminal(`Loaded file: ${file.name} (Ready to anchor)`);
+    }
+
+    function triggerAnchor() {
+        printToTerminal('Initiating secure transaction sequence...');
+        
+        let payload = {
+            timestamp: new Date().toISOString(),
+            precision: "nanosecond-level-swiss-native",
+            filename: selectedFile ? selectedFile.name : "SYSTEM_HEARTBEAT_TELEMETRY"
+        };
+
+        printToTerminal(`Routing payload to Infomaniac Swiss server...`);
+        
+        // Simulate Rust Worker API interaction
+        setTimeout(() => {
+            // Generating simulated Merkle Tree Root & Transaction Hash
+            const mockHash = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
+            const mockRoot = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
+            
+            printToTerminal('---------------------------------------------');
+            printToTerminal('>>> SWISS RUST WORKER TRANSACTION CONFIRMED <<<');
+            printToTerminal(`Timestamp: ${payload.timestamp}`);
+            printToTerminal(`Merkle Root: 0x${mockRoot}`);
+            printToTerminal(`Tx Hash: 0x${mockHash}`);
+            printToTerminal('Status: Anchored in Sovereign Merkle Tree.');
+            printToTerminal('---------------------------------------------');
+            
+            // Reset state
+            selectedFile = null;
+            document.getElementById('drop-text').textContent = 'DRAG & DROP METADATA OR FILE HERE';
+        }, 1200);
+    }
+
+    // Inline PWA Service Worker Registration using Blob URI
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            self.addEventListener('install', e => {
+                self.skipWaiting();
+            });
+            self.addEventListener('fetch', e => {
+                // Network-first or offline fallback strategy can be defined here
+            });
+        `;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        
+        navigator.serviceWorker.register(swUrl)
+            .then(() => console.log('BUHS Sovereign Service Worker Registered'))
+            .catch(err => console.error('Service Worker Registration Failed:', err));
+    }
+</script>
+</body>
+</html>
