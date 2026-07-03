@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[ XYLEM HUB // REGISTRE CENTRAL ]</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background: black;
+            color: #00ff00;
+            font-family: monospace;
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.96; }
+            50% { opacity: 1; }
+            100% { opacity: 0.98; }
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0, 255, 0, 0.07),
+                rgba(0, 255, 0, 0.07) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+        }
+
+        .box {
+            border: 1px solid #00ff00;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            background: #030303;
+        }
+
+        h1, h2 {
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        /* Style de base d'un nœud (bouton) */
+        .day-node {
+            display: block;
+            text-align: center;
+            padding: 12px 0;
+            font-weight: bold;
+            background: #020202;
+            transition: all 0.15s ease-in-out;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            box-shadow: 0 0 4px rgba(0, 255, 0, 0.2);
+        }
+
+        /* Effet de survol sur un bouton illuminé */
+        .day-node:hover {
+            background: #00ff00;
+            color: black;
+            box-shadow: 0 0 12px #00ff00;
+            text-shadow: none;
+        }
+
+        /* État ÉTEINT (si le fichier n'existe pas encore sur GitHub) */
+        .day-node.empty {
+            color: #002200 !important;
+            border: 1px dashed #001100 !important;
+            background: transparent !important;
+            pointer-events: none !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+</head>
+
+<body class="p-6">
+
+<div class="max-w-4xl mx-auto">
+
+    <h1 class="text-xl mb-6">[ XYLEM CORE REGISTRY // TIME-CHAIN INDEX ] <span class="blink">_</span></h1>
+    
+    <div class="box text-sm mb-6">
+        <p>> STATUS : LOGGING_ACTIVE</p>
+        <p>> SECURITY : MERKLE_TREE_VALIDATED</p>
+        <p>> SELECT A GREEN NODE TO AUDIT INDIVIDUAL INTERPLANETARY CIDs (IPFS)</p>
+    </div>
+
+    <div class="box">
+        <h2 class="text-md mb-4 text-green-400">> EPOCH_LOG : JUILLET_2026</h2>
+        
+        <div class="grid grid-cols-7 gap-2">
+            <div class="text-center text-xs font-bold text-green-700 pb-2">LUN</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">MAR</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">MER</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">JEU</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">VEN</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">SAM</div>
+            <div class="text-center text-xs font-bold text-green-700 pb-2">DIM</div>
+
+            <div class="day-node empty"></div>
+            <div class="day-node empty"></div>
+
+            <a href="page-2026-07-01.html" class="day-node">01</a>
+            <a href="page-2026-07-02.html" class="day-node">02</a>
+            <a href="page-2026-07-03.html" class="day-node">03</a>
+            <a href="page-2026-07-04.html" class="day-node">04</a>
+            <a href="page-2026-07-05.html" class="day-node">05</a>
+            <a href="page-2026-07-06.html" class="day-node">06</a>
+            <a href="page-2026-07-07.html" class="day-node">07</a>
+            <a href="page-2026-07-08.html" class="day-node">08</a>
+            <a href="page-2026-07-09.html" class="day-node">09</a>
+            <a href="page-2026-07-10.html" class="day-node">10</a>
+            <a href="page-2026-07-11.html" class="day-node">11</a>
+            <a href="page-2026-07-12.html" class="day-node">12</a>
+            <a href="page-2026-07-13.html" class="day-node">13</a>
+            <a href="page-2026-07-14.html" class="day-node">14</a>
+            <a href="page-2026-07-15.html" class="day-node">15</a>
+            <a href="page-2026-07-16.html" class="day-node">16</a>
+            <a href="page-2026-07-17.html" class="day-node">17</a>
+            <a href="page-2026-07-18.html" class="day-node">18</a>
+            <a href="page-2026-07-19.html" class="day-node">19</a>
+            <a href="page-2026-07-20.html" class="day-node">20</a>
+            <a href="page-2026-07-21.html" class="day-node">21</a>
+            <a href="page-2026-07-22.html" class="day-node">22</a>
+            <a href="page-2026-07-23.html" class="day-node">23</a>
+            <a href="page-2026-07-24.html" class="day-node">24</a>
+            <a href="page-2026-07-25.html" class="day-node">25</a>
+            <a href="page-2026-07-26.html" class="day-node">26</a>
+            <a href="page-2026-07-27.html" class="day-node">27</a>
+            <a href="page-2026-07-28.html" class="day-node">28</a>
+            <a href="page-2026-07-29.html" class="day-node">29</a>
+            <a href="page-2026-07-30.html" class="day-node">30</a>
+            <a href="page-2026-07-31.html" class="day-node">31</a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Scanner réseau automatique pour vérifier l'existence des fichiers
+    document.addEventListener("DOMContentLoaded", function() {
+        const links = document.querySelectorAll(".day-node[href]");
+        
+        links.forEach(link => {
+            const url = link.getAttribute("href");
+            
+            // On fait une requête "HEAD" légère pour vérifier si le fichier existe
+            fetch(url, { method: 'HEAD' })
+                .then(response => {
+                    if (!response.ok) {
+                        // Fichier absent (404) -> Le bouton s'éteint
+                        link.classList.add("empty");
+                    }
+                })
+                .catch(() => {
+                    // Erreur réseau -> Par sécurité on éteint le bouton
+                    link.classList.add("empty");
+                });
+        });
+    });
+</script>
+
+</body>
+</html>
