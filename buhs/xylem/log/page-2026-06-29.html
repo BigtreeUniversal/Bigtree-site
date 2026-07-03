@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+    background:black;
+    color:#00ff88;
+    font-family: monospace;
+    animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.96; }
+    50% { opacity: 1; }
+    100% { opacity: 0.98; }
+}
+
+body::after {
+    content:"";
+    position:fixed;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,255,100,0.05),
+        rgba(0,255,100,0.05) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+}
+
+.box {
+    border:1px solid #00ff88;
+    padding:12px;
+    margin-bottom:20px;
+    box-shadow:0 0 8px #00ff88;
+}
+
+h1 {
+    text-shadow:0 0 10px #00ff88;
+}
+
+a {
+    border:1px solid #00ff88;
+    padding:2px 6px;
+}
+
+a:hover {
+    background:#00ff88;
+    color:black;
+}
+</style>
+
+</head>
+
+<body class="p-6">
+
+<div class="max-w-6xl mx-auto">
+
+<h1 class="text-xl mb-4">[ XYLEM TERMINAL ]</h1>
+
+<div class="box">
+<p>> DAY : 2026-06-29</p>
+<p>> ROOT : c3b8a23c66816e1667b09a5cc17033909874701a6604d674fe931bcce5c1c57c</p>
+<p style="font-size:12px;color:#007744;">> PARENT : fc8f121462c10bdbc4b30231cee12e5c2b0e536463415aa01d41e30a590b45f3</p>
+</div>
+
+<div class="box">
+<table class="w-full text-sm">
+<thead>
+<tr>
+<th class="text-left">FILE</th>
+<th class="text-left">CID</th>
+<th class="text-left">TIME</th>
+<th class="text-left">STATUS</th>
+<th class="text-right">LINK</th>
+</tr>
+</thead>
+<tbody>
+
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782774001620.jpg</td>
+        <td class="px-3 py-2 break-all">QmU6dNHxqY2CPk9MHWu3KY4M1uwnPckt1XjgnjpaCi7YJZ</td>
+        <td class="px-3 py-2">2026-06-29 23:00:01 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmU6dNHxqY2CPk9MHWu3KY4M1uwnPckt1XjgnjpaCi7YJZ" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782770402279.jpg</td>
+        <td class="px-3 py-2 break-all">QmUYmz1J5qy8Ww4MnA6Nqfy2yA8arEVS8WeQyR3DYbkvsq</td>
+        <td class="px-3 py-2">2026-06-29 22:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmUYmz1J5qy8Ww4MnA6Nqfy2yA8arEVS8WeQyR3DYbkvsq" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782766801488.jpg</td>
+        <td class="px-3 py-2 break-all">QmeAUg77TvRZpmseK6eZLSEx6jvYenQcpsx4BePTFrUEWR</td>
+        <td class="px-3 py-2">2026-06-29 21:00:01 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmeAUg77TvRZpmseK6eZLSEx6jvYenQcpsx4BePTFrUEWR" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782763202397.jpg</td>
+        <td class="px-3 py-2 break-all">QmXvrUDPVKQu2RUj6Kk8QzyCu94B4c9z5xTYCuNHVe5wYk</td>
+        <td class="px-3 py-2">2026-06-29 20:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmXvrUDPVKQu2RUj6Kk8QzyCu94B4c9z5xTYCuNHVe5wYk" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782759601767.jpg</td>
+        <td class="px-3 py-2 break-all">QmRhDXmJsxPRfqeCvwnc8g15CKtC6GX74GNvHXdXE9XF2p</td>
+        <td class="px-3 py-2">2026-06-29 19:00:01 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmRhDXmJsxPRfqeCvwnc8g15CKtC6GX74GNvHXdXE9XF2p" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782756002347.jpg</td>
+        <td class="px-3 py-2 break-all">QmXjLHwYhv5YaM7yz9gcaTWSk7roUDDsyjJo8XtPgggSat</td>
+        <td class="px-3 py-2">2026-06-29 18:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmXjLHwYhv5YaM7yz9gcaTWSk7roUDDsyjJo8XtPgggSat" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782752401909.jpg</td>
+        <td class="px-3 py-2 break-all">QmUbLXcgEQyMb7X5JLReqSasDuSfx4P6jwz6z3isUzvcur</td>
+        <td class="px-3 py-2">2026-06-29 17:00:01 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmUbLXcgEQyMb7X5JLReqSasDuSfx4P6jwz6z3isUzvcur" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782748801689.jpg</td>
+        <td class="px-3 py-2 break-all">QmXq2SAn4o8YvN86NhAWz41kHAMbFrZGY8UAPoDCA8zTM9</td>
+        <td class="px-3 py-2">2026-06-29 16:00:01 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmXq2SAn4o8YvN86NhAWz41kHAMbFrZGY8UAPoDCA8zTM9" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782745201914.jpg</td>
+        <td class="px-3 py-2 break-all">QmQonApxEBo3iPbk2AcqcZtFGKpbGz7u9spdN8Whk3ax7x</td>
+        <td class="px-3 py-2">2026-06-29 15:00:01 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmQonApxEBo3iPbk2AcqcZtFGKpbGz7u9spdN8Whk3ax7x" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782741601500.jpg</td>
+        <td class="px-3 py-2 break-all">QmSveUZzqRfu7JWiUAq65zvFt1MVr7T4xWgnM24EA28ynH</td>
+        <td class="px-3 py-2">2026-06-29 14:00:01 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmSveUZzqRfu7JWiUAq65zvFt1MVr7T4xWgnM24EA28ynH" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782738001869.jpg</td>
+        <td class="px-3 py-2 break-all">QmWF55Ninq2obsyBnGvTYpDUD9k1ZyfnVSAMhusoZp7oGU</td>
+        <td class="px-3 py-2">2026-06-29 13:00:01 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmWF55Ninq2obsyBnGvTYpDUD9k1ZyfnVSAMhusoZp7oGU" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782734401521.jpg</td>
+        <td class="px-3 py-2 break-all">QmTdpxkHBW2YXcvQHXWdG9oikcmU43R49nUQqDuKJQKR8w</td>
+        <td class="px-3 py-2">2026-06-29 12:00:01 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmTdpxkHBW2YXcvQHXWdG9oikcmU43R49nUQqDuKJQKR8w" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782730802041.jpg</td>
+        <td class="px-3 py-2 break-all">QmRUaRkGRZYhrasxBeH63arpf1v7SNG8X7hf6SnoELidXx</td>
+        <td class="px-3 py-2">2026-06-29 11:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmRUaRkGRZYhrasxBeH63arpf1v7SNG8X7hf6SnoELidXx" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782727202279.jpg</td>
+        <td class="px-3 py-2 break-all">QmayC3JSvySJ2i4i4Pr5GmCBXLcNz6uagMRYLLUedbTkcW</td>
+        <td class="px-3 py-2">2026-06-29 10:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmayC3JSvySJ2i4i4Pr5GmCBXLcNz6uagMRYLLUedbTkcW" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782723602468.jpg</td>
+        <td class="px-3 py-2 break-all">QmRLtfWRvWAsHPCvoc5CKM9C9yk6T5GaxqpP2G7gncwV16</td>
+        <td class="px-3 py-2">2026-06-29 09:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmRLtfWRvWAsHPCvoc5CKM9C9yk6T5GaxqpP2G7gncwV16" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782720002205.jpg</td>
+        <td class="px-3 py-2 break-all">QmXuWdZzEPFZh4HBsFEbjqBgCxN4YMKD1yEFzv3D7vNy8w</td>
+        <td class="px-3 py-2">2026-06-29 08:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmXuWdZzEPFZh4HBsFEbjqBgCxN4YMKD1yEFzv3D7vNy8w" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782716402358.jpg</td>
+        <td class="px-3 py-2 break-all">QmPzvL6cEyAc6NmMS7sNVSDHLi9uSM8uDdYHmj1P3uRhAL</td>
+        <td class="px-3 py-2">2026-06-29 07:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmPzvL6cEyAc6NmMS7sNVSDHLi9uSM8uDdYHmj1P3uRhAL" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782712801928.jpg</td>
+        <td class="px-3 py-2 break-all">QmTrFYVGVPTrF64T1UgV7VPooNHTYSUmgMcCAPmTfofTUH</td>
+        <td class="px-3 py-2">2026-06-29 06:00:01 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmTrFYVGVPTrF64T1UgV7VPooNHTYSUmgMcCAPmTfofTUH" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782709202294.jpg</td>
+        <td class="px-3 py-2 break-all">QmPVjb5cYViGtWxuUoY2FihqVgyDyyN2YQScjqfGTVk5We</td>
+        <td class="px-3 py-2">2026-06-29 05:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmPVjb5cYViGtWxuUoY2FihqVgyDyyN2YQScjqfGTVk5We" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782705602332.jpg</td>
+        <td class="px-3 py-2 break-all">QmYCb54hifMNJiqdkDUX7tS7fhVxbZrW414a6qbhi6Xt8M</td>
+        <td class="px-3 py-2">2026-06-29 04:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmYCb54hifMNJiqdkDUX7tS7fhVxbZrW414a6qbhi6Xt8M" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782702002154.jpg</td>
+        <td class="px-3 py-2 break-all">QmT7XYPUCcZVJYdmvW1sCUA3j228vNgjrVbEQxHwCk3Sxs</td>
+        <td class="px-3 py-2">2026-06-29 03:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmT7XYPUCcZVJYdmvW1sCUA3j228vNgjrVbEQxHwCk3Sxs" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782698402346.jpg</td>
+        <td class="px-3 py-2 break-all">QmcCTaAhpcUAsCb7xXRZMuXq58ErbEPxEtxQVbCPkLkhez</td>
+        <td class="px-3 py-2">2026-06-29 02:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmcCTaAhpcUAsCb7xXRZMuXq58ErbEPxEtxQVbCPkLkhez" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782694802135.jpg</td>
+        <td class="px-3 py-2 break-all">QmSHzNSqeUukceBH4FkNULuQPzA8wNRwZ3PiBv1C6dwCsV</td>
+        <td class="px-3 py-2">2026-06-29 01:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmSHzNSqeUukceBH4FkNULuQPzA8wNRwZ3PiBv1C6dwCsV" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+    <tr class="border-b border-green-700 hover:bg-green-900/20">
+        <td class="px-3 py-2">xylem_1782691202201.jpg</td>
+        <td class="px-3 py-2 break-all">QmVTeh8ta4c9CkY61ytyxAuR11YcLtrRx9h7heqft8tH5b</td>
+        <td class="px-3 py-2">2026-06-29 00:00:02 UTC</td>
+        <td class="px-3 py-2">✅ OTS | IPFS_OK</td>
+        <td class="px-3 py-2 text-right">
+            <a href="https://ipfs.io/ipfs/QmVTeh8ta4c9CkY61ytyxAuR11YcLtrRx9h7heqft8tH5b" target="_blank">OPEN</a>
+        </td>
+    </tr>
+    
+</tbody>
+</table>
+</div>
+
+</div>
+
+</body>
+</html>
