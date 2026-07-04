@@ -1,7 +1,7 @@
 name: Sync Logs
 on:
   schedule:
-    - cron: '35 00 * * *'
+    - cron: '59 00 * * *'
   workflow_dispatch:
 
 jobs:
