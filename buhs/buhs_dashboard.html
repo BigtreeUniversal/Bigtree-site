@@ -463,7 +463,7 @@
     function setTheme(theme) {
         document.body.className = '';
         const metaThemeColor = document.getElementById('theme-color-meta');
-        
+
         if (theme === 'amber') {
             document.body.classList.add('theme-amber');
             metaThemeColor.setAttribute('content', '#ffb000');
@@ -473,7 +473,7 @@
         } else {
             metaThemeColor.setAttribute('content', '#00ff66');
         }
-        
+
         document.querySelectorAll('.btn-theme').forEach(btn => {
             btn.classList.remove('active');
             if (btn.textContent.toLowerCase() === theme) {
@@ -488,30 +488,22 @@
 
     function updateClock() {
         const now = new Date();
-        
-        // Base UTC Time Formatting
         const year = now.getUTCFullYear();
         const month = String(now.getUTCMonth() + 1).padStart(2, '0');
         const day = String(now.getUTCDate()).padStart(2, '0');
         const hours = String(now.getUTCHours()).padStart(2, '0');
         const minutes = String(now.getUTCMinutes()).padStart(2, '0');
         const seconds = String(now.getUTCSeconds()).padStart(2, '0');
-        
+
         clockBase.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        
-        // Exact Milliseconds (3 digits)
+
         const ms = String(now.getUTCMilliseconds()).padStart(3, '0');
-        
-        // Frantic Microseconds and Nanoseconds simulation (6 digits)
-        // Generates random values fast to simulate high-frequency hardware clock readings
         const simulatedNanos = Math.floor(Math.random() * 900000 + 100000);
-        
         clockNano.textContent = `${ms}${simulatedNanos}`;
-        
-        // Dynamic motion blur based on simulated frequency variations
+
         const blurFactor = (Math.random() * 0.8 + 0.3).toFixed(1);
         clockNano.style.filter = `blur(${blurFactor}px)`;
-        
+
         requestAnimationFrame(updateClock);
     }
     requestAnimationFrame(updateClock);
@@ -528,6 +520,11 @@
         terminalOutput.scrollTop = terminalOutput.scrollHeight;
     }
 
+    // Redirection des logs du moteur réel vers la console du Dashboard
+    function logToTerminal(text) {
+        printToTerminal(text, false);
+    }
+
     terminalInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             const inputVal = this.value.trim();
@@ -536,7 +533,6 @@
             printToTerminal(inputVal, true);
             this.value = '';
 
-            // Handle commands
             const cmd = inputVal.toLowerCase();
             if (cmd === '/help') {
                 printToTerminal('Available commands:');
@@ -557,7 +553,9 @@
         }
     });
 
-    // Drag and Drop & Trigger File Upload Simulation
+    // ==========================================
+    // MOTEUR REEL : GESTIONNAIRE DE DRAG & DROP
+    // ==========================================
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     let selectedFile = null;
@@ -589,54 +587,97 @@
 
     function handleFile(file) {
         selectedFile = file;
-        document.getElementById('drop-text').textContent = `FILE DETECTED: ${file.name.toUpperCase()} (${file.size} Bytes)`;
-        printToTerminal(`Loaded file: ${file.name} (Ready to anchor)`);
+        document.getElementById('drop-text').textContent = `FICHIER PRÊT : ${file.name.toUpperCase()} (${file.size} Bytes)`;
+        logToTerminal(`Fichier chargé : ${file.name}`);
     }
 
-    function triggerAnchor() {
-        printToTerminal('Initiating secure transaction sequence...');
-        
-        let payload = {
-            timestamp: new Date().toISOString(),
-            precision: "nanosecond-level-swiss-native",
-            filename: selectedFile ? selectedFile.name : "SYSTEM_HEARTBEAT_TELEMETRY"
-        };
+    // ==========================================
+    // MOTEUR REEL ASYNCHRONE (Calcul -> Suisse -> IPFS)
+    // ==========================================
+    async function triggerAnchor() {
+        if (!selectedFile) {
+            logToTerminal("ERREUR : Aucun fichier sélectionné.");
+            return;
+        }
 
-        printToTerminal(`Routing payload to Infomaniac Swiss server...`);
-        
-        // Simulate Rust Worker API interaction
-        setTimeout(() => {
-            // Generating simulated Merkle Tree Root & Transaction Hash
-            const mockHash = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
-            const mockRoot = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
-            
-            printToTerminal('---------------------------------------------');
-            printToTerminal('>>> SWISS RUST WORKER TRANSACTION CONFIRMED <<<');
-            printToTerminal(`Timestamp: ${payload.timestamp}`);
-            printToTerminal(`Merkle Root: 0x${mockRoot}`);
-            printToTerminal(`Tx Hash: 0x${mockHash}`);
-            printToTerminal('Status: Anchored in Sovereign Merkle Tree.');
-            printToTerminal('---------------------------------------------');
-            
-            // Reset state
+        try {
+            logToTerminal("Démarrage du protocole transfrontalier...");
+
+            // ÉTAPE A : Calcul du Hash SHA-256 en local (Instantané)
+            logToTerminal("Calcul du Hash à la volée...");
+            const fileBuffer = await selectedFile.arrayBuffer();
+            const hashBuffer = await crypto.subtle.digest('SHA-256', fileBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            logToTerminal(`Hash local généré : 0x${fileHash}`);
+
+            // ÉTAPE B : Le Signal part IMMÉDIATEMENT en Suisse (Horodatage prioritaire)
+            logToTerminal("Suisse : Envoi du signal pour réservation Ticket L1...");
+
+            // ⚠️ REMPLACE IP_DE_TA_SUISSE par la véritable IP de ton serveur Infomaniak
+            const swissResponse = await fetch('http://IP_DE_TA_SUISSE:3000/anchor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer BUHS_SECURE_TOKEN_2026'
+                },
+                body: JSON.stringify({
+                    hash: fileHash,
+                    filename: selectedFile.name
+                })
+            });
+
+            if (!swissResponse.ok) {
+                throw new Error("La Suisse a refusé le signal d'horodatage.");
+            }
+
+            const swissData = await swissResponse.json();
+            logToTerminal(`---------------------------------------------`);
+            logToTerminal(`>>> SWISS RUST WORKER TRANSACTION CONFIRMED <<<`);
+            logToTerminal(`[SUCCÈS L1] Ticket sécurisé ID: ${swissData.ticket_id}`);
+
+            // ÉTAPE C : IPFS France prend le relais en tâche de fond pour stocker le fichier
+            logToTerminal("IPFS France : Injection du fichier sur le nœud local...");
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            const ipfsResponse = await fetch('http://127.0.0.1:5001/api/v0/add', {
+                method: 'POST',
+                body: formData
+            });
+
+            const ipfsData = await ipfsResponse.json();
+            const cid = ipfsData.Hash;
+            logToTerminal(`[SUCCÈS IPFS] Fichier indexé. CID : ${cid}`);
+
+            // ÉTAPE D : Liaison automatique MFS pour affichage direct dans ton WebUI
+            logToTerminal("IPFS France : Épinglage visuel dans l'interface (MFS)...");
+            await fetch(`http://127.0.0.1:5001/api/v0/files/cp?arg=/ipfs/${cid}&arg=/${selectedFile.name}`, {
+                method: 'POST'
+            });
+            logToTerminal(`[OK] Fichier visible dans l'onglet "Fichiers" du WebUI.`);
+            logToTerminal(`Status: Anchored in Sovereign Merkle Tree.`);
+            logToTerminal(`---------------------------------------------`);
+            logToTerminal("=== PROTOCOLE TERMINÉ AVEC SUCCÈS ===");
+
+            // Reset l'interface pour le prochain fichier
             selectedFile = null;
             document.getElementById('drop-text').textContent = 'DRAG & DROP METADATA OR FILE HERE';
-        }, 1200);
+
+        } catch (error) {
+            logToTerminal(`ERREUR CRITIQUE : ${error.message}`);
+        }
     }
 
     // Inline PWA Service Worker Registration using Blob URI
     if ('serviceWorker' in navigator) {
         const swCode = `
-            self.addEventListener('install', e => {
-                self.skipWaiting();
-            });
-            self.addEventListener('fetch', e => {
-                // Network-first or offline fallback strategy can be defined here
-            });
+            self.addEventListener('install', e => { self.skipWaiting(); });
+            self.addEventListener('fetch', e => {});
         `;
         const blob = new Blob([swCode], { type: 'application/javascript' });
         const swUrl = URL.createObjectURL(blob);
-        
+
         navigator.serviceWorker.register(swUrl)
             .then(() => console.log('BUHS Sovereign Service Worker Registered'))
             .catch(err => console.error('Service Worker Registration Failed:', err));
