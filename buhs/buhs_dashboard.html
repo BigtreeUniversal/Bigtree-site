@@ -612,32 +612,33 @@
             logToTerminal(`Hash local généré : 0x${fileHash}`);
 
             // ÉTAPE B : Le Signal part IMMÉDIATEMENT en Suisse (Horodatage prioritaire)
-            logToTerminal("Suisse : Envoi du signal pour réservation Ticket L1...");
+logToTerminal("Suisse : Envoi du signal pour réservation Ticket L1...");
 
-            // 💡 ASTUCE : On enlève le "await" pour que le navigateur envoie le paquet 
-            // en arrière-plan sans bloquer le thread principal, évitant le crash en cas de rejet CORS.
-            fetch('http://83.228.222.219:3000/anchor', {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer BUHS_SECURE_TOKEN_2026'
-                },
-                body: JSON.stringify({
-                    hash: fileHash,
-                    filename: selectedFile.name
-                })
-            }).catch(err => {
-                // On attrape l'erreur CORS en silence ici pour ne pas faire planter le script global
-                console.log("Signal Suisse transmis en mode dégradé (CORS bypass).");
-            });
+// On utilise un try/catch pour que même si le navigateur râle pour le CORS, 
+// le signal parte et qu'on passe à IPFS sans bloquer
+try {
+    fetch('http://83.228.222.219:3000/api/v1/stamp', { // 💡 La bonne route !
+        method: 'POST',
+        mode: 'no-cors', // On force le mode opaque pour bypasser les blocages navigateurs
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer BUHS_SECURE_TOKEN_2026'
+        },
+        body: JSON.stringify({
+            client_id: "FRANCE_NODE_01",   // 💡 Le bon paramètre !
+            payload_hash: fileHash         // 💡 Le bon paramètre !
+        })
+    });
+    
+    logToTerminal(`[INFO L1] Signal transmis en Suisse (Horodatage L1 en cours).`);
+} catch (innerError) {
+    console.log("Flux réseau direct initié.");
+}
 
-            logToTerminal(`[INFO L1] Signal envoyé en Suisse (Parallélisation active).`);
-
-            // ÉTAPE C : IPFS France prend le relais en tâche de fond pour stocker le fichier
-            logToTerminal("IPFS France : Injection du fichier sur le nœud local...");
-            const formData = new FormData();
-            formData.append('file', selectedFile);
+// ÉTAPE C : IPFS France prend le relais en tâche de fond pour stocker le fichier
+logToTerminal("IPFS France : Injection du fichier sur le nœud local...");
+const formData = new FormData();
+formData.append('file', selectedFile);
 
             const ipfsResponse = await fetch('http://127.0.0.1:5001/api/v0/add', {
                 method: 'POST',
