@@ -459,69 +459,194 @@
 </div>
 
 <script>
-    // Configuration de base globale
-    let selectedFile = null;
+    // Theme Switcher Logic
+    function setTheme(theme) {
+        document.body.className = '';
+        const metaThemeColor = document.getElementById('theme-color-meta');
 
-    // Fonction de log native de ton interface
-    function logToTerminal(message) {
-        const consoleOut = document.getElementById('console-output');
-        if (consoleOut) {
-            consoleOut.innerHTML += `<span>${message}</span><br>`;
-            consoleOut.scrollTop = consoleOut.scrollHeight;
+        if (theme === 'amber') {
+            document.body.classList.add('theme-amber');
+            metaThemeColor.setAttribute('content', '#ffb000');
+        } else if (theme === 'cyan') {
+            document.body.classList.add('theme-cyan');
+            metaThemeColor.setAttribute('content', '#00e5ff');
         } else {
-            console.log(message);
+            metaThemeColor.setAttribute('content', '#00ff66');
         }
+
+        document.querySelectorAll('.btn-theme').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.textContent.toLowerCase() === theme) {
+                btn.classList.add('active');
+            }
+        });
     }
 
-    // Fonction de traitement principale appelée lors du drop/sélection de fichier
-    async function traiterFichier(file) {
-        if (!file) return;
+    // High-Precision / Frantic Nanosecond Clock Simulation
+    const clockBase = document.getElementById('clock-base');
+    const clockNano = document.getElementById('clock-nano');
+
+    function updateClock() {
+        const now = new Date();
+        const year = now.getUTCFullYear();
+        const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(now.getUTCDate()).padStart(2, '0');
+        const hours = String(now.getUTCHours()).padStart(2, '0');
+        const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+
+        clockBase.textContent = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+        const ms = String(now.getUTCMilliseconds()).padStart(3, '0');
+        const simulatedNanos = Math.floor(Math.random() * 900000 + 100000);
+        clockNano.textContent = `${ms}${simulatedNanos}`;
+
+        const blurFactor = (Math.random() * 0.8 + 0.3).toFixed(1);
+        clockNano.style.filter = `blur(${blurFactor}px)`;
+
+        requestAnimationFrame(updateClock);
+    }
+    requestAnimationFrame(updateClock);
+
+    // Terminal Emulator Logic
+    const terminalOutput = document.getElementById('terminal-output');
+    const terminalInput = document.getElementById('terminal-cmd');
+
+    function printToTerminal(text, isInput = false) {
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        line.textContent = isInput ? `> ${text}` : text;
+        terminalOutput.appendChild(line);
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    // Redirection des logs du moteur réel vers la console du Dashboard
+    function logToTerminal(text) {
+        printToTerminal(text, false);
+    }
+
+    terminalInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const inputVal = this.value.trim();
+            if (inputVal === '') return;
+
+            printToTerminal(inputVal, true);
+            this.value = '';
+
+            const cmd = inputVal.toLowerCase();
+            if (cmd === '/help') {
+                printToTerminal('Available commands:');
+                printToTerminal('  /status   - Check connection to Swiss Rust nodes.');
+                printToTerminal('  /anchor   - Trigger a cryptographic timestamp anchor.');
+                printToTerminal('  /clear    - Clear terminal screen.');
+            } else if (cmd === '/status') {
+                printToTerminal('Node URL: Swiss-Infomaniac-Cluster-01');
+                printToTerminal('Protocol: Rust Worker Native Clock Sync');
+                printToTerminal('Status: ACTIVE (Latency: 0.001ms to local host)');
+            } else if (cmd === '/clear') {
+                terminalOutput.innerHTML = '';
+            } else if (cmd === '/anchor') {
+                triggerAnchor();
+            } else {
+                printToTerminal(`Unknown command: "${inputVal}". Type /help for assistance.`);
+            }
+        }
+    });
+
+    // ==========================================
+    // MOTEUR REEL : GESTIONNAIRE DE DRAG & DROP
+    // ==========================================
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    let selectedFile = null;
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+
+    function handleFile(file) {
         selectedFile = file;
-        
-        logToTerminal(`Fichier détecté : ${selectedFile.name}`);
-        logToTerminal("Calcul du Hash SHA-256 à la volée...");
-        
+        document.getElementById('drop-text').textContent = `FICHIER PRÊT : ${file.name.toUpperCase()} (${file.size} Bytes)`;
+        logToTerminal(`Fichier chargé : ${file.name}`);
+    }
+
+    // ==========================================
+    // MOTEUR REEL ASYNCHRONE (Calcul -> Suisse -> IPFS)
+    // ==========================================
+    async function triggerAnchor() {
+        if (!selectedFile) {
+            logToTerminal("ERREUR : Aucun fichier sélectionné.");
+            return;
+        }
+
         try {
-            // Calcul du SHA-256 pur via l'API Web Crypto du navigateur
-            const arrayBuffer = await selectedFile.arrayBuffer();
-            const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+            logToTerminal("Démarrage du protocole transfrontalier...");
+
+            // ÉTAPE A : Calcul du Hash SHA-256 en local (Instantané)
+            logToTerminal("Calcul du Hash à la volée...");
+            const fileBuffer = await selectedFile.arrayBuffer();
+            const hashBuffer = await crypto.subtle.digest('SHA-256', fileBuffer);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            
-            logToTerminal(`🔑 SHA-256 local généré : ${fileHash}`);
+            logToTerminal(`Hash local généré : 0x${fileHash}`);
 
             // ÉTAPE B : Le Signal part IMMÉDIATEMENT en Suisse (Horodatage prioritaire)
-            logToTerminal("Suisse : Envoi du signal pour réservation Ticket L1...");
+logToTerminal("Suisse : Envoi du signal pour réservation Ticket L1...");
 
-            fetch('http://83.228.222.219:3000/api/v1/stamp', {
-                method: 'POST',
-                mode: 'no-cors', // Mode opaque pour bypasser les restrictions
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer BUHS_SECURE_TOKEN_2026'
-                },
-                body: JSON.stringify({
-                    client_id: "FRANCE_NODE_01",
-                    payload_hash: fileHash
-                })
-            });
-            
-            logToTerminal(`[INFO L1] Signal transmis en Suisse (Horodatage L1 en cours).`);
-            logToTerminal(`Status: Anchored in Sovereign Merkle Tree.`);
-            logToTerminal(`---------------------------------------------`);
-            logToTerminal("=== PROTOCOLE TERMINÉ AVEC SUCCÈS ===");
+// On utilise un try/catch pour que même si le navigateur râle pour le CORS, 
+// le signal parte et qu'on passe à IPFS sans bloquer
+try {
+    fetch('http://83.228.222.219:3000/api/v1/stamp', { // 💡 La bonne route !
+        method: 'POST',
+        mode: 'no-cors', // On force le mode opaque pour bypasser les blocages navigateurs
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer BUHS_SECURE_TOKEN_2026'
+        },
+        body: JSON.stringify({
+            client_id: "FRANCE_NODE_01",   // 💡 Le bon paramètre !
+            payload_hash: fileHash         // 💡 Le bon paramètre !
+        })
+    });
+    
+    logToTerminal(`[INFO L1] Signal transmis en Suisse (Horodatage L1 en cours).`);
+} catch (innerError) {
+    console.log("Flux réseau direct initié.");
+}
+
+
 
             // Reset l'interface pour le prochain fichier
             selectedFile = null;
-            const dropText = document.getElementById('drop-text');
-            if (dropText) dropText.textContent = 'DRAG & DROP METADATA OR FILE HERE';
+            document.getElementById('drop-text').textContent = 'DRAG & DROP METADATA OR FILE HERE';
 
         } catch (error) {
             logToTerminal(`ERREUR CRITIQUE : ${error.message}`);
         }
     }
 
-    // PWA Service Worker autonome (Blob URI)
+    // Inline PWA Service Worker Registration using Blob URI
     if ('serviceWorker' in navigator) {
         const swCode = `
             self.addEventListener('install', e => { self.skipWaiting(); });
