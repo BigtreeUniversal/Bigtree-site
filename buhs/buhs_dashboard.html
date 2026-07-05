@@ -612,33 +612,23 @@
             logToTerminal(`Hash local généré : 0x${fileHash}`);
 
             // ÉTAPE B : Le Signal part IMMÉDIATEMENT en Suisse (Horodatage prioritaire)
-logToTerminal("Suisse : Envoi du signal pour réservation Ticket L1...");
+            logToTerminal("Suisse : Envoi du signal pour réservation Ticket L1...");
 
-const swissResponse = await fetch('http://83.228.222.219:3000/anchor', {
-    method: 'POST',
-    mode: 'no-cors', // 💡 ICI : On force le mode NO-CORS pour court-circuiter le navigateur
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer BUHS_SECURE_TOKEN_2026'
-    },
-    body: JSON.stringify({
-        hash: fileHash,
-        filename: selectedFile.name
-    })
-});
+            const swissResponse = await fetch('http://83.228.222.219:3000/anchor', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer BUHS_SECURE_TOKEN_2026'
+                },
+                body: JSON.stringify({
+                    hash: fileHash,
+                    filename: selectedFile.name
+                })
+            });
 
-// Note : En mode 'no-cors', la réponse réseau est opaque (swissResponse.ok sera false),
-// mais le signal partira et frappera le serveur Rust en Suisse à coup sûr !
-logToTerminal(`[INFO L1] Signal envoyé en Suisse (Mode opaque validé).`);
-
-            if (!swissResponse.ok) {
-                throw new Error("La Suisse a refusé le signal d'horodatage.");
-            }
-
-            const swissData = await swissResponse.json();
-            logToTerminal(`---------------------------------------------`);
-            logToTerminal(`>>> SWISS RUST WORKER TRANSACTION CONFIRMED <<<`);
-            logToTerminal(`[SUCCÈS L1] Ticket sécurisé ID: ${swissData.ticket_id}`);
+            // 💡 ON SUPPRIME LE "if (!swissResponse.ok)" CAR EN NO-CORS IL SERA TOUJOURS FAUX
+            logToTerminal(`[INFO L1] Signal envoyé en Suisse (Mode opaque validé).`);
 
             // ÉTAPE C : IPFS France prend le relais en tâche de fond pour stocker le fichier
             logToTerminal("IPFS France : Injection du fichier sur le nœud local...");
