@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS Nano Time-stamper</title>
+    <style>
+        /* Esthétique Moniteur CRT / Ambre Rétro */
+        :root {
+            --amber: #ffb000;
+            --amber-dim: #b37b00;
+            --amber-bg: #120a00;
+            --green: #00ff66;
+            --bg: #0a0500;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--amber);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            margin: 0;
+            line-height: 1.4;
+            text-shadow: 0 0 5px rgba(255, 176, 0, 0.5);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid var(--amber-dim);
+            background-color: var(--amber-bg);
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(255, 176, 0, 0.1);
+        }
+
+        /* Bannière ASCII Vintage */
+        pre.banner {
+            color: var(--amber);
+            font-weight: bold;
+            line-height: 1.2;
+            overflow-x: auto;
+            margin-bottom: 0;
+        }
+
+        .subtitle {
+            margin-top: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed var(--amber-dim);
+            padding-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        /* Zone Drag & Drop */
+        .drop-zone {
+            border: 2px dashed var(--amber);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 176, 0, 0.02);
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .drop-zone.dragover {
+            background: rgba(255, 176, 0, 0.15);
+            box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);
+        }
+
+        /* Console d'affichage des résultats */
+        .terminal-output {
+            background-color: #000;
+            border: 1px solid var(--amber-dim);
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+            overflow-x: auto;
+        }
+
+        .status-ok { color: var(--green); text-shadow: 0 0 5px rgba(0, 255, 102, 0.5); }
+        .status-error { color: #ff3333; text-shadow: 0 0 5px rgba(255, 51, 51, 0.5); }
+        
+        .loading {
+            display: inline-block;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <pre class="banner">
+██████╗ ██╗   ██╗██╗  ██╗███████╗
+██╔══██╗██║   ██║██║  ██║██╔════╝
+██████╔╝██║   ██║███████║███████╗
+██╔══██╗██║   ██║██╔══██║╚════██║
+██████╔╝╚██████╔╝██║  ██║███████║
+╚══════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝</pre>
+    <div class="subtitle">[ Nano Time-stamper by @Bigtree ]</div>
+
+    <div class="drop-zone" id="dropZone">
+        GLISSEZ-DÉPOSEZ VOTRE FICHIER ICI OU CLIQUEZ POUR EXPLORER<br>
+        <span style="font-size: 0.8em; font-weight: normal; color: var(--amber-dim);">Le calcul du hash s'effectue localement de manière souveraine.</span>
+    </div>
+    <input type="file" id="fileInput" style="display: none;">
+
+    <div class="terminal-output" id="output"></div>
+</div>
+
+<script>
+    const SUISSE_URL = "http://83.228.222.219:3000/api/v1/stamp";
+    const TOKEN = "Bearer BUHS_SECURE_TOKEN_2026";
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const output = document.getElementById('output');
+
+    // Déclencheurs de sélection de fichier
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            processFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            processFile(e.target.files[0]);
+        }
+    });
+
+    // Étape 1 : Lire le fichier et calculer le SHA-256 localement
+    async function processFile(file) {
+        output.style.display = "block";
+        output.innerHTML = `<div>[>] Lecture du fichier : ${file.name}</div>`;
+        output.innerHTML += `<div>[>] Calcul du hash SHA-256 local... <span class="loading">...</span></div>`;
+
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            output.innerHTML += `<div>[🔑] Hash calculé : <span style="color:#fff">${fileHash}</span></div>`;
+            
+            // Lancer l'ancrage
+            await anchorHash(file.name, fileHash);
+
+        } catch (error) {
+            output.innerHTML += `<div class="status-error">[🚨] Erreur lors du calcul du hash : ${error.message}</div>`;
+        }
+    }
+
+    // Étape 2 : Transmission en Suisse (identique au curl du script d'origine)
+    async function anchorHash(fileName, hash) {
+        output.innerHTML += `<div>[>] Connexion au serveur d'ancrage L1 en Suisse... <span class="loading">...</span></div>`;
+        
+        try {
+            const response = await fetch(SUISSE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': TOKEN
+                },
+                body: JSON.stringify({
+                    client_id: "CLI_NODE_PRO",
+                    payload_hash: hash
+                })
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const data = await response.json();
+
+            // Rendu final style "Premium Nano / OpenTimestamps"
+            output.innerHTML += `
+<br>
+<div style="font-weight: bold; color: var(--amber)">[BUHS L1 - SECURED]</div>
+<div>------------------------------------------------</div>
+<div>📄 Fichier    : ${fileName}</div>
+<div>🔑 Hash (256)  : ${hash}</div>
+<div>🆔 Ticket ID  : ${data.ticket_id || 'N/A'}</div>
+<div>⏱️ Time-Stamp  : <span class="status-ok">${data.timestamp || 'Ancré avec succès'}</span></div>
+<div>------------------------------------------------</div>
+<div class="status-ok">✔ Horodatage intégré avec succès dans l'arbre de Merkle BUHS.</div>`;
+
+        } catch (error) {
+            output.innerHTML += `
+<br>
+<div class="status-error">🚨 ÉCHEC DE L'ANCRAGE L1</div>
+<div style="font-size: 0.9em; color: var(--amber-dim);">Vérifiez vos configurations CORS sur le serveur Rust, votre connexion ou la validité du Token.</div>`;
+        }
+    }
+</script>
+
+</body>
+</html>
