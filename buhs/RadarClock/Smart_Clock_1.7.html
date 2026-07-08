@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="theme-color" content="#0b0c10">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BUHS — NAV-CENTER FUSION DASHBOARD</title>
+
+  <style>
+    :root { 
+      --clock-size: min(90vw, 450px); 
+      --terminal-green: #9af7be;
+      --terminal-dim: #2a3446;
+      --terminal-bg: #151b25;
+      --terminal-hover: #3498db;
+    }
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0; background: #0b0c10; color: #e5e7eb; font-family: 'Courier New', Courier, monospace;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 15px; min-height: 100vh; overflow-x: hidden;
+    }
+
+    /* --- TITRE --- */
+    .clock-title {
+      font-size: 0.85rem; color: white;
+      text-transform: uppercase; letter-spacing: 2px;
+      margin-bottom: 15px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      text-align: center;
+    }
+
+    /* --- CADRAN --- */
+    .dial {
+      width: var(--clock-size); height: var(--clock-size); position: relative;
+      border-radius: 50%; overflow: hidden; background: #0d1117;
+      box-shadow: 0 0 0 2px #222a35, 0 10px 30px rgba(0,0,0,.8);
+    }
+    .layer { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+    
+    #map { transform: rotate(180deg); transition: opacity 0.5s ease-in-out; }
+    .ring { mix-blend-mode: screen; transition: transform 0.3s ease-out; }
+    .mask { position: absolute; inset: 0; border-radius: 50%; box-shadow: inset 0 0 0 6px #2a3446, inset 0 0 60px rgba(0,0,0,.7); }
+
+    /* --- AIGUILLES --- */
+    .hand.hour, .hand.moon { position: absolute; top: 50%; left: 50%; width: 2px; height: 45%; transform-origin: center bottom; z-index: 10; }
+    .hand.hour { background: gold; box-shadow: 0 0 8px gold; }
+    .hand.moon { background: deepskyblue; box-shadow: 0 0 8px deepskyblue; z-index: 9; }
+    .hand.diameter { position: absolute; top: 50%; left: 50%; width: 1px; height: 100%; transform-origin: center center; background: rgba(255, 59, 59, 0.6); box-shadow: 0 0 4px #ff3b3b; z-index: 8; }
+    .center { position: absolute; width: 12px; height: 12px; background: gold; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 8px yellow; z-index: 11; }
+    .hidden { display: none !important; }
+
+    /* --- RADAR --- */
+    .radar-sweep {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(154, 247, 190, 0.4) 0deg, transparent 90deg);
+      z-index: 5; pointer-events: none; display: none;
+    }
+    .radar-active { display: block !important; animation: sweep 4s linear infinite; }
+    @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* --- STATUS TEXTS --- */
+    .clock-val { font-size: 1.2rem; color: var(--terminal-green); margin-top: 12px; font-weight: bold; text-shadow: 0 0 5px rgba(154,247,190,0.4); }
+    #moonStatus { margin-top: 5px; color: #3498db; font-size: 0.85rem; border: 1px solid #3498db; padding: 4px 12px; border-radius: 4px; background: rgba(0,0,0,0.3); text-shadow: 0 0 5px rgba(52,152,219,0.4); }
+    
+    /* --- DASHBOARD CONTAINER --- */
+    .dashboard-panel { 
+      background: var(--terminal-bg); border: 1px solid var(--terminal-dim); border-radius: 8px; 
+      padding: 15px; margin-top: 15px; width: min(95vw, 600px); 
+      display: flex; flex-direction: column; gap: 15px; 
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+
+    /* Range slider styling */
+    .slider-box { display: flex; flex-direction: column; gap: 5px; }
+    .slider-box label { font-size: 11px; color: #9aa0a6; text-transform: uppercase; }
+    #ringStep { cursor: pointer; width: 100%; accent-color: var(--terminal-green); }
+
+    /* Core System Buttons (Radar / Doc / Control Tower) */
+    .sys-controls-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn-radar {
+      flex: 2; min-width: 150px; background: #1a212c; color: var(--terminal-green); border: 1px solid var(--terminal-dim);
+      border-radius: 4px; padding: 10px; font-size: 11px; cursor: pointer;
+      text-transform: uppercase; font-family: inherit; font-weight: bold; transition: all 0.2s;
+    }
+    .btn-radar.active { border-color: var(--terminal-hover); box-shadow: 0 0 8px rgba(52, 152, 219, 0.3); color: #fff; }
+    
+    .btn-small {
+      flex: 1; min-width: 100px; background: #1a212c; color: var(--terminal-green); border: 1px solid var(--terminal-dim);
+      border-radius: 4px; padding: 10px; cursor: pointer; text-decoration: none;
+      font-size: 11px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .btn-small:hover { background: var(--terminal-dim); border-color: var(--terminal-hover); color: #fff; }
+
+    /* --- THE 9 TERMINAL BUTTONS GRID --- */
+    .grid-section-title {
+      font-size: 10px; color: #5f6c7d; border-bottom: 1px solid #222a35; padding-bottom: 4px; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 480px) {
+      .matrix-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .matrix-btn {
+      background: #0e121a;
+      border: 1px solid var(--terminal-dim);
+      color: var(--terminal-green);
+      padding: 12px 8px;
+      font-family: inherit;
+      font-size: 11px;
+      text-align: center;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease-in-out;
+    }
+    .matrix-btn:hover {
+      background: var(--terminal-green);
+      color: #0b0c10;
+      border-color: var(--terminal-green);
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(154, 247, 190, 0.4);
+    }
+    .matrix-btn.active-node {
+      border-color: #e5e7eb;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<h1 class="clock-title">BUHS SYSTEM CONTROL CENTER | v1.6 FUSION</h1>
+
+<div class="dial">
+    <img id="map" class="layer map" src="https://images.weserv.nl/?url=83.228.222.219/index.jpg" alt="Carte Live">
+    <img id="ring" class="layer ring" src="ring.jpg" alt="Bague">
+    <div id="radarSweep" class="radar-sweep radar-active"></div>
+    <div class="hand hour hidden" id="hourHand"></div>
+    <div class="hand moon hidden" id="moonHand"></div>
+    <div class="hand diameter hidden" id="diameterHand"></div>
+    <div class="center"></div>
+    <div class="mask"></div>
+</div>
+
+<div class="clock-val" id="utcClock">--:--:-- UTC</div>
+<div id="moonStatus">LUNE: --%</div>
+
+<div class="dashboard-panel">
+    
+    <div class="slider-box">
+      <label>FUSEAU ROTATION : <span id="ringVal" style="color: #fff;">0°</span></label>
+      <input id="ringStep" type="range" min="0" max="23" step="1" value="0">
+    </div>
+
+    <div class="sys-controls-row">
+      <button id="radarBtn" class="btn-radar active">📡 RADAR ON/OFF</button>
+      <a href="https://bigtreeconnection.com/buhs/RadarClock/Bigtree_WorldCam_Explorer.html" class="btn-small">CONTROL TOWER</a>
+      <a href="https://bigtreeconnection.com/buhs/smartclock/SMARTCLOCK_index.html" class="btn-small">DOC</a>
+    </div>
+
+    <div class="grid-section-title">Matrix Core Modules</div>
+
+    <div class="matrix-grid">
+      <a href="https://bigtreeconnection.com/buhs/Time_Stamper/pipeline.html" class="matrix-btn">⚡ TIME-STAMPER</a>
+      <a href="https://bigtreeconnection.com/buhs/xylem/log/index_registry3.html" class="matrix-btn">🧬 XYLEM</a>
+      <a href="https://bigtreeconnection.com/buhs/Redline/Redline_Log_index.html" class="matrix-btn">🛑 REDLINE</a>
+      
+      <a href="https://bigtreeconnection.com/jukebox/index.html" class="matrix-btn">📻 JUKEBOX</a>
+      <a href="https://bigtreeconnection.com/buhs/xylem/log/merkle.html" class="matrix-btn">🌳 MERKLE TREE</a>
+      <a href="https://bigtreeconnection.com/radio/index.html" class="matrix-btn"> RADIO</a>
+      
+      <a href="https://app.doppler.lol/tokens/base/0x14e732bbba1cd07685d2081869ca5062ac32463a" class="matrix-btn">MARKET CAP</a>
+      <a href="https://bigtreeconnection.com/gateway/index.html" class="matrix-btn">JOIN TEAM</a>
+      <a href="https://bigtreeconnection.com" class="matrix-btn">ℹ ABOUT</a>
+    </div>
+</div>
+
+<script>
+(() => {
+  const SYNODIC_MONTH = 29.530588853 * 24 * 60 * 60 * 1000;
+  const REF_NEW_MOON = new Date(Date.UTC(2026, 3, 16, 18, 13)).getTime();
+
+  const elements = {
+    ring: document.getElementById('ring'),
+    ringStep: document.getElementById('ringStep'),
+    ringVal: document.getElementById('ringVal'),
+    hands: [document.getElementById('hourHand'), document.getElementById('moonHand'), document.getElementById('diameterHand')],
+    utc: document.getElementById('utcClock'),
+    moon: document.getElementById('moonStatus'),
+    map: document.getElementById('map'),
+    radarBtn: document.getElementById('radarBtn'),
+    radarSweep: document.getElementById('radarSweep')
+  };
+
+  function update() {
+    const now = new Date();
+    const t = now.getTime();
+    const hu = now.getUTCHours(), mu = now.getUTCMinutes(), su = now.getUTCSeconds();
+    const sun = (hu % 24) * 15 + mu * 0.25 + su * (0.25 / 60);
+    
+    let phase = ((t - REF_NEW_MOON) % SYNODIC_MONTH) / SYNODIC_MONTH;
+    if (phase < 0) phase += 1;
+
+    let illuminated = (1 - Math.cos(2 * Math.PI * phase)) / 2 * 100;
+
+    elements.hands[0].style.transform = `translate(-50%,-100%) rotate(${sun}deg)`;
+    elements.hands[1].style.transform = `translate(-50%,-100%) rotate(${sun - (phase * 360)}deg)`;
+    elements.hands[2].style.transform = `translate(-50%,-50%) rotate(${sun + 90}deg)`;
+    
+    elements.utc.textContent = `${(now.getUTCHours()+'').padStart(2,'0')}:${(now.getUTCMinutes()+'').padStart(2,'0')}:${(now.getUTCSeconds()+'').padStart(2,'0')} UTC`;
+    elements.moon.textContent = `LUNE: ${illuminated.toFixed(1)}%`;
+  }
+
+  function refreshMap() {
+    const uniqueId = new Date().getTime();
+    const sourceUrl = encodeURIComponent("83.228.222.219/index.jpg?t=" + uniqueId);
+    elements.map.src = "https://images.weserv.nl/?url=" + sourceUrl;
+  }
+
+  elements.radarBtn.onclick = () => {
+    const active = elements.radarBtn.classList.toggle('active');
+    elements.radarBtn.textContent = active ? "HAVE A BEAUTIFUL DAY 🌟" : "📡 RADAR ACTIVATION";
+    elements.hands.forEach(h => h.classList.toggle('hidden', active));
+    elements.radarSweep.classList.toggle('radar-active', active);
+  };
+
+  elements.ringStep.oninput = () => {
+    const deg = -elements.ringStep.value * 15;
+    elements.ring.style.transform = `rotate(${deg}deg)`;
+    elements.ringVal.textContent = `${deg}°`;
+  };
+
+  setInterval(update, 1000);
+  setInterval(refreshMap, 120000);
+  
+  update();
+  refreshMap();
+})();
+</script>
+</body>
+</html>
