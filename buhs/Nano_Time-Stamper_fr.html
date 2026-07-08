@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS Nano Time-stamper</title>
+    <style>
+        /* Définition des thèmes rétro */
+        :root {
+            /* Thème par défaut : Ambre */
+            --primary: #ffb000;
+            --primary-dim: #b37b00;
+            --primary-bg: #120a00;
+            --glow: rgba(255, 176, 0, 0.5);
+            --bg: #0a0500;
+            --green-status: #00ff66;
+        }
+
+        /* Classes de thèmes dynamiques */
+        body.theme-amber {
+            --primary: #ffb000;
+            --primary-dim: #b37b00;
+            --primary-bg: #120a00;
+            --glow: rgba(255, 176, 0, 0.5);
+            --bg: #0a0500;
+        }
+        body.theme-green {
+            --primary: #33ff33;
+            --primary-dim: #00b300;
+            --primary-bg: #001200;
+            --glow: rgba(51, 255, 51, 0.5);
+            --bg: #000500;
+        }
+        body.theme-cyan {
+            --primary: #00ffff;
+            --primary-dim: #00b3b3;
+            --primary-bg: #001212;
+            --glow: rgba(0, 255, 255, 0.5);
+            --bg: #000505;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--primary);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            margin: 0;
+            line-height: 1.4;
+            text-shadow: 0 0 5px var(--glow);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            border: 1px solid var(--primary-dim);
+            background-color: var(--primary-bg);
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(255, 176, 0, 0.05);
+            position: relative;
+        }
+
+        /* Barre de sélection du thème */
+        .theme-switcher {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: 1px solid var(--primary-dim);
+            color: var(--primary);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+        .theme-btn:hover {
+            background-color: var(--primary);
+            color: var(--bg);
+            text-shadow: none;
+        }
+
+        /* Encadré d'information et Mode d'emploi */
+        .info-panel {
+            border: 1px solid var(--primary-dim);
+            padding: 20px;
+            margin-top: 25px;
+            margin-bottom: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            font-size: 0.9em;
+        }
+
+        pre.banner {
+            color: var(--primary);
+            font-weight: bold;
+            line-height: 1.2;
+            overflow-x: auto;
+            margin: 0 0 10px 0;
+        }
+
+        .sys-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .separator {
+            border-bottom: 1px dashed var(--primary-dim);
+            margin: 15px 0;
+        }
+
+        /* Zone Drag & Drop */
+        .drop-zone {
+            border: 2px dashed var(--primary);
+            padding: 45px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 176, 0, 0.01);
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .drop-zone.dragover {
+            background: var(--primary-bg);
+            box-shadow: 0 0 18px var(--glow);
+            border-style: solid;
+        }
+
+        /* Console d'affichage */
+        .terminal-output {
+            background-color: #000;
+            border: 1px solid var(--primary-dim);
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+            overflow-x: auto;
+        }
+
+        .status-ok { color: var(--green-status); text-shadow: 0 0 5px rgba(0, 255, 102, 0.5); }
+        .status-error { color: #ff3333; text-shadow: 0 0 5px rgba(255, 51, 51, 0.5); }
+        
+        .loading {
+            display: inline-block;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        ul, ol {
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body class="theme-amber">
+
+<div class="container">
+    <div class="theme-switcher">
+        <button class="theme-btn" onclick="setTheme('amber')">Ambre</button>
+        <button class="theme-btn" onclick="setTheme('green')">Vert</button>
+        <button class="theme-btn" onclick="setTheme('cyan')">Cyan</button>
+    </div>
+
+    <div class="info-panel">
+        <pre class="banner">
+██████╗ ██╗   ██╗██╗  ██╗███████╗
+██╔══██╗██║   ██║██║  ██║██╔════╝
+██████╔╝██║   ██║███████║███████╗
+██╔══██╗██║   ██║██╔══██║╚════██║
+██████╔╝╚██████╔╝██║  ██║███████║
+╚══════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝</pre>
+        
+        <div class="sys-title">
+            --- UNIVERSAL HARMONIC SYSTEM ---<br>
+            "Nano Time-Stamper" by @BigTree<br>
+            ##############################
+        </div>
+
+        <strong>📑 MODE D’EMPLOI : BUHS Nano Time-stamper</strong>
+        <p>Bienvenue sur le client d'horodatage souverain BUHS L1. Cet outil vous permet de prouver l'existence d'un fichier à un instant T en l'ancrant dans l'arbre de Merkle BUHS en Suisse, de manière totalement confidentielle.</p>
+
+        <strong>🔒 Sécurité & Confidentialité absolue</strong>
+        <ul>
+            <li><strong>Aucun fichier n'est téléversé (uploadé) :</strong> Le calcul de l'empreinte numérique (Hash SHA-256) se fait localement dans votre propre navigateur.</li>
+            <li><strong>Zéro fuite :</strong> Le contenu de vos documents ne quitte jamais votre ordinateur. Seule la signature textuelle (le Hash) est transmise au serveur de certification.</li>
+        </ul>
+
+        <div class="separator"></div>
+
+        <strong>🚀 Comment utiliser l'application Web ?</strong>
+        <ol>
+            <li><strong>Déposer votre fichier :</strong>
+                <ul>
+                    <li>Méthode A : Glissez et déposez (Drag & Drop) votre fichier directement dans le cadre en pointillés ci-dessous.</li>
+                    <li>Méthode B : Cliquez au centre du cadre pour ouvrir votre explorateur et sélectionnez votre fichier.</li>
+                </ul>
+            </li>
+            <li><strong>Ancrage automatique :</strong> L'application calcule instantanément le hash et contacte le serveur en Suisse. Les étapes défilent en temps réel dans la console centrale.</li>
+            <li><strong>Preuve d'ancrage :</strong> Une fois l'opération réussie, le bandeau [BUHS L1 - SECURED] s'affiche avec votre ID de Ticket et l'Horodatage précis.</li>
+        </ol>
+
+        <div class="separator"></div>
+
+        <strong>🔍 Que devez-vous conserver ?</strong>
+        <p>Pour prouver l'antériorité de votre document dans le futur, vous avez simplement besoin de conserver :</p>
+        <ol>
+            <li>Le fichier d'origine (strictement identique, la moindre modification changerait son Hash).</li>
+            <li>Le Ticket ID (ou le reçu d'horodatage) fourni par l'application.</li>
+        </ol>
+        <p><em>Copiez et conservez précieusement les informations du reçu.</em></p>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+        GLISSEZ-DÉPOSEZ VOTRE FICHIER ICI OU CLIQUEZ POUR EXPLORER<br>
+        <span style="font-size: 0.75em; font-weight: normal; opacity: 0.7;">Calcul cryptographique local L1 immédiat.</span>
+    </div>
+    <input type="file" id="fileInput" style="display: none;">
+
+    <div class="terminal-output" id="output"></div>
+</div>
+
+<script>
+    const SUISSE_URL = "http://83.228.222.219:3000/api/v1/stamp";
+    const TOKEN = "Bearer BUHS_SECURE_TOKEN_2026";
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const output = document.getElementById('output');
+
+    // Gestion du changement de thème
+    function setTheme(themeName) {
+        document.body.className = ''; // Nettoie les classes existantes
+        document.body.classList.add('theme-' + themeName);
+    }
+
+    // Déclencheurs de sélection de fichier
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            processFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            processFile(e.target.files[0]);
+        }
+    });
+
+    // Étape 1 : Lire le fichier et calculer le SHA-256 localement
+    async function processFile(file) {
+        output.style.display = "block";
+        output.innerHTML = `<div>[>] Lecture du fichier : ${file.name}</div>`;
+        output.innerHTML += `<div>[>] Calcul du hash SHA-256 local... <span class="loading">...</span></div>`;
+
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            output.innerHTML += `<div>[🔑] Hash calculé : <span style="color:#fff; text-shadow:none;">${fileHash}</span></div>`;
+            
+            // Lancer l'ancrage
+            await anchorHash(file.name, fileHash);
+
+        } catch (error) {
+            output.innerHTML += `<div class="status-error">[🚨] Erreur lors du calcul du hash : ${error.message}</div>`;
+        }
+    }
+
+    // Étape 2 : Transmission en Suisse
+    async function anchorHash(fileName, hash) {
+        output.innerHTML += `<div>[>] Connexion au serveur d'ancrage L1 en Suisse... <span class="loading">...</span></div>`;
+        
+        try {
+            const response = await fetch(SUISSE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': TOKEN
+                },
+                body: JSON.stringify({
+                    client_id: "CLI_NODE_PRO",
+                    payload_hash: hash
+                })
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const data = await response.json();
+
+            // Rendu final style "Premium Nano / OpenTimestamps"
+            output.innerHTML += `
+<br>
+<div style="font-weight: bold; color: var(--primary)">[BUHS L1 - SECURED]</div>
+<div>------------------------------------------------</div>
+<div>📄 Fichier    : ${fileName}</div>
+<div>🔑 Hash (256)  : ${hash}</div>
+<div>🆔 Ticket ID  : ${data.ticket_id || 'N/A'}</div>
+<div>⏱️ Time-Stamp  : <span class="status-ok">${data.timestamp || 'Ancré avec succès'}</span></div>
+<div>------------------------------------------------</div>
+<div class="status-ok">✔ Horodatage intégré avec succès dans l'arbre de Merkle BUHS.</div>`;
+
+        } catch (error) {
+            output.innerHTML += `
+<br>
+<div class="status-error">🚨 ÉCHEC DE L'ANCRAGE L1</div>
+<div style="font-size: 0.9em; opacity: 0.8;">Vérifiez vos configurations CORS sur le serveur Rust, votre connexion ou la validité du Token.</div>`;
+        }
+    }
+</script>
+
+</body>
+</html>
