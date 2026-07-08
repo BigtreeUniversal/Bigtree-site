@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS L1 | Secure Cryptographic Pipeline</title>
+    
+    <!-- SEO & Architecture Elements -->
+    <meta name="description" content="Interface d'ancrage local et de hachage cryptographique en temps réel pour le protocole BUHS L1.">
+    <meta name="robots" content="noindex, nofollow"> <!-- Sécurisé / Interface applicative -->
+    
+    <!-- Monospace Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Core Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- COHÉRENCE PARFAITE AVEC LA CHARTE GRAPHIQUE CORE --- */
+        :root {
+            --bg-pure: #0a0a0a;
+            --surface: #121212;
+            --surface-accent: #1a1a1a;
+            --border-color: #003322;
+            --accent: #00ff88;
+            --accent-glow: rgba(0, 255, 136, 0.25);
+            --text-main: #d1d5db;
+            --text-muted: #6b7280;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-pure);
+            color: var(--text-main);
+            font-family: 'JetBrains Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER SIMPLIFIÉ POUR FLUIDITÉ APPLICATIVE --- */
+        header {
+            width: 100%;
+            height: 70px;
+            background: rgba(10, 10, 10, 0.9);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4%;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .btn-back:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: var(--surface);
+        }
+
+        /* --- ZONE APPLICATIVE PRINCIPALE --- */
+        main {
+            flex-grow: 1;
+            padding: 40px 4%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pipeline-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+            overflow: hidden;
+        }
+
+        .terminal-bar {
+            background: var(--surface-accent);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #333;
+        }
+        .terminal-dot.active-dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+        .terminal-status {
+            font-size: 0.75rem;
+            color: var(--accent);
+        }
+
+        /* --- INTERFACE DE GLISSER-DÉPOSER --- */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            padding: 30px;
+            gap: 25px;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            background: rgba(18, 18, 18, 0.6);
+            border-radius: 4px;
+            padding: 50px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(0, 255, 136, 0.02);
+            box-shadow: inset 0 0 20px rgba(0, 255, 136, 0.05);
+        }
+
+        .drop-icon {
+            font-size: 2.5rem;
+            color: var(--border-color);
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+
+        .drop-zone:hover .drop-icon {
+            color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        /* --- MONITOR DE RÉSULTATS CRYPTO --- */
+        .console-output {
+            background: var(--bg-pure);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 20px;
+            font-size: 0.85rem;
+            min-height: 180px;
+        }
+
+        .console-title {
+            color: var(--text-muted);
+            border-bottom: 1px solid #1a1a1a;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .console-line {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 10px;
+            line-height: 1.5;
+        }
+
+        .console-timestamp { color: var(--text-muted); min-width: 75px; }
+        .console-text { flex-grow: 1; }
+        .console-success { color: var(--accent); }
+        .console-warning { color: #ffbd2e; }
+        .console-error { color: #ff3333; }
+
+        .hash-display {
+            background: var(--surface-accent);
+            padding: 12px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            word-break: break-all;
+            color: #00e5ff;
+            border: 1px solid var(--border-color);
+            margin-top: 10px;
+            display: none;
+            font-size: 0.8rem;
+        }
+
+        /* --- BOUTONS D'ACTION COHÉRENTS --- */
+        .actions-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .btn-pipeline {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 12px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-pipeline:hover:not(:disabled) {
+            background: var(--accent);
+            color: var(--bg-pure);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .btn-pipeline:disabled {
+            border-color: var(--border-color);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .loading-dots::after {
+            content: ' .';
+            animation: blink 1.4s infinite both;
+        }
+        @keyframes blink {
+            0% { opacity: .2; }
+            20% { opacity: 1; }
+            100% { opacity: .2; }
+        }
+
+        /* --- FOOTER UNIFIÉ --- */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 20px 4%;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .workspace-grid { padding: 15px; }
+            .drop-zone { padding: 35px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- STICKY APPLICATIVE HEADER -->
+    <header>
+        <a href="index.html" class="logo">
+            <span class="logo-dot"></span>BUHS_L1//SECURE_CORE
+        </a>
+        <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Retour au Node Root</a>
+    </header>
+
+    <!-- CORE WORKSPACE -->
+    <main>
+        <div class="pipeline-container">
+            <div class="terminal-bar">
+                <div class="terminal-dots">
+                    <div class="terminal-dot active-dot"></div>
+                    <div class="terminal-dot"></div>
+                    <div class="terminal-dot"></div>
+                </div>
+                <div class="terminal-status"><i class="fa-solid fa-shield-halved"></i> LOCAL_PARADIGM: SECURE</div>
+            </div>
+
+            <div class="workspace-grid">
+                <!-- Zone d'interaction Drop Zone -->
+                <div class="drop-zone" id="dropZone">
+                    <input type="file" id="fileInput" style="display: none;">
+                    <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                    <p style="color: #fff; font-weight: 600; margin-bottom: 5px;">Glissez-déposez le fichier source ici</p>
+                    <p style="color: var(--text-muted); font-size: 0.8rem;">ou cliquez pour parcourir vos répertoires locaux</p>
+                </div>
+
+                <!-- Console de log & résultats en direct -->
+                <div class="console-output">
+                    <div class="console-title">Moniteur de hachage local (SHA-256)</div>
+                    <div id="consoleLog">
+                        <div class="console-line">
+                            <span class="console-timestamp">[`+ new Date().toLocaleTimeString() +`]</span>
+                            <span class="console-text">Prêt pour l'injection. Les données ne quitteront pas votre terminal.</span>
+                        </div>
+                    </div>
+                    <div class="hash-display" id="hashDisplay"></div>
+                </div>
+
+                <!-- Ligne de déclenchement finale -->
+                <div class="actions-row">
+                    <button class="btn-pipeline" id="anchorBtn" disabled>
+                        Ancrer de manière immuable <i class="fa-solid fa-lock"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- UNIFIED MINIMAL FOOTER -->
+    <footer>
+        SECURE PIPELINE DISPATCHER V2.6 // SÉCURITÉ CLIENT-SIDE ABSOLUE
+    </footer>
+
+    <!-- INTERACTIVITY & RUST BACKEND CONNECTION -->
+    <script>
+        // Moteur Originel Connecté
+        const SUISSE_URL = "http://83.228.222.219:3000/api/v1/stamp";
+        const TOKEN = "Bearer BUHS_SECURE_TOKEN_2026";
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const consoleLog = document.getElementById('consoleLog');
+        const hashDisplay = document.getElementById('hashDisplay');
+        const anchorBtn = document.getElementById('anchorBtn');
+
+        let currentFile = null;
+        let currentHash = null;
+
+        // Événements de sélection de fichier
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files.length > 0) {
+                prepareFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                prepareFile(e.target.files[0]);
+            }
+        });
+
+        anchorBtn.addEventListener('click', () => {
+            if (currentFile && currentHash) {
+                anchorHash(currentFile.name, currentHash);
+            }
+        });
+
+        // Étape 1 : Lecture locale & calcul SHA-256 (Moteur Source)
+        async function prepareFile(file) {
+            currentFile = file;
+            hashDisplay.style.display = 'none';
+            anchorBtn.disabled = true;
+            consoleLog.innerHTML = '';
+
+            addLogLine(`Lecture du fichier : "${file.name}" (${file.size} octets)`, 'console-warning');
+            addLogLine(`Calcul du hash SHA-256 local en cours <span class="loading-dots"></span>`, 'console-warning');
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                currentHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                // Remplacement visuel de la ligne de chargement par le succès
+                consoleLog.lastElementChild.remove();
+                addLogLine("Calcul local SHA-256 terminé de manière souveraine.", "console-success");
+                
+                hashDisplay.innerText = `HASH_ROOT // ${currentHash}`;
+                hashDisplay.style.display = 'block';
+                
+                // Activation du bouton d'ancrage
+                anchorBtn.disabled = false;
+
+            } catch (error) {
+                addLogLine(`Erreur lors du calcul du hachage : ${error.message}`, 'console-error');
+            }
+        }
+
+        // Étape 2 : Transmission & Ancrage L1 Suisse (Moteur Source)
+        async function anchorHash(fileName, hash) {
+            anchorBtn.disabled = true;
+            addLogLine(`Connexion au serveur d'ancrage L1 en Suisse <span class="loading-dots"></span>`, 'console-warning');
+            
+            try {
+                const response = await fetch(SUISSE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': TOKEN
+                    },
+                    body: JSON.stringify({
+                        client_id: "CLI_NODE_PRO",
+                        payload_hash: hash
+                    })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+
+                // Nettoyage de la ligne de chargement
+                consoleLog.lastElementChild.remove();
+
+                // Injection propre des métadonnées reçues de l'API
+                addLogLine("✔ Horodatage intégré avec succès dans l'arbre de Merkle BUHS.", "console-success");
+                addLogLine(`ID du ticket généré : ${data.ticket_id || 'N/A'}`, 'console-success');
+                addLogLine(`Horodatage réseau : ${data.timestamp || 'Validé'}`, 'console-success');
+
+            } catch (error) {
+                if (consoleLog.lastElementChild) consoleLog.lastElementChild.remove();
+                addLogLine("🚨 ÉCHEC DE L'ANCRAGE SECURE L1", "console-error");
+                addLogLine("Veuillez vérifier les règles CORS de votre serveur Rust, le jeton d'autorisation ou votre connectivité réseau.", "console-text");
+            }
+        }
+
+        function addLogLine(text, cssClass = '') {
+            const timeStr = new Date().toLocaleTimeString();
+            const line = document.createElement('div');
+            line.className = 'console-line';
+            line.innerHTML = `<span class="console-timestamp">[${timeStr}]</span> <span class="console-text ${cssClass}">${text}</span>`;
+            consoleLog.appendChild(line);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+    </script>
+</body>
+</html>
