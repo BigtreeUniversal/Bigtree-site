@@ -1,0 +1,25 @@
+██████╗ ██╗   ██╗██╗  ██╗███████╗
+██╔══██╗██║   ██║██║  ██║██╔════╝
+██████╔╝██║   ██║███████║███████╗
+██╔══██╗██║   ██║██╔══██║╚════██║
+██████╔╝╚██████╔╝██║  ██║███████║
+╚══════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+
+--- UNIVERSAL HARMONIC SYSTEM ---
+
+     "Time Stamper"
+         by @BigTree
+
+Version Française (Rigueur Institutionnelle & Technique)
+BUHS L1 Nano Time-Stamper : Protocole d'Horodatage Cryptographique Souverain
+
+Le BUHS L1 Nano Time-Stamper est une infrastructure d'horodatage décentralisée de classe industrielle, conçue pour garantir l'antériorité, l'intégrité et la non-répudiation des données avec une précision absolue. Le cœur architectural repose sur un Handler ultra-performant développé en Rust, maximisant la concurrence et la sécurité mémoire à flux tendu. La granularité temporelle atteint une précision à la nanoseconde, directement synchronisée via une grappe de serveurs de temps Suisses de Stratum 1, connectés à des horloges atomiques de référence.
+
+Suivant une philosophie stricte de confidentialité (Zero-Knowledge client-side), aucun fichier n'est téléversé : seule l'empreinte cryptographique brute (SHA-256) est soumise à l'infrastructure. Chaque jour, l'ensemble des transactions et des hashes collectés sont agrégés, triés et compilés de manière déterministe au sein d'un Arbre de Merkle. La racine de cet arbre (Merkle Root), véritable condensé immuable de la journée, est ensuite ancrée de façon définitive et transparente dans les registres distribués des blockchains Bitcoin et Ethereum, bénéficiant ainsi de la sécurité cumulée des deux réseaux les plus résilients au monde.
+
+English Version (Web3 & Deep Tech Positioning)
+BUHS L1: Sovereign Nanosecond Cryptographic Time-Stamping Infrastructure
+
+BUHS L1 is a high-performance, decentralized Deep Tech protocol built for immutable data notarization. Powered by a deterministic, memory-safe Rust-based handler, the architecture delivers bare-metal execution speeds capable of processing thousands of cryptographic events per second. Time-stamping precision is anchored at the nanosecond scale, micro-synced directly with Swiss Stratum 1 time servers tied to atomic frequency standards for absolute chronological authority.
+
+Operating on a zero-leak, client-side hashing paradigm, payload privacy is absolute. On a daily cycle, all cryptographic signatures are batched and compiled into a cryptographic Merkle Tree. The resulting state root is natively settled and anchored into both the Bitcoin and Ethereum mainnets, leveraging multi-chain consensus to guarantee mathematically unalterable, globally verifiable proof of existence.
