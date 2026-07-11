@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[ XYLEM HUB // MERKLE CORE BIGTREE ]</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #010402;
+            color: #00ff66;
+            font-family: 'Courier New', Courier, monospace;
+            animation: flicker 0.25s infinite;
+            overflow-x: hidden;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.98; }
+            50% { opacity: 1; }
+            100% { opacity: 0.99; }
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0, 255, 102, 0.04),
+                rgba(0, 255, 102, 0.04) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            z-index: 9999;
+        }
+        .terminal-box {
+            border: 1px solid #00cc55;
+            background: rgba(0, 10, 3, 0.75);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 0 15px rgba(0, 204, 85, 0.15);
+            border-radius: 2px;
+            position: relative;
+        }
+        .terminal-box::before {
+            content: "■";
+            position: absolute;
+            top: 6px;
+            right: 12px;
+            color: #00cc55;
+            font-size: 10px;
+            opacity: 0.5;
+        }
+        .tree-line {
+            opacity: 0;
+            animation: typeIn 0.05s forwards;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        @keyframes typeIn {
+            to { opacity: 1; }
+        }
+        .scanline {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 255, 102, 0.08);
+            position: fixed;
+            animation: scrollScan 6s linear infinite;
+            pointer-events: none;
+            z-index: 10000;
+        }
+        @keyframes scrollScan {
+            0% { top: -4px; }
+            100% { top: 100%; }
+        }
+        ::selection {
+            background: #00ff66;
+            color: #010402;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #010402; }
+        ::-webkit-scrollbar-thumb { background: #00cc55; }
+    </style>
+</head>
+<body class="p-4 md:p-8 selection:bg-emerald-500 selection:text-black">
+    <div class="scanline"></div>
+    <div class="max-w-6xl mx-auto">
+        
+        <!-- HEADER LAYER -->
+        <header class="terminal-box border-b-2">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-emerald-800 pb-4 mb-6">
+                <div>
+                    <div class="text-xs text-emerald-400 font-bold uppercase tracking-widest mb-1 animate-pulse">// CORE_PROTOCOL_INITIALIZED //</div>
+                    <h1 class="text-3xl font-bold font-mono tracking-tight text-white">
+                        BUHS FRAMEWORK <span class="text-emerald-400">by @Bigtree</span>
+                    </h1>
+                </div>
+                <div class="mt-4 md:mt-0 text-left md:text-right font-mono text-xs text-emerald-500/80 bg-emerald-950/20 p-2 border border-emerald-900">
+                    <div>SYS_STATUS : ACTIVE</div>
+                    <div>TARGET     : BITCOIN_MAINNET // LAYER_ETH_READY</div>
+                    <div>BUILD      : v1.0-STABLE</div>
+                </div>
+            </div>
+            
+            <!-- TAGLINE -->
+            <div class="bg-emerald-950/10 border-l-4 border-emerald-500 p-4 my-4">
+                <p class="text-emerald-300 text-sm md:text-base font-bold font-mono">
+                    [ SYSTEM SPEC ] : Local-to-Web3 Data Immutability. Sectorized via Chronological Merkle Trees. Anchored in Bitcoin. Engineered for Ethereum & Solana cross-chain mathematical finality.
+                </p>
+            </div>
+
+            <!-- HOOK (The Manifesto) -->
+            <p class="text-gray-400 text-xs md:text-sm leading-relaxed font-mono mt-4">
+                Every 24 hours, the immutable laws of mathematics seal your infrastructure state. The <span class="text-emerald-400 font-bold">BUHS Framework</span> (Block-linked Unified Hashing Sectorization) isolates ephemeral machine logs into strict, autonomous 24-hour sectors, hashing raw cryptographic primitives into a continuous, un-falsifiable Merkle chain. Starting from a cold <span class="text-white font-bold">000000...000 Genesis Root</span>, local records are mathematically woven into sovereign blockchain ledgers. No admin panel, no human manipulation, no databases to breach. Trust is obsolete when verification is an absolute avalanche effect.
+            </p>
+        </header>
+
+        <!-- LIVE STREAM TERMINAL -->
+        <main class="grid grid-cols-1 gap-6">
+            <section class="terminal-box">
+                <div class="flex justify-between items-center border-b border-emerald-900 pb-2 mb-4">
+                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">📡 ACTIVE BUHS CRYPTO-STREAM // STREAM_VIEWER</span>
+                    <span class="inline-block w-2 height-2 bg-emerald-500 rounded-full animate-ping"></span>
+                </div>
+                <div id="merkle-tree-container" class="font-mono text-xs md:text-sm leading-relaxed min-h-[380px] bg-black/40 p-4 rounded border border-emerald-950 overflow-x-auto text-emerald-400">
+                    <!-- Dynamic injection occurs here -->
+                </div>
+            </section>
+
+            <!-- INFRASTRUCTURE SPECS / SEO DOCUMENTATION -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="terminal-box">
+                    <h3 class="text-sm font-bold text-white uppercase border-b border-emerald-900 pb-2 mb-3">01 // 24H SECTORIZATION</h3>
+                    <p class="text-gray-400 text-xs font-mono leading-relaxed">
+                        Data flows are siloed into clean, sealed 24-hour sectors. Once a block expires, it transitions into a <code>🔒 FROZEN_BLOCK</code> state. No retroactive writes or past alterations are physically or mathematically permitted.
+                    </p>
+                </div>
+                <div class="terminal-box">
+                    <h3 class="text-sm font-bold text-white uppercase border-b border-emerald-900 pb-2 mb-3">02 // AVALANCHE PROTECTION</h3>
+                    <p class="text-gray-400 text-xs font-mono leading-relaxed">
+                        Every transaction hash is cryptographically linked to the previous day's Merkle Root Parent. A single character modified within historical logs shatters the system's global integrity root, alerting auditors instantly.
+                    </p>
+                </div>
+                <div class="terminal-box">
+                    <h3 class="text-sm font-bold text-white uppercase border-b border-emerald-900 pb-2 mb-3">03 // CROSS-CHAIN ANCHOR</h3>
+                    <p class="text-gray-400 text-xs font-mono leading-relaxed">
+                        Engineered to achieve sovereign permanence. BUHS frameworks tie local machine execution trees straight into Bitcoin's proof-of-work layer via OP_RETURN, with upcoming parallel anchoring paths for Ethereum and Solana.
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="text-center font-mono text-[10px] text-emerald-600/60 my-8">
+            BUHS PROTOCOL LAYER v1.0 // DEVELOPED BY @BIGTREE // SECURED VIA CRYPTOGRAPHIC AVAILABILITY // ALL RIGHTS RESERVED.
+        </footer>
+    </div>
+
+    <!-- RUNTIME LOGIC -->
+    <script>
+        const treeData = [
+            "======= SOVEREIGN BUHS PROTOCOL LOG LAYER =======",
+            "[CHAIN_STATE] ── ACTIVE // DEEPTECH_LOG_SECTORIZATION",
+            "[GENESIS_ROOT] ── 0000000000000000000000000000000000000000000000000000000000000000",
+            "│",
+            "├── [ANCHOR_LAYER_01] ── 🟠 BITCOIN_MAINNET (OP_RETURN_PROVED)",
+            "│      └── [TX_HASH] ── 28489cfd4e92a40c619b0fc62985b98ecfae4e11fa3db761a2931536b948f93e",
+            "│",
+            "├── [ANCHOR_LAYER_02] ── 🔷 ETHEREUM_CORE (STATE_ROOT_SYNC_PENDING)",
+            "│      └── [EPOCH_JULY] ── 🔒 FROZEN_SECTOR_VAL_04",
+            "│",
+            "├── [LOCAL_MERKLE_TREE] ── CURRENT_24H_SECTOR",
+            "│      ├── [ROOT_VALID] ── 4fc1bf0a1883ed28c81510d90979d72d03c235f627c4c10df6813c4d18ff73e6",
+            "│      ├── [NODE_03] ── QmQQubVtxp2w... (12-Jul-2026 00:10 UTC) ── ✅ ATOMIC_VALID",
+            "│      ├── [NODE_02] ── QmTiuty4YDun... (11-Jul-2026 23:00 UTC) ── ✅ ATOMIC_VALID",
+            "│      └── [NODE_01] ── QmcTKA3LzYd7... (11-Jul-2026 19:00 UTC) ── ✅ ATOMIC_VALID",
+            "│",
+            "└── [HISTORICAL_ARCHIVE]",
+            "       ├── [PAGE_2026-07-07.HTML] ── ROOT: a32b21c4349ef85426f1cba2393d6e5a401... ── 🔒 FROZEN_BLOCK",
+            "       └── [PAGE_2026-07-06.HTML] ── ROOT: 7ca5cf86050b16f6b5b4cb549cf0f6990d1... ── 🔒 FROZEN_BLOCK",
+            "",
+            "[SYS_STATUS] ── BUHS_INTEG_CHECK: SUCCESSFUL // CASCADE_PROOF_OPERATIONAL"
+        ];
+
+        const container = document.getElementById('merkle-tree-container');
+
+        // Render branches sequentially to mimic old-school hacker terminal startup
+        treeData.forEach((lineText, index) => {
+            const lineElement = document.createElement('div');
+            lineElement.className = 'tree-line';
+            lineElement.textContent = lineText === "" ? " " : lineText;
+            
+            // Text color parsing logic
+            if (lineText.includes("✅")) {
+                lineElement.className += " text-emerald-400 font-bold";
+            } else if (lineText.includes("🔒") || lineText.includes("FROZEN")) {
+                lineElement.className += " text-cyan-400";
+            } else if (lineText.includes("🟠") || lineText.includes("BITCOIN")) {
+                lineElement.className += " text-amber-500 font-bold";
+            } else if (lineText.includes("🔷") || lineText.includes("ETHEREUM")) {
+                lineElement.className += " text-indigo-400 font-bold";
+            } else if (lineText.includes("00000000000000")) {
+                lineElement.className += " text-white tracking-widest opacity-80";
+            } else if (lineText.includes("====")) {
+                lineElement.className += " text-emerald-300 font-bold text-center tracking-wider mb-2";
+            }
+            
+            // Cascading delays
+            lineElement.style.animationDelay = `${index * 60}ms`;
+            container.appendChild(lineElement);
+        });
+    </script>
+</body>
+</html>
