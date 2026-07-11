@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUHS Dynamics | No-Gravity Fluid-Structure Interaction</title>
+    <meta name="description" content="BUHS Dynamics replaces traditional Archimedean statics with a gravity-independent, high-fidelity density-coupling engine for extreme pressure environments.">
+    <meta name="keywords" content="Fluid-Structure Interaction, FSI, Archimedes Principle, Buoyancy Simulation, Structural Stress, Environmental Syntony">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bgPure: '#0a0a0a',
+                        accentGreen: '#00ff88',
+                        darkGreen: '#003322',
+                        surfaceDark: '#1a1a1a',
+                        terminalDim: '#a3a3a3'
+                    },
+                    fontFamily: {
+                        mono: ['Courier New', 'Courier', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom Terminal Scanline & Glitch Effects */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal-on-scroll.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #003322; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00ff88; }
+    </style>
+</head>
+<body class="bg-bgPure text-gray-100 font-mono relative min-h-screen overflow-x-hidden antialiased select-none selection:bg-accentGreen selection:text-bgPure">
+
+    <!-- CRT Scanline overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Sticky Floating CTA -->
+    <div class="fixed bottom-6 right-6 z-40">
+        <a href="https://bigtreeconnection.com/buhs/no-gravity/BUHS3_blackbox.html" class="px-5 py-3 bg-accentGreen text-bgPure font-bold text-sm tracking-widest uppercase border border-accentGreen hover:bg-transparent hover:text-accentGreen transition-all duration-300 shadow-[0_0_15px_rgba(0,255,136,0.4)] block">
+            [ RUN_SIMULATION ]
+        </a>
+    </div>
+
+    <!-- Top Navigation Header -->
+    <header class="fixed top-0 left-0 w-full z-50 bg-bgPure/90 border-b border-darkGreen backdrop-blur px-6 py-4 flex justify-between items-center">
+        <a href="#hero" class="text-xl font-bold tracking-tighter text-accentGreen flex items-center space-x-2">
+            <span>&gt;_ BUHS_DYNAMICS</span>
+        </a>
+
+        <!-- Hamburger Menu Button -->
+        <button id="menu-btn" class="w-10 h-10 flex flex-col justify-center items-center space-y-2 z-50 focus:outline-none group">
+            <span id="bar1" class="w-6 h-0.5 bg-accentGreen transition-all duration-300"></span>
+            <span id="bar2" class="w-6 h-0.5 bg-accentGreen transition-all duration-300"></span>
+            <span id="bar3" class="w-6 h-0.5 bg-accentGreen transition-all duration-300"></span>
+        </button>
+    </header>
+
+    <!-- Fullscreen Overlay Navigation Menu -->
+    <nav id="menu-overlay" class="fixed inset-0 bg-bgPure/98 z-40 flex flex-col justify-center items-center space-y-8 transform -translate-y-full transition-transform duration-500 ease-in-out border-b-2 border-accentGreen">
+        <a href="#innovation" class="menu-link text-2xl tracking-widest hover:text-accentGreen transition-colors">[ 01. THE_INNOVATION ]</a>
+        <a href="#architecture" class="menu-link text-2xl tracking-widest hover:text-accentGreen transition-colors">[ 02. ARCHITECTURE ]</a>
+        <a href="#stats" class="menu-link text-2xl tracking-widest hover:text-accentGreen transition-colors">[ 03. LIVE_METRICS ]</a>
+        <a href="#pricing" class="menu-link text-2xl tracking-widest hover:text-accentGreen transition-colors">[ 04. PRICING_TIERS ]</a>
+        <a href="#faq" class="menu-link text-2xl tracking-widest hover:text-accentGreen transition-colors">[ 05. CORE_FAQ ]</a>
+    </nav>
+
+    <!-- Hero Section with Depth-Based Parallax Background -->
+    <section id="hero" class="relative w-full h-screen flex flex-col justify-center items-center overflow-hidden px-4 text-center">
+        <!-- Parallax Background Layer -->
+        <div class="absolute inset-0 z-0 transform scale-105 pointer-events-none" id="parallax-bg">
+            <div class="absolute inset-0 bg-gradient-to-b from-bgPure/40 via-bgPure/80 to-bgPure z-10"></div>
+            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1920&q=80" alt="Matrix Cyber Grid Grid Background" class="w-full h-full object-cover opacity-20 filter grayscale hue-rotate-90">
+        </div>
+
+        <div class="relative z-20 max-w-4xl mx-auto space-y-6">
+            <div class="inline-block px-3 py-1 border border-darkGreen bg-darkGreen/20 text-accentGreen text-xs tracking-widest uppercase mb-2 animate-pulse">
+                SYS_STATUS: OPERATIONAL
+            </div>
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight uppercase">
+                A "No-Gravity" Approach to <span class="text-accentGreen block mt-2">Fluid-Structure Interaction</span>
+            </h1>
+            <p class="text-terminalDim text-base md:text-xl max-w-2xl mx-auto font-sans leading-relaxed">
+                The Bigtree Universal Harmonic System (BUHS) isolates mass-volume interactions from gravitational dependency, unlocking high-fidelity predictive modeling under extreme gradients.
+            </p>
+            <div class="pt-6 flex flex-col sm:flex-row justify-center items-center gap-4">
+                <a href="https://paragraph.com/@bigtree.buhs/buhs-dynamics-a-no-gravity-approach-to-fluid-structure-interaction?referrer=0x3150808AFe0CFb4fd22EE0D2249f48260A7377Ac" class="px-8 py-4 bg-darkGreen text-accentGreen border border-accentGreen font-bold tracking-widest hover:bg-accentGreen hover:text-bgPure transition-all duration-300 w-full sm:w-auto">
+                    INITIATE DECODE
+                </a>
+                <a href="#pricing" class="px-8 py-4 bg-transparent text-gray-400 border border-surfaceDark font-bold tracking-widest hover:text-white hover:border-gray-500 transition-all duration-300 w-full sm:w-auto">
+                    VIEW_TARIFFS
+                </a>
+            </div>
+        </div>
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
+            <a href="#innovation" class="text-accentGreen tracking-widest text-xs uppercase">[ SCROLL_DOWN ]</a>
+        </div>
+    </section>
+
+    <!-- Core Innovation Section -->
+    <section id="innovation" class="py-24 px-6 max-w-7xl mx-auto border-t border-darkGreen reveal-on-scroll">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-5 space-y-6">
+                <span class="text-accentGreen font-bold tracking-widest text-sm uppercase block">// 01 // CORE INNOVATION</span>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white uppercase">Beyond Archimedean Statics</h2>
+                <p class="text-gray-400 font-sans leading-relaxed">
+                    While traditional models define buoyancy purely through fluid weight displacement via the classical gravitational matrix ($F_b = \rho V g$), the proprietary BUHS engine treats the fluid environment as a localized, non-gravitational potential field.
+                </p>
+                <div class="p-4 bg-surfaceDark border-l-4 border-accentGreen text-sm text-gray-300 font-mono">
+                    <span class="text-accentGreen font-bold">BUHS_CORE_THEOREM:</span> Force emerges as a direct property of the local mass-density ratio. By isolating calculation matrices from the variable gravitational constant $g$, accuracy holds steady under microgravity or severe kinetic acceleration environments.
+                </div>
+            </div>
+            <div class="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-6 bg-surfaceDark/50 border border-darkGreen hover:border-accentGreen transition-colors duration-300 group">
+                    <div class="w-12 h-12 flex items-center justify-center bg-darkGreen/40 text-accentGreen font-bold mb-4 border border-darkGreen group-hover:bg-accentGreen group-hover:text-bgPure transition-all">
+                        Ø1
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2 uppercase">Gravity-Independent</h3>
+                    <p class="text-gray-400 font-sans text-sm leading-relaxed">
+                        Isolates calculations from planetary mass fields entirely, ensuring pure density vector analysis across arbitrary environments.
+                    </p>
+                </div>
+                <div class="p-6 bg-surfaceDark/50 border border-darkGreen hover:border-accentGreen transition-colors duration-300 group">
+                    <div class="w-12 h-12 flex items-center justify-center bg-darkGreen/40 text-accentGreen font-bold mb-4 border border-darkGreen group-hover:bg-accentGreen group-hover:text-bgPure transition-all">
+                        Ø2
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2 uppercase">Depth Amplification</h3>
+                    <p class="text-gray-400 font-sans text-sm leading-relaxed">
+                        Accounts for the cumulative kinetic potential of the fluid column. Reaction forces scale smoothly alongside dynamic depth changes.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Backend Architecture Section -->
+    <section id="architecture" class="py-24 bg-surfaceDark/30 border-t border-b border-darkGreen reveal-on-scroll">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <span class="text-accentGreen font-bold tracking-widest text-sm uppercase block">// 02 // SECURITY & IP</span>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white uppercase">Backend Architecture & IP Protection</h2>
+                <p class="text-gray-400 font-sans">
+                    To maintain strict algorithmic exclusivity and safeguard our primary source assets, the BUHS Engine runs on custom, closed-loop server topology.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="p-8 bg-bgPure border border-darkGreen relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-3 bg-darkGreen/50 text-accentGreen text-xs font-bold border-l border-b border-darkGreen">
+                        SECURE_NODE_ALPHA
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4 uppercase flex items-center">
+                        <span class="text-accentGreen mr-2">&gt;</span> Computation Layer
+                    </h3>
+                    <p class="text-gray-400 font-sans text-sm leading-relaxed mb-6">
+                        A locked server backend hosts the foundational physics engine. This completely avoids revealing critical coefficients or density-coupling metrics to edge devices, completely eliminating risk vectors linked to decompilation or reverse engineering.
+                    </p>
+                    <div class="font-mono text-xs text-darkGreen group-hover:text-accentGreen/40 transition-colors duration-500">
+                        [SYS_EXEC] hash_verify: SUCCESS // engine_core.bin locked
+                    </div>
+                </div>
+
+                <div class="p-8 bg-bgPure border border-darkGreen relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-3 bg-darkGreen/50 text-accentGreen text-xs font-bold border-l border-b border-darkGreen">
+                        SECURE_NODE_BETA
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4 uppercase flex items-center">
+                        <span class="text-accentGreen mr-2">&gt;</span> Stateless Frontend
+                    </h3>
+                    <p class="text-gray-400 font-sans text-sm leading-relaxed mb-6">
+                        Our decoupled framework passes user configurations safely over encrypted JSON vectors. Client systems receive snappy visual readouts while isolation shielding protects high-order vector arithmetic.
+                    </p>
+                    <div class="font-mono text-xs text-darkGreen group-hover:text-accentGreen/40 transition-colors duration-500">
+                        [SYS_EXEC] render_cycle: 0.002ms // client_stateless: active
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Animated Statistics Section -->
+    <section id="stats" class="py-20 bg-bgPure border-b border-darkGreen">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+            <div class="p-4">
+                <div class="text-4xl md:text-5xl font-extrabold text-accentGreen mb-2 font-mono drop-shadow-[0_0_10px_rgba(0,255,136,0.2)]" id="count1" data-target="99">0</div>
+                <div class="text-xs text-gray-400 uppercase tracking-widest font-mono">SIM_ACCURACY (%)</div>
+            </div>
+            <div class="p-4">
+                <div class="text-4xl md:text-5xl font-extrabold text-accentGreen mb-2 font-mono drop-shadow-[0_0_10px_rgba(0,255,136,0.2)]" id="count2" data-target="4500">0</div>
+                <div class="text-xs text-gray-400 uppercase tracking-widest font-mono">MAX_PSI_GRADIENT</div>
+            </div>
+            <div class="p-4">
+                <div class="text-4xl md:text-5xl font-extrabold text-accentGreen mb-2 font-mono drop-shadow-[0_0_10px_rgba(0,255,136,0.2)]" id="count3" data-target="12">0</div>
+                <div class="text-xs text-gray-400 uppercase tracking-widest font-mono">MS_LATENCY_CEILING</div>
+            </div>
+            <div class="p-4">
+                <div class="text-4xl md:text-5xl font-extrabold text-accentGreen mb-2 font-mono drop-shadow-[0_0_10px_rgba(0,255,136,0.2)]" id="count4" data-target="842">0</div>
+                <div class="text-xs text-gray-400 uppercase tracking-widest font-mono">ACTIVE_CLUSTERS</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-24 px-6 max-w-7xl mx-auto reveal-on-scroll">
+        <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <span class="text-accentGreen font-bold tracking-widest text-sm uppercase block">// 03 // LICENSING CONFIGURATIONS</span>
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white uppercase">System Access Tiers</h2>
+            <p class="text-gray-400 font-sans">
+                Select your computational throughput window. All nodes process workloads within our isolated, gravity-free engine cluster.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+            <!-- Tier 1 -->
+            <div class="bg-surfaceDark/40 border border-darkGreen p-8 flex flex-col justify-between hover:border-accentGreen transition-all duration-300">
+                <div>
+                    <div class="text-accentGreen text-xs font-bold tracking-widest uppercase mb-2">[ NODE_ECHO ]</div>
+                    <h3 class="text-2xl font-bold text-white uppercase mb-4">Research Standard</h3>
+                    <div class="text-3xl font-bold text-white font-mono mb-6">$499 <span class="text-xs text-gray-500 font-sans">/ MO</span></div>
+                    <ul class="space-y-3 text-sm text-gray-400 font-sans border-t border-darkGreen pt-4">
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> Standard coupling density formulas</li>
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> Baseline depth parameters up to 500m</li>
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> Shared execution worker nodes</li>
+                    </ul>
+                </div>
+                <div class="pt-8">
+                    <button class="w-full py-3 bg-darkGreen text-accentGreen border border-darkGreen font-bold uppercase tracking-wider text-xs hover:bg-transparent hover:border-accentGreen transition-all">
+                        INITIALIZE_NODE
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tier 2 - Featured -->
+            <div class="bg-surfaceDark/80 border-2 border-accentGreen p-8 flex flex-col justify-between relative shadow-[0_0_30px_rgba(0,255,136,0.1)]">
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accentGreen text-bgPure text-2xs font-bold px-3 py-0.5 tracking-widest uppercase">
+                    HIGH_RECOMMENDED
+                </div>
+                <div>
+                    <div class="text-accentGreen text-xs font-bold tracking-widest uppercase mb-2">[ NODE_VECTOR ]</div>
+                    <h3 class="text-2xl font-bold text-white uppercase mb-4">Enterprise Engine</h3>
+                    <div class="text-3xl font-bold text-white font-mono mb-6">$1,850 <span class="text-xs text-gray-500 font-sans">/ MO</span></div>
+                    <ul class="space-y-3 text-sm text-gray-300 font-sans border-t border-darkGreen pt-4">
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> Complete depth-pressure scalability</li>
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> Multi-variable structural stress maps</li>
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> 8-core isolated pipeline acceleration</li>
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> Direct JSON API integration keys</li>
+                    </ul>
+                </div>
+                <div class="pt-8">
+                    <button class="w-full py-3 bg-accentGreen text-bgPure font-bold uppercase tracking-wider text-xs border border-accentGreen hover:bg-transparent hover:text-accentGreen transition-all">
+                        PROVISION_CLUSTER
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tier 3 -->
+            <div class="bg-surfaceDark/40 border border-darkGreen p-8 flex flex-col justify-between hover:border-accentGreen transition-all duration-300">
+                <div>
+                    <div class="text-accentGreen text-xs font-bold tracking-widest uppercase mb-2">[ NODE_APEX ]</div>
+                    <h3 class="text-2xl font-bold text-white uppercase mb-4">Quantum Custom</h3>
+                    <div class="text-3xl font-bold text-white font-mono mb-6">CUSTOM</div>
+                    <ul class="space-y-3 text-sm text-gray-400 font-sans border-t border-darkGreen pt-4">
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> Infinite boundary vector constraints</li>
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> Custom algorithm modifications</li>
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> On-premise air-gapped node arrays</li>
+                        <li class="flex items-center"><span class="text-accentGreen mr-2">✓</span> Dedicated L3 infrastructure engineers</li>
+                    </ul>
+                </div>
+                <div class="pt-8">
+                    <button class="w-full py-3 bg-darkGreen text-accentGreen border border-darkGreen font-bold uppercase tracking-wider text-xs hover:bg-transparent hover:border-accentGreen transition-all">
+                        REQUEST_PROTOCOLS
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Accordion Section -->
+    <section id="faq" class="py-24 bg-surfaceDark/20 border-t border-b border-darkGreen reveal-on-scroll">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="text-center mb-16 space-y-4">
+                <span class="text-accentGreen font-bold tracking-widest text-sm uppercase block">// 04 // DOCUMENTATION & REF</span>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white uppercase">Frequently Queried Logs</h2>
+            </div>
+
+            <div class="space-y-4">
+                <!-- FAQ Item 1 -->
+                <div class="border border-darkGreen bg-bgPure">
+                    <button class="w-full p-6 text-left flex justify-between items-center focus:outline-none faq-trigger">
+                        <span class="font-bold text-white uppercase text-sm md:text-base">[ Q ] How exactly does BUHS bypass gravitational variables?</span>
+                        <span class="text-accentGreen font-mono font-bold text-xl ml-4 transform transition-transform duration-300" id="icon-1">+</span>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
+                        <div class="p-6 pt-0 border-t border-darkGreen/40 text-gray-400 font-sans text-sm leading-relaxed">
+                            BUHS focuses exclusively on molecular mass-volume coupling ratios instead of simple gravitational field interactions. Because the algorithm tracks energy state configurations inside a localized spatial envelope, it removes reliance on global acceleration constants.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="border border-darkGreen bg-bgPure">
+                    <button class="w-full p-6 text-left flex justify-between items-center focus:outline-none faq-trigger">
+                        <span class="font-bold text-white uppercase text-sm md:text-base">[ Q ] Can the code libraries be run completely client-side?</span>
+                        <span class="text-accentGreen font-mono font-bold text-xl ml-4 transform transition-transform duration-300" id="icon-2">+</span>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
+                        <div class="p-6 pt-0 border-t border-darkGreen/40 text-gray-400 font-sans text-sm leading-relaxed">
+                            No. To protect the intellectual property rights behind our specific matrix variables, calculations must route through our secured server network. The client UI remains completely stateless to keep operational overhead to a minimum.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="border border-darkGreen bg-bgPure">
+                    <button class="w-full p-6 text-left flex justify-between items-center focus:outline-none faq-trigger">
+                        <span class="font-bold text-white uppercase text-sm md:text-base">[ Q ] What defines "Environmental Syntony" within your documentation?</span>
+                        <span class="text-accentGreen font-mono font-bold text-xl ml-4 transform transition-transform duration-300" id="icon-3">+</span>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out faq-content">
+                        <div class="p-6 pt-0 border-t border-darkGreen/40 text-gray-400 font-sans text-sm leading-relaxed">
+                            Environmental Syntony refers to the real-time physical equilibrium reached when an engineered framework mirrors the harmonic properties of surrounding high-pressure fluid mediums, drastically minimizing unexpected fatigue points.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="py-24 px-6 max-w-4xl mx-auto text-center reveal-on-scroll">
+        <div class="p-8 md:p-12 border border-accentGreen bg-surfaceDark/30 relative">
+            <div class="absolute inset-0 bg-accentGreen/5 opacity-[0.02] pointer-events-none"></div>
+            <h3 class="text-2xl md:text-3xl font-bold text-white uppercase mb-4">Subscribe to Core Updates</h3>
+            <p class="text-gray-400 font-sans text-sm max-w-lg mx-auto mb-8">
+                Receive engineering changelogs, structural dynamic whitepapers, and notification protocols regarding our calculation frameworks.
+            </p>
+            <form id="newsletter-form" class="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
+                <input type="email" required placeholder="IDENT_EMAIL@SECURE.NET" class="flex-grow px-4 py-3 bg-bgPure border border-darkGreen focus:border-accentGreen text-accentGreen font-mono placeholder:text-darkGreen outline-none text-sm transition-colors">
+                <button type="submit" class="px-6 py-3 bg-accentGreen text-bgPure font-bold text-xs uppercase tracking-widest hover:bg-transparent hover:text-accentGreen border border-accentGreen transition-all whitespace-nowrap">
+                    [ CONTEXT_JOIN ]
+                </button>
+            </form>
+            <div id="form-feedback" class="mt-4 text-xs font-mono text-accentGreen hidden"></div>
+        </div>
+    </section>
+
+    <!-- Minimal Footer -->
+    <footer class="border-t border-darkGreen bg-bgPure py-8 px-6 text-center text-xs text-terminalDim font-mono">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                &copy; 2026 BUHS DYNAMICS INC. ALL RIGHTS RESERVED. AUTHORIZED PERSONNEL ONLY.
+            </div>
+            <div class="flex space-x-6 text-darkGreen">
+                <a href="#" class="hover:text-accentGreen transition-colors">[ GIT_HUB ]</a>
+                <a href="#" class="hover:text-accentGreen transition-colors">[ COMMUNICATIONS ]</a>
+                <a href="#" class="hover:text-accentGreen transition-colors">[ NODE_STATUS ]</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Logic & Animations Scripts -->
+    <script>
+        // Hamburger Menu Toggle
+        const menuBtn = document.getElementById('menu-btn');
+        const menuOverlay = document.getElementById('menu-overlay');
+        const menuLinks = document.querySelectorAll('.menu-link');
+        const bar1 = document.getElementById('bar1');
+        const bar2 = document.getElementById('bar2');
+        const bar3 = document.getElementById('bar3');
+
+        function toggleMenu() {
+            const isOpen = menuOverlay.classList.contains('translate-y-0');
+            if (isOpen) {
+                menuOverlay.classList.remove('translate-y-0');
+                menuOverlay.classList.add('-translate-y-full');
+                bar1.classList.remove('rotate-45', 'translate-y-2.5');
+                bar2.classList.remove('opacity-0');
+                bar3.classList.remove('-rotate-45', '-translate-y-2.5');
+            } else {
+                menuOverlay.classList.remove('-translate-y-full');
+                menuOverlay.classList.add('translate-y-0');
+                bar1.classList.add('rotate-45', 'translate-y-2.5');
+                bar2.classList.add('opacity-0');
+                bar3.classList.add('-rotate-45', '-translate-y-2.5');
+            }
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        menuLinks.forEach(link => link.addEventListener('click', toggleMenu));
+
+        // Depth-Based Parallax Effect on Hero Background
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxBg = document.getElementById('parallax-bg');
+            if (parallaxBg) {
+                // Adjust factor to tweak scrolling velocity depth
+                parallaxBg.style.transform = `translateY(${scrolled * 0.35}px) scale(1.05)`;
+            }
+        });
+
+        // Scroll-Triggered Fade-In Animations (Intersection Observer)
+        const revealElements = document.querySelectorAll('.reveal-on-scroll');
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Animated Statistics Counters
+        const statsSection = document.getElementById('stats');
+        const counters = [
+            document.getElementById('count1'),
+            document.getElementById('count2'),
+            document.getElementById('count3'),
+            document.getElementById('count4')
+        ];
+        
+        let statsAnimated = false;
+
+        function runCounters() {
+            counters.forEach(counter => {
+                if (!counter) return;
+                const target = +counter.getAttribute('data-target');
+                const duration = 2000; // ms
+                const stepTime = Math.max(Math.floor(duration / target), 15);
+                let current = 0;
+                const increment = target / (duration / stepTime);
+
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, stepTime);
+            });
+        }
+
+        const statsObserver = new IntersectionObserver((entries) => {
+            if(entries[0].isIntersecting && !statsAnimated) {
+                statsAnimated = true;
+                runCounters();
+            }
+        }, { threshold: 0.3 });
+        if(statsSection) statsObserver.observe(statsSection);
+
+        // FAQ Accordion Toggle Interaction
+        const faqTriggers = document.querySelectorAll('.faq-trigger');
+        faqTriggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const content = trigger.nextElementSibling;
+                const icon = trigger.querySelector('span:last-child');
+                
+                // Toggle current item
+                if(content.style.maxHeight && content.style.maxHeight !== '0px') {
+                    content.style.maxHeight = '0px';
+                    icon.style.transform = 'rotate(0deg)';
+                    icon.textContent = '+';
+                } else {
+                    // Close all active ones first
+                    document.querySelectorAll('.faq-content').forEach(c => c.style.maxHeight = '0px');
+                    document.querySelectorAll('.faq-trigger span:last-child').forEach(i => {
+                        i.style.transform = 'rotate(0deg)';
+                        i.textContent = '+';
+                    });
+                    
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.style.transform = 'rotate(45deg)';
+                    icon.textContent = '×';
+                }
+            });
+        });
+
+        // Newsletter Form Handle Simulation
+        document.getElementById('newsletter-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const feedback = document.getElementById('form-feedback');
+            feedback.classList.remove('hidden');
+            feedback.textContent = "[ STATUS: PROCESSING_SUBSCRIPTION... ]";
+            
+            setTimeout(() => {
+                feedback.textContent = "[ SUCCESS: NODE_ESTABLISHED. CHECK YOUR ENCRYPTED INBOX ]";
+                e.target.reset();
+            }, 1200);
+        });
+    </script>
+</body>
+</html>
