@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Cour du Baron | Restaurant & Salon de Thé Perpignan</title>
+    <meta name="description" content="Une parenthèse élégante et feutrée au cœur de la rue du Théâtre à Perpignan. Service continu, concerts intimistes et cuisine faite maison.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* --- DESIGN SYSTEM & VARIABLES --- */
+        :root {
+            --bg-color: #0c0c0c;
+            --surface-color: #141414;
+            --surface-accent: #1e1e1e;
+            --primary-gold: #c5a880;
+            --primary-gold-hover: #b3946b;
+            --text-light: #f5f5f5;
+            --text-muted: #a0a0a0;
+            --border-color: rgba(197, 168, 128, 0.2);
+            --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-sans: 'Montserrat', sans-serif;
+        }
+
+        /* --- BASIC RESET & UTILITIES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            font-family: var(--font-sans);
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        body {
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        button, input, textarea {
+            font-family: inherit;
+            background: none;
+            border: none;
+            outline: none;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-serif);
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gold);
+            border-radius: 4px;
+        }
+
+        /* --- GLOBAL NAVIGATION (HAMBURGER ONLY) --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 2rem;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(12, 12, 12, 0.9) 0%, rgba(12, 12, 12, 0) 100%);
+            transition: var(--transition-smooth);
+        }
+
+        header.scrolled {
+            background: rgba(12, 12, 12, 0.95);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            color: var(--text-light);
+            z-index: 102;
+        }
+
+        .logo span {
+            color: var(--primary-gold);
+        }
+
+        /* Hamburger Trigger */
+        .nav-trigger {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 6px;
+            z-index: 102;
+        }
+
+        .nav-trigger span {
+            display: block;
+            height: 2px;
+            background-color: var(--text-light);
+            transition: var(--transition-smooth);
+        }
+
+        .nav-trigger span:nth-child(1) { width: 30px; }
+        .nav-trigger span:nth-child(2) { width: 20px; }
+        .nav-trigger span:nth-child(3) { width: 25px; }
+
+        .nav-trigger:hover span {
+            background-color: var(--primary-gold);
+            width: 30px;
+        }
+
+        .nav-trigger.active span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+            width: 30px;
+        }
+        .nav-trigger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .nav-trigger.active span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+            width: 30px;
+        }
+
+        /* Fullscreen Navigation Menu Overlay */
+        .nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(12, 12, 12, 0.98);
+            z-index: 101;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .nav-links {
+            list-style: none;
+            text-align: center;
+        }
+
+        .nav-links li {
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+
+        .nav-links a {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            display: block;
+            transform: translateY(100%);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: 0.1em;
+        }
+
+        .nav-overlay.open .nav-links a {
+            transform: translateY(0);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-gold);
+            letter-spacing: 0.15em;
+        }
+
+        /* Page routing container */
+        .page-view {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            min-height: 100vh;
+        }
+
+        .page-view.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* --- COMMON LAYOUT & SPACING --- */
+        section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            color: var(--primary-gold);
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* --- PAGES --- */
+        
+        /* 1. HOME PAGE HERO (SLIDER / CAROUSEL) */
+        .hero {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide.active {
+            opacity: 0.4;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(12,12,12,0.95) 100%);
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            max-width: 800px;
+            padding: 0 1rem;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--primary-gold);
+            font-family: var(--font-serif);
+            font-style: italic;
+            letter-spacing: 0.05em;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-gold {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            border: 1px solid var(--primary-gold);
+            color: var(--text-light);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            transition: var(--transition-smooth);
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .btn-gold:hover {
+            background-color: var(--primary-gold);
+            color: var(--bg-color);
+            box-shadow: 0 10px 20px rgba(197, 168, 128, 0.15);
+        }
+
+        /* PARALLAX SECTIONS */
+        .parallax-section {
+            position: relative;
+            height: 60vh;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Fallback for iOS devices that don't play well with background-attachment: fixed */
+        @supports (-webkit-touch-callout: none) {
+            .parallax-section {
+                background-attachment: scroll;
+            }
+        }
+
+        .parallax-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(12, 12, 12, 0.75);
+        }
+
+        .parallax-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .parallax-content h3 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* CARD GRID (Plats Portfolio & Features) */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+            padding: 1rem 0;
+        }
+
+        .card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary-gold);
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition-smooth);
+        }
+
+        .card:hover .card-img {
+            transform: scale(1.08);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--primary-gold);
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-price {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            color: var(--primary-gold);
+        }
+
+        /* MENU COMPACT (2. CARTE PAGE) */
+        .menu-filter {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border-bottom: 1px solid transparent;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            color: var(--primary-gold);
+            border-color: var(--primary-gold);
+        }
+
+        /* TESTIMONIAL CAROUSEL */
+        .testimonial-slider {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            padding: 2rem 1rem;
+        }
+
+        .testimonial-track {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .testimonial-item {
+            min-width: 100%;
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .testimonial-text {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            line-height: 1.4;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--primary-gold);
+        }
+
+        /* 3. CONTACT & GOOGLE MAPS */
+        .contact-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: stretch;
+        }
+
+        @media (max-width: 900px) {
+            .contact-layout {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+        }
+
+        .contact-form-wrapper {
+            background-color: var(--surface-color);
+            padding: 3rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            background: var(--surface-accent);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            transition: var(--transition-smooth);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-gold);
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            display: none;
+        }
+
+        .form-control.error {
+            border-color: #ff6b6b;
+        }
+
+        .form-success-toast {
+            display: none;
+            background: rgba(197, 168, 128, 0.1);
+            border: 1px solid var(--primary-gold);
+            padding: 1rem;
+            color: var(--primary-gold);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .info-details {
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-item h4 {
+            color: var(--primary-gold);
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .map-wrapper {
+            width: 100%;
+            height: 350px;
+            border: 1px solid var(--border-color);
+            filter: grayscale(1) invert(0.9) contrast(1.1);
+        }
+
+        /* --- ANIMATION TRIGGERS --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered delay helpers */
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+
+        /* --- FOOTER --- */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 2rem;
+            background-color: var(--bg-color);
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        .footer-copy {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-socials a:hover {
+            color: var(--primary-gold);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- --- GLOBAL HEADER & HAMBURGER NAVIGATION --- -->
+    <header id="main-header">
+        <a href="#home" class="logo nav-route-link">La Cour<span> du Baron</span></a>
+        <button class="nav-trigger" id="menu-toggle" aria-label="Menu principal">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <nav class="nav-overlay" id="nav-overlay">
+        <ul class="nav-links">
+            <li><a href="#home" class="nav-route-link">L'Expérience</a></li>
+            <li><a href="#carte" class="nav-route-link">La Carte</a></li>
+            <li><a href="#artistes" class="nav-route-link">Les Artistes</a></li>
+            <li><a href="#contact" class="nav-route-link">Réservations</a></li>
+        </ul>
+    </nav>
+
+    <!-- ==============================================
+         1. EXPÉRIENCE (HOME VIEW)
+         ============================================== -->
+    <div id="home" class="page-view">
+        <!-- Hero Section Slider -->
+        <div class="hero">
+            <div class="hero-slider">
+                <!-- Fallback elegant photo styling -->
+                <div class="slide active" style="background-image: url('01.jpg')"></div>
+                <div class="slide" style="background-image: url('02.jpg')"></div>
+                <div class="slide" style="background-image: url('03.jpg')"></div>
+            </div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <p class="reveal delay-1">Une parenthèse élégante et feutrée</p>
+                <h1 class="reveal delay-2">La Cour du Baron</h1>
+                <p class="reveal delay-3">Au cœur du vieux Perpignan, rue du Théâtre, poussez les portes et laissez-vous envelopper.</p>
+                <a href="#carte" class="btn-gold nav-route-link reveal delay-3">Découvrir la Table</a>
+            </div>
+        </div>
+
+        <!-- Presentational Cards Section -->
+        <section>
+            <div class="section-header reveal">
+                <h2>Une Table Ouverte à Toute Heure</h2>
+                <p>Cuisine raffinée & service continu</p>
+            </div>
+            <div class="card-grid">
+                <!-- Card 1 -->
+                <div class="card reveal delay-1">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/493/600/400" alt="Brasserie le Midi" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Midi & Brasserie</div>
+                        <h3 class="card-title">Le Déjeuner du Baron</h3>
+                        <p class="card-desc">Des formules fraîches revisitées au fil du marché local, pour une halte raffinée à l'heure du déjeuner.</p>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="card reveal delay-2">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/225/600/400" alt="Salon Gourmand l'Après-midi" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Après-midi & Salon</div>
+                        <h3 class="card-title">L'Heure Douce</h3>
+                        <p class="card-desc">Une sélection d’infusions bio et de pâtisseries d’artisan pour une parenthèse feutrée en plein cœur du vieux Perpignan.</p>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="card reveal delay-3">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/326/600/400" alt="Table soignée le Soir" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Soir & Convivialité</div>
+                        <h3 class="card-title">Le Crépuscule</h3>
+                        <p class="card-desc">Assiettes soignées à partager, vins du Roussillon et cocktails signatures à la lueur des bougies.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Parallax divider with quote -->
+        <div class="parallax-section" style="background-image: url('https://picsum.photos/id/102/1600/900')">
+            <div class="parallax-overlay"></div>
+            <div class="parallax-content reveal">
+                <h3>Du producteur à l'assiette</h3>
+                <p style="font-family: var(--font-serif); font-size: 1.2rem; font-style: italic;">
+                    "Tous nos plats sont confectionnés avec des produits locaux, en circuit court et 100% fait maison."
+                </p>
+            </div>
+        </div>
+
+        <!-- Testimonials Carousel -->
+        <section>
+            <div class="section-header reveal">
+                <h2>Vos Paroles Douces</h2>
+                <p>Ce qu'ils disent de nous</p>
+            </div>
+            <div class="testimonial-slider reveal">
+                <div class="testimonial-track" id="testimonial-track">
+                    <div class="testimonial-item">
+                        <p class="testimonial-text">"Un havre de paix caché. Le pavé de cerf aux griottes était une révélation !"</p>
+                        <p class="testimonial-author">— Marc A.</p>
+                    </div>
+                    <div class="testimonial-item">
+                        <p class="testimonial-text">"La formule de l'après-midi est parfaite pour lire ou travailler. L'ambiance est incroyablement feutrée."</p>
+                        <p class="testimonial-author">— Sophie L.</p>
+                    </div>
+                    <div class="testimonial-item">
+                        <p class="testimonial-text">"Le jeudi soir pour les concerts intimistes est devenu notre rituel hebdomadaire."</p>
+                        <p class="testimonial-author">— Thomas K.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==============================================
+         2. LA CARTE (MENU VIEW)
+         ============================================= -->
+    <div id="carte" class="page-view">
+        <section>
+            <div class="section-header">
+                <h2>La Carte du Baron</h2>
+                <p>Fait maison & Produits de saison</p>
+            </div>
+
+            <!-- Category Filter Buttons -->
+            <div class="menu-filter">
+                <button class="filter-btn active" data-filter="all">Toutes nos créations</button>
+                <button class="filter-btn" data-filter="brasserie">Brasserie du midi</button>
+                <button class="filter-btn" data-filter="salon">Salon gourmand</button>
+                <button class="filter-btn" data-filter="soir">Table du soir</button>
+            </div>
+
+            <!-- Portfolio Plats Cards Grid -->
+            <div class="card-grid" id="menu-grid">
+                <!-- Plat 1 -->
+                <div class="card" data-category="brasserie">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/1025/600/400" alt="Suprême de Volaille" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Brasserie du midi</div>
+                        <h3 class="card-title">Le Suprême des Pyrénées</h3>
+                        <p class="card-desc">Suprême de volaille locale caramélisé, crémeux de potimarron rôti et réduction de jus au romarin.</p>
+                        <div class="card-footer">
+                            <span class="card-price">22,00 €</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Plat 2 -->
+                <div class="card" data-category="soir">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/625/600/400" alt="Tataki de Thon" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Table du Soir</div>
+                        <h3 class="card-title">Le Tataki de Thon Rouge</h3>
+                        <p class="card-desc">Saisi au sésame, mousseline d'avocat au gingembre et émulsion fine de soja-agrumes.</p>
+                        <div class="card-footer">
+                            <span class="card-price">26,00 €</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Plat 3 -->
+                <div class="card" data-category="salon">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/312/600/400" alt="Tartelette Citron" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Salon Gourmand</div>
+                        <h3 class="card-title">Le Citron et Basilic</h3>
+                        <p class="card-desc">Tartelette destructurée au crémeux citron d'ici, meringue soufflée au zeste et basilic frais.</p>
+                        <div class="card-footer">
+                            <span class="card-price">9,50 €</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Plat 4 -->
+                <div class="card" data-category="soir">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/684/600/400" alt="Filet d'Agneau" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Table du Soir</div>
+                        <h3 class="card-title">Le Pavé du Baron</h3>
+                        <p class="card-desc">Filet de bœuf de l'Aubrac maturé grillé à la perfection, mille-feuille de pommes de terre au thym frais.</p>
+                        <div class="card-footer">
+                            <span class="card-price">31,00 €</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Plat 5 -->
+                <div class="card" data-category="salon">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/429/600/400" alt="Chocolat Araguani" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Salon Gourmand</div>
+                        <h3 class="card-title">L'Araguani Intense</h3>
+                        <p class="card-desc">Palet au chocolat noir de caractère 72%, tuile croustillante et pointe de fleur de sel de Gruissan.</p>
+                        <div class="card-footer">
+                            <span class="card-price">10,00 €</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Plat 6 -->
+                <div class="card" data-category="brasserie">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/63/600/400" alt="Salade Gourmande" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Brasserie du midi</div>
+                        <h3 class="card-title">La Verte du Vieux Perpignan</h3>
+                        <p class="card-desc">Petits légumes d'hiver glacés, chèvre frais du domaine voisin fondu et éclats de noix de Grenoble.</p>
+                        <div class="card-footer">
+                            <span class="card-price">18,50 €</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==============================================
+         3. LES ARTISTES (EVENTS VIEW)
+         ============================================= -->
+    <div id="artistes" class="page-view">
+        <section>
+            <div class="section-header">
+                <h2>Le Rendez-vous des Artistes</h2>
+                <p>Tous les Jeudis Soirs à partir de 20h</p>
+            </div>
+
+            <!-- Artistic Cards & Event list -->
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/453/600/400" alt="Acoustic Session" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Jazz & Soul — 18 Février</div>
+                        <h3 class="card-title">Léna & the Soulbirds</h3>
+                        <p class="card-desc">Une voix de velours soutenue par une contrebasse feutrée pour réchauffer les cœurs au cœur de l'hiver.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/1082/600/400" alt="Guitare classique" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Folk Acoustique — 25 Février</div>
+                        <h3 class="card-title">Clara et Julien</h3>
+                        <p class="card-desc">Un duo complice revisitant les standards folk américains à deux guitares acoustiques intimistes.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-img-wrapper">
+                        <img src="https://picsum.photos/id/445/600/400" alt="Piano jazz" class="card-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Piano Solo — 4 Mars</div>
+                        <h3 class="card-title">Nocturnes Modernes</h3>
+                        <p class="card-desc">Compositions épurées à mi-chemin entre le classique impressionniste et le jazz contemporain mélancolique.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==============================================
+         4. CONTACT & RÉSERVATIONS (CONTACT VIEW)
+         ============================================= -->
+    <div id="contact" class="page-view">
+        <section>
+            <div class="section-header">
+                <h2>Prendre Table</h2>
+                <p>Réservez votre instant élégant</p>
+            </div>
+
+            <div class="contact-layout">
+                <!-- Form wrapper -->
+                <div class="contact-form-wrapper">
+                    <form id="reservation-form" novalidate>
+                        <div class="form-group">
+                            <label for="form-name">Nom complet *</label>
+                            <input type="text" id="form-name" class="form-control" placeholder="M. ou Mme De Baron" required>
+                            <span class="error-message" id="error-name">Veuillez renseigner votre nom complet.</span>
+                        </div>
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="form-email">Adresse e-mail *</label>
+                                <input type="email" id="form-email" class="form-control" placeholder="baron@example.com" required>
+                                <span class="error-message" id="error-email">Veuillez saisir un e-mail valide.</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="form-phone">Téléphone *</label>
+                                <input type="tel" id="form-phone" class="form-control" placeholder="06 12 34 56 78" required>
+                                <span class="error-message" id="error-phone">Veuillez indiquer un téléphone valide.</span>
+                            </div>
+                        </div>
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="form-date">Date de réservation *</label>
+                                <input type="date" id="form-date" class="form-control" required>
+                                <span class="error-message" id="error-date">Veuillez choisir une date.</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="form-guests">Nombre d'invités *</label>
+                                <input type="number" id="form-guests" class="form-control" min="1" max="10" placeholder="2" required>
+                                <span class="error-message" id="error-guests">Spécifiez le nombre de personnes (1-10).</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="form-comments">Demandes particulières</label>
+                            <textarea id="form-comments" class="form-control" rows="4" placeholder="Allergies, table près de la cour intérieure..."></textarea>
+                        </div>
+                        <button type="submit" class="btn-gold" style="width: 100%;">Confirmer la Demande</button>
+                    </form>
+                    <div class="form-success-toast" id="form-success">
+                        Votre demande a été envoyée avec succès. Notre équipe vous recontactera sous peu pour confirmer.
+                    </div>
+                </div>
+
+                <!-- Info detail and map -->
+                <div class="contact-info">
+                    <div class="info-details">
+                        <div class="info-item">
+                            <h4>Adresse</h4>
+                            <p>12 Rue du Théâtre, 66000 Perpignan</p>
+                        </div>
+                        <div class="info-item">
+                            <h4>Téléphone</h4>
+                            <p>04 68 35 42 18</p>
+                        </div>
+                        <div class="info-item">
+                            <h4>Horaires</h4>
+                            <p>Service continu de 11h30 à 23h30 — 7 jours sur 7</p>
+                        </div>
+                    </div>
+
+                    <!-- Embed Map -->
+                    <div class="map-wrapper">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2946.0464670273836!2d2.8943715116773344!3d42.70014751433221!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12b06e409ec8e2b7%3A0xe5a36ba4f6cbf93c!2sRue%20du%20Th%C3%A9%C3%A2tre%2C%2066000%20Perpignan!5e0!3m2!1sfr!2sfr!4v1710000000000!5m2!1sfr!2sfr" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==============================================
+         MINIMAL FOOTER
+         ============================================= -->
+    <footer>
+        <div class="footer-content">
+            <p class="footer-copy">© 2026 La Cour du Baron. Tous droits réservés. L'abus d'alcool est dangereux pour la santé.</p>
+            <div class="footer-socials">
+                <a href="#" aria-label="Facebook"><i data-lucide="facebook"></i></a>
+                <a href="#" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+                <a href="#" aria-label="TripAdvisor"><i data-lucide="compass"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- --- JAVASCRIPT FOR ROUTING AND INTERACTION --- -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // 1. HAMBURGER MENU & SCROLL EFFECT
+        const menuToggle = document.getElementById('menu-toggle');
+        const navOverlay = document.getElementById('nav-overlay');
+        const header = document.getElementById('main-header');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navOverlay.classList.toggle('open');
+        });
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Close menu on navigation click
+        const navLinks = document.querySelectorAll('.nav-route-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navOverlay.classList.remove('open');
+            });
+        });
+
+        // 2. SPA ROUTING ENGINE
+        const routes = ['home', 'carte', 'artistes', 'contact'];
+        
+        function navigate() {
+            let hash = window.location.hash.replace('#', '');
+            if (!routes.includes(hash)) {
+                hash = 'home';
+            }
+
+            // Hide all pages, show active
+            document.querySelectorAll('.page-view').forEach(view => {
+                view.classList.remove('active');
+            });
+
+            const targetView = document.getElementById(hash);
+            if (targetView) {
+                targetView.classList.add('active');
+                window.scrollTo(0, 0);
+            }
+
+            // Fire initial animations inside active view
+            setTimeout(triggerScrollReveal, 100);
+        }
+
+        window.addEventListener('hashchange', navigate);
+        window.addEventListener('load', navigate);
+
+        // 3. HERO SLIDER AUTOMATION
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+
+        setInterval(nextSlide, 5000); // Shift every 5 seconds
+
+        // 4. PORTFOLIO CARTE FILTER
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const menuItems = document.querySelectorAll('#menu-grid .card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filter = btn.getAttribute('data-filter');
+                menuItems.forEach(item => {
+                    const cat = item.getAttribute('data-category');
+                    if (filter === 'all' || cat === filter) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // 5. SCROLL REVEAL (SLIDE-UP ANIMATIONS)
+        function triggerScrollReveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            const windowHeight = window.innerHeight;
+
+            reveals.forEach(reveal => {
+                const elementTop = reveal.getBoundingClientRect().top;
+                const elementVisible = 100;
+
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', triggerScrollReveal);
+
+        // 6. TESTIMONIAL CAROUSEL SLIDER AUTO-PLAY
+        const track = document.getElementById('testimonial-track');
+        const testimonials = document.querySelectorAll('.testimonial-item');
+        let currentTestimonial = 0;
+
+        function nextTestimonial() {
+            if (!track) return;
+            currentTestimonial = (currentTestimonial + 1) % testimonials.length;
+            const amountToMove = -100 * currentTestimonial;
+            track.style.transform = `translateX(${amountToMove}%)`;
+        }
+
+        setInterval(nextTestimonial, 6000);
+
+        // 7. RESERVATION FORM VALIDATION
+        const form = document.getElementById('reservation-form');
+        const formSuccess = document.getElementById('form-success');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            let isValid = true;
+
+            // Simple validations
+            const fields = [
+                { id: 'form-name', errorId: 'error-name', check: (v) => v.trim().length > 0 },
+                { id: 'form-email', errorId: 'error-email', check: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+                { id: 'form-phone', errorId: 'error-phone', check: (v) => /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(v) },
+                { id: 'form-date', errorId: 'error-date', check: (v) => v !== '' },
+                { id: 'form-guests', errorId: 'error-guests', check: (v) => parseInt(v) > 0 && parseInt(v) <= 10 }
+            ];
+
+            fields.forEach(field => {
+                const input = document.getElementById(field.id);
+                const error = document.getElementById(field.errorId);
+                
+                if (!field.check(input.value)) {
+                    input.classList.add('error');
+                    error.style.display = 'block';
+                    isValid = false;
+                } else {
+                    input.classList.remove('error');
+                    error.style.display = 'none';
+                }
+            });
+
+            if (isValid) {
+                form.style.display = 'none';
+                formSuccess.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
