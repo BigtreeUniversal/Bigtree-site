@@ -1,0 +1,60 @@
+██████╗ ██╗   ██╗██╗  ██╗███████╗
+██╔══██╗██║   ██║██║  ██║██╔════╝
+██████╔╝██║   ██║███████║███████╗
+██╔══██╗██║   ██║██╔══██║╚════██║
+██████╔╝╚██████╔╝██║  ██║███████║
+╚══════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+
+--- UNIVERSAL HARMONIC SYSTEM ---
+
+     "Nano Time Stamper"
+         by @BigTree
+
+
+📑 INSTRUCTIONS FOR USE : BUHS Nano Time-stamper
+
+Welcome to the BUHS L1 sovereign timestamping client. This tool allows you to prove the existence of a file at a specific point in time by anchoring it in the BUHS Merkle tree in Switzerland, in a completely confidential manner.
+
+🔒 Absolute security and confidentiality
+No file is uploaded : The digital fingerprint (SHA-256 hash) is calculated locally within your own browser.
+
+Zero leakage : The content of your documents never leaves your computer. Only the text signature (the hash) is transmitted to the certification server..
+
+🚀 How do I use the web app?
+
+Upload your file:
+Method A : Drag and drop your file directly into the dashed box below.
+Method B : Click the center of the frame to open your file explorer and select your file..
+
+Automatic anchoring : The application instantly calculates the hash and contacts the server in Switzerland. The steps are displayed in real time in the central console..
+
+Anchoring proof : Once the operation is successful, the [BUHS L1 - SECURED] banner appears, displaying your Ticket ID and the precise timestamp..
+
+🔍 What should you keep?
+
+To prove the prior existence of your document in the future, you simply need to keep:
+
+The original file (strictly identical, the slightest modification would change its Hash).
+The Ticket ID (or timestamp receipt) provided by the application.
+Copy and carefully keep the information from the receipt.
+
+=====================================
+
+BUHS L1: Sovereign Nanosecond Cryptographic Time-Stamping Infrastructure
+
+BUHS L1 is a high-performance, decentralized Deep Tech protocol built for immutable data notarization. Powered by a deterministic, memory-safe Rust-based handler, the architecture delivers bare-metal execution speeds capable of processing thousands of cryptographic events per second. Time-stamping precision is anchored at the nanosecond scale, micro-synced directly with Swiss Stratum 1 time servers tied to atomic frequency standards for absolute chronological authority.
+
+Operating on a zero-leak, client-side hashing paradigm, payload privacy is absolute. On a daily cycle, all cryptographic signatures are batched and compiled into a cryptographic Merkle Tree. The resulting state root is natively settled and anchored into both the Bitcoin and Ethereum mainnets, leveraging multi-chain consensus to guarantee mathematically unalterable, globally verifiable proof of existence.
+
+======================================
+
+TECHNICAL HUB BIGTREE CONTROL CENTER
+
+https://buhs-universal.xyz
+
+https://buhs-time-stamper.netlify.app/pipeline.html
+
+https://buhs-time-stamper.netlify.app/Nano_Time-Stamper_en.html
+
+https://buhs-time-stamper.netlify.app/TimeStamper_lite.html
+
