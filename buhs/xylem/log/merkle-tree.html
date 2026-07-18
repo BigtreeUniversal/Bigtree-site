@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[ XYLEM HUB // MERKLE CORE BIGTREE ]</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #010402;
+            color: #00ff66;
+            font-family: 'Courier New', Courier, monospace;
+            animation: flicker 0.25s infinite;
+            overflow-x: hidden;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.98; }
+            50% { opacity: 1; }
+            100% { opacity: 0.99; }
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0, 255, 102, 0.04),
+                rgba(0, 255, 102, 0.04) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            z-index: 9999;
+        }
+        .terminal-box {
+            border: 1px solid #00cc55;
+            background: rgba(0, 10, 3, 0.75);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 0 15px rgba(0, 204, 85, 0.15);
+            border-radius: 2px;
+            position: relative;
+        }
+        .terminal-box::before {
+            content: "■";
+            position: absolute;
+            top: 6px;
+            right: 12px;
+            color: #00cc55;
+            font-size: 10px;
+            opacity: 0.5;
+        }
+        .tree-line {
+            opacity: 0;
+            animation: typeIn 0.05s forwards;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        @keyframes typeIn {
+            to { opacity: 1; }
+        }
+        .scanline {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 255, 102, 0.08);
+            position: fixed;
+            animation: scrollScan 6s linear infinite;
+            pointer-events: none;
+            z-index: 10000;
+        }
+        @keyframes scrollScan {
+            0% { top: -4px; }
+            100% { top: 100%; }
+        }
+        ::selection {
+            background: #00ff66;
+            color: #010402;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #010402; }
+        ::-webkit-scrollbar-thumb { background: #00cc55; }
+    </style>
+</head>
+<body class="p-4 md:p-8 selection:bg-emerald-500 selection:text-black">
+    <div class="scanline"></div>
+    <div class="max-w-6xl mx-auto">
+        
+        <!-- HEADER LAYER -->
+        <header class="terminal-box border-b-2">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-emerald-800 pb-4 mb-6">
+                <div>
+                    <div class="text-xs text-emerald-400 font-bold uppercase tracking-widest mb-1 animate-pulse">// CORE_PROTOCOL_INITIALIZED //</div>
+                    <h1 class="text-3xl font-bold font-mono tracking-tight text-white">
+                        BUHS FRAMEWORK <span class="text-emerald-400">by @Bigtree</span>
+                    </h1>
+                </div>
+                <div class="mt-4 md:mt-0 text-left md:text-right font-mono text-xs text-emerald-500/80 bg-emerald-950/20 p-2 border border-emerald-900">
+                    <div id="sys-status">SYS_STATUS : SYNCING...</div>
+                    <div>TARGET     : BITCOIN_MAINNET // LAYER_ETH_READY</div>
+                    <div>BUILD      : v1.1-DYNAMIC</div>
+                </div>
+            </div>
+            
+            <!-- TAGLINE -->
+            <div class="bg-emerald-950/10 border-l-4 border-emerald-500 p-4 my-4">
+                <p class="text-emerald-300 text-sm md:text-base font-bold font-mono">
+                    [ SYSTEM SPEC ] : Local-to-Web3 Data Immutability. Sectorized via Chronological Merkle Trees. Anchored in Bitcoin. Engineered for Ethereum & Solana cross-chain mathematical finality.
+                </p>
+            </div>
+
+            <!-- HOOK -->
+            <p class="text-gray-400 text-xs md:text-sm leading-relaxed font-mono mt-4">
+                Every 24 hours, the immutable laws of mathematics seal your infrastructure state. The <span class="text-emerald-400 font-bold">BUHS Framework</span> (Block-linked Unified Hashing Sectorization) isolates ephemeral machine logs into strict, autonomous 24-hour sectors, hashing raw cryptographic primitives into a continuous, un-falsifiable Merkle chain. Starting from a cold <span class="text-white font-bold">000000...000 Genesis Root</span>, local records are mathematically woven into sovereign blockchain ledgers. No admin panel, no human manipulation, no databases to breach. Trust is obsolete when verification is an absolute avalanche effect.
+            </p>
+        </header>
+
+        <!-- LIVE STREAM TERMINAL -->
+        <main class="grid grid-cols-1 gap-6">
+            <section class="terminal-box">
+                <div class="flex justify-between items-center border-b border-emerald-900 pb-2 mb-4">
+                    <span id="terminal-title" class="text-xs font-bold text-emerald-400 uppercase tracking-wider">📡 ACTIVE BUHS CRYPTO-STREAM // FETCHING DATA...</span>
+                    <span class="inline-block w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+                </div>
+                <div id="merkle-tree-container" class="font-mono text-xs md:text-sm leading-relaxed min-h-[380px] bg-black/40 p-4 rounded border border-emerald-950 overflow-x-auto text-emerald-400">
+                    <!-- Dynamic injection occurs here -->
+                </div>
+            </section>
+
+            <!-- INFRASTRUCTURE SPECS -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="terminal-box">
+                    <h3 class="text-sm font-bold text-white uppercase border-b border-emerald-900 pb-2 mb-3">01 // 24H SECTORIZATION</h3>
+                    <p class="text-gray-400 text-xs font-mono leading-relaxed">
+                        Data flows are siloed into clean, sealed 24-hour sectors. Once a block expires, it transitions into a <code>🔒 FROZEN_BLOCK</code> state. No retroactive writes or past alterations are physically or mathematically permitted.
+                    </p>
+                </div>
+                <div class="terminal-box">
+                    <h3 class="text-sm font-bold text-white uppercase border-b border-emerald-900 pb-2 mb-3">02 // AVALANCHE PROTECTION</h3>
+                    <p class="text-gray-400 text-xs font-mono leading-relaxed">
+                        Every transaction hash is cryptographically linked to the previous day's Merkle Root Parent. A single character modified within historical logs shatters the system's global integrity root, alerting auditors instantly.
+                    </p>
+                </div>
+                <div class="terminal-box">
+                    <h3 class="text-sm font-bold text-white uppercase border-b border-emerald-900 pb-2 mb-3">03 // CROSS-CHAIN ANCHOR</h3>
+                    <p class="text-gray-400 text-xs font-mono leading-relaxed">
+                        Engineered to achieve sovereign permanence. BUHS frameworks tie local machine execution trees straight into Bitcoin's proof-of-work layer via OP_RETURN, with upcoming parallel anchoring paths for Ethereum and Solana.
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="text-center font-mono text-[10px] text-emerald-600/60 my-8">
+            BUHS PROTOCOL LAYER v1.1 // DEVELOPED BY @BIGTREE // SECURED VIA CRYPTOGRAPHIC AVAILABILITY // ALL RIGHTS RESERVED.
+        </footer>
+    </div>
+
+    <!-- RUNTIME LOGIC -->
+    <script>
+        // CONFIGURATION DU REPOSITORIUM GITHUB
+        const GH_USER = "TON_NOM_UTILISATEUR_GITHUB"; // Remplacer par ton pseudo GitHub
+        const GH_REPO = "TON_NOM_DE_DEPOT";           // Remplacer par le nom de ton dépôt
+        const GH_PATH = "chemin/vers/le/dossier";      // Laisser "" si à la racine, sinon ex: "logs" ou "pages"
+
+        const container = document.getElementById('merkle-tree-container');
+        const statusDisplay = document.getElementById('sys-status');
+        const titleDisplay = document.getElementById('terminal-title');
+
+        // Génère une chaîne de date YYYY-MM-DD avec un décalage en jours (0 = aujourd'hui, -1 = hier)
+        function getDateString(offset = 0) {
+            const d = new Date();
+            d.setDate(d.getDate() + offset);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Parse l'arbre HTML brut ou extrait un tableau de lignes textuelles à afficher
+        function renderTerminal(treeData) {
+            container.innerHTML = ""; // Clear loader
+            treeData.forEach((lineText, index) => {
+                const lineElement = document.createElement('div');
+                lineElement.className = 'tree-line';
+                lineElement.textContent = lineText === "" ? " " : lineText;
+                
+                // Logique de coloration syntaxique du terminal
+                if (lineText.includes("✅")) {
+                    lineElement.className += " text-emerald-400 font-bold";
+                } else if (lineText.includes("🔒") || lineText.includes("FROZEN")) {
+                    lineElement.className += " text-cyan-400";
+                } else if (lineText.includes("🟠") || lineText.includes("BITCOIN")) {
+                    lineElement.className += " text-amber-500 font-bold";
+                } else if (lineText.includes("🔷") || lineText.includes("ETHEREUM")) {
+                    lineElement.className += " text-indigo-400 font-bold";
+                } else if (lineText.includes("00000000000000")) {
+                    lineElement.className += " text-white tracking-widest opacity-80";
+                } else if (lineText.includes("====")) {
+                    lineElement.className += " text-emerald-300 font-bold text-center tracking-wider mb-2";
+                }
+                
+                lineElement.style.animationDelay = `${index * 40}ms`;
+                container.appendChild(lineElement);
+            });
+        }
+
+        // Tente de récupérer une page spécifique par sa date
+        async function fetchLogPage(dateStr) {
+            const fileName = `page-${dateStr}.html`;
+            const cleanPath = GH_PATH ? `${GH_PATH}/${fileName}` : fileName;
+            // Utilisation du Content API de GitHub pour éviter les délais de cache des GitHub Pages
+            const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${cleanPath}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Status ${response.status}`);
+                
+                const data = await response.json();
+                // Décodage du contenu stocké en Base64 par GitHub
+                const htmlContent = decodeURIComponent(escape(atob(data.content)));
+                
+                // Extraction de la structure de l'arbre depuis le script ou le conteneur de la page distante
+                return extractTreeData(htmlContent, dateStr);
+            } catch (err) {
+                return null;
+            }
+        }
+
+        // Extrait le tableau 'treeData' ou le texte brut du conteneur de la page récupérée
+        function extractTreeData(htmlText, dateStr) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            const remoteContainer = doc.getElementById('merkle-tree-container');
+            
+            if (remoteContainer && remoteContainer.textContent.trim() !== "") {
+                return remoteContainer.textContent.split('\n').map(l => l.trimEnd());
+            }
+            
+            // Fallback d'urgence si la structure diverge
+            return [
+                `======= BUHS PROTOCOL LOG LAYER [${dateStr}] =======`,
+                `[CRITICAL] ── PARSING_FALLBACK_ENGAGED`,
+                `[DATA] ── Contenu brut extrait avec succès de ${dateStr}.`,
+                `│`,
+                `└── Fichier source accessible sur le dépôt distant.`,
+                ``,
+                `[SYS_STATUS] ── SYNC_FALLBACK: TERMINATED`
+            ];
+        }
+
+        // Gestionnaire d'orchestration de la synchronisation temporelle
+        async function initSync() {
+            container.innerHTML = "<div class='animate-pulse text-emerald-500'>[SYS] Connexion au réseau d'infrastructure Merkle en cours...</div>";
+            
+            // 1. Essai avec la page d'aujourd'hui
+            let todayStr = getDateString(0);
+            let logs = await fetchLogPage(todayStr);
+            
+            // 2. Si non trouvé, repli automatique sur hier
+            if (!logs) {
+                let yesterdayStr = getDateString(-1);
+                logs = await fetchLogPage(yesterdayStr);
+                if (logs) {
+                    statusDisplay.textContent = "SYS_STATUS : DEGRADED // USING_YESTERDAY_SECTOR";
+                    titleDisplay.textContent = `📡 ACTIVE BUHS CRYPTO-STREAM // SECTOR: ${yesterdayStr}`;
+                }
+            } else {
+                statusDisplay.textContent = "SYS_STATUS : ACTIVE // CORE_SYNC_OK";
+                titleDisplay.textContent = `📡 ACTIVE BUHS CRYPTO-STREAM // SECTOR: ${todayStr}`;
+            }
+
+            // 3. Fallback final si aucun fichier n'est trouvé de manière prévisible (ex: premier init ou problème réseau)
+            if (!logs) {
+                statusDisplay.textContent = "SYS_STATUS : OFFLINE // LOCAL_EMULATION";
+                titleDisplay.textContent = "📡 ACTIVE BUHS CRYPTO-STREAM // STATIC_SNAPSHOT";
+                renderTerminal([
+                    "======= SOVEREIGN BUHS PROTOCOL ERROR =======",
+                    "[NODE_STATUS] ── LINK_FAILURE // REPO_UNREACHABLE",
+                    "│",
+                    "├── [ACTIONREQUIRED] ── Vérifiez les constantes GH_USER & GH_REPO dans le script.",
+                    "└── [REASON] ── Aucun bloc sectorisé trouvé pour aujourd'hui ou hier.",
+                    "",
+                    "[SYS_STATUS] ── CASCADE_PROOF_OPERATIONAL // OFFLINE_SAFE"
+                ]);
+                return;
+            }
+
+            renderTerminal(logs);
+        }
+
+        // Lancement du protocole au chargement de la page
+        document.addEventListener("DOMContentLoaded", initSync);
+    </script>
+</body>
+</html>
