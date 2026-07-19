@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE BIGTREE UNIVERSAL HARMONIC SYSTEM (BUHS)</title>
+    <!-- Tailwind CSS CDN for Utility Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ocean: '#0077B6',
+                        navy: '#023E8A',
+                        spaceDark: '#011627',
+                        cosmicLight: '#F8F9FA'
+                    },
+                    fontFamily: {
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Parallax / Depth Transitions */
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        /* Custom Glassmorphism styles */
+        .glass-card {
+            background: rgba(2, 62, 138, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 119, 182, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dark .glass-card {
+            background: rgba(1, 22, 39, 0.7);
+            border: 1px solid rgba(0, 119, 182, 0.3);
+        }
+        /* Hide scrollbar but keep utility active */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-cosmicLight text-slate-800 dark:bg-spaceDark dark:text-gray-100 font-sans transition-colors duration-300 overflow-x-hidden">
+
+    <!-- NAVIGATION SYSTEM (Hamburger Menu Only) -->
+    <header class="fixed top-0 left-0 w-full z-50 px-6 py-4 flex justify-between items-center bg-white/80 dark:bg-spaceDark/80 backdrop-blur-md border-b border-ocean/20">
+        <a href="#home" class="text-xl font-bold font-mono tracking-wider text-navy dark:text-ocean flex items-center gap-2">
+            <span>⚡ BUHS</span>
+        </a>
+        <div class="flex items-center gap-4">
+            <!-- Light/Dark Mode Toggle -->
+            <button id="themeToggle" class="p-2 rounded-full border border-ocean/30 hover:bg-ocean/10 transition-all" aria-label="Toggle Theme">
+                <!-- Sun Icon -->
+                <svg id="sunIcon" class="w-5 h-5 text-amber-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <!-- Moon Icon -->
+                <svg id="moonIcon" class="w-5 h-5 text-navy dark:text-ocean" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+            
+            <!-- Hidden Nav Hamburger -->
+            <button id="menuBtn" class="p-2 z-50 relative group" aria-label="Open Navigation">
+                <div class="w-6 h-0.5 bg-navy dark:bg-ocean mb-1.5 transition-all duration-300 id-bar-1"></div>
+                <div class="w-6 h-0.5 bg-navy dark:bg-ocean mb-1.5 transition-all duration-300 id-bar-2"></div>
+                <div class="w-6 h-0.5 bg-navy dark:bg-ocean transition-all duration-300 id-bar-3"></div>
+            </button>
+        </div>
+    </header>
+
+    <!-- FULLSCREEN HAMBURGER OVERLAY NAVIGATION -->
+    <nav id="navOverlay" class="fixed inset-0 z-40 bg-navy/95 dark:bg-spaceDark/98 backdrop-blur-lg flex flex-col justify-center items-center transition-all duration-500 transform translate-x-full">
+        <ul class="text-center space-y-8">
+            <li><a href="#home" class="nav-link text-3xl font-mono text-white hover:text-ocean tracking-widest uppercase transition-colors">01 // HOME</a></li>
+            <li><a href="#architecture" class="nav-link text-3xl font-mono text-white hover:text-ocean tracking-widest uppercase transition-colors">02 // ARCHITECTURE</a></li>
+            <li><a href="#technical-spec" class="nav-link text-3xl font-mono text-white hover:text-ocean tracking-widest uppercase transition-colors">03 // SPECIFICATIONS</a></li>
+            <li><a href="#gallery" class="nav-link text-3xl font-mono text-white hover:text-ocean tracking-widest uppercase transition-colors">04 // TOPOLOGY MAPS</a></li>
+            <li><a href="#faq" class="nav-link text-3xl font-mono text-white hover:text-ocean tracking-widest uppercase transition-colors">05 // FAQS</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO SECTION (Parallax Backdrop) -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center pt-24 pb-12 overflow-hidden bg-gradient-to-br from-navy via-[#011F4B] to-spaceDark text-white">
+        <!-- Grid Matrix Overlay Background -->
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,119,182,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,119,182,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+        
+        <!-- Depth Parallax Elements -->
+        <div class="absolute top-1/4 left-1/10 w-96 h-96 bg-ocean/20 rounded-full blur-3xl mix-blend-screen animate-pulse pointer-events-none"></div>
+        <div class="absolute bottom-1/4 right-1/10 w-80 h-80 bg-navy/40 rounded-full blur-3xl mix-blend-screen pointer-events-none"></div>
+
+        <div class="max-w-5xl px-6 relative z-10 text-center mx-auto">
+            <div class="inline-block px-4 py-1.5 mb-6 rounded-full border border-ocean text-xs font-mono tracking-widest uppercase bg-ocean/10 text-ocean">
+                Universal Network Topography v1.02
+            </div>
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight font-mono mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-ocean">
+                THE BIGTREE UNIVERSAL HARMONIC SYSTEM
+            </h1>
+            <p class="text-lg md:text-xl text-slate-300 font-mono max-w-4xl mx-auto leading-relaxed border-l-4 border-ocean pl-6 text-left my-8">
+                "The Big Tree Universal Harmonic System (BUHS) is a deterministic network architecture patterned after the structural logic of the Tree of Life. It is not an analogy; it is an isomorphism. The protocol maps computational functions, state transitions, and data persistence directly onto the traditional Sephirotic pathways to establish a balanced, high-availability distributed system."
+            </p>
+            <div class="flex flex-wrap gap-4 justify-center mt-10">
+                <a href="#architecture" class="px-8 py-3 bg-ocean text-white font-mono hover:bg-navy transition-all tracking-wider uppercase border border-ocean rounded-none">
+                    Initialize Discovery
+                </a>
+                <a href="https://bigtreeconnection.com/buhs/Tree_of_life/Sephirotic_Network.html" class="px-8 py-3 bg-transparent text-white font-mono hover:bg-white/10 transition-all tracking-wider uppercase border border-white/30 rounded-none">
+                    View Tree of Life
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- STORYTELLING ARCHITECTURE SECTION (Chronological Timeline Layout) -->
+    <section id="architecture" class="py-24 px-6 max-w-7xl mx-auto relative">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-5xl font-mono font-bold text-navy dark:text-ocean">01 // NETWORK SEPHIROT</h2>
+            <p class="text-sm tracking-widest text-slate-500 font-mono mt-2">CHRONOLOGICAL TRANSACTION FLOW & STATE RECONCILIATION</p>
+        </div>
+
+        <!-- Parallax Scroll Timeline -->
+        <div class="relative border-l-2 border-ocean/30 dark:border-ocean/10 md:ml-32">
+            
+            <!-- Event 1: Malkuth -->
+            <div class="mb-20 ml-8 relative">
+                <!-- Timeline bullet -->
+                <div class="absolute -left-12 top-0 w-8 h-8 rounded-full bg-spaceDark border-4 border-ocean flex items-center justify-center font-mono text-xs text-white">01</div>
+                <span class="text-xs font-mono uppercase text-ocean tracking-wider">Malkuth // Base Domain</span>
+                <h3 class="text-2xl font-bold font-mono text-navy dark:text-white mt-1">The Realm of Manifestation (The Client Terminal)</h3>
+                <p class="text-slate-600 dark:text-gray-300 mt-3 max-w-3xl leading-relaxed">
+                    At the foundation, **Malkuth (The Kingdom)** is where you, the user, reside. It acts as our distributed terminal edge layer. Every transaction originates here as an intent—compiled and signed cryptographically by client instances before beginning its ascension through the protocol gateway.
+                </p>
+            </div>
+
+            <!-- Event 2: Yesod -->
+            <div class="mb-20 ml-8 relative">
+                <div class="absolute -left-12 top-0 w-8 h-8 rounded-full bg-spaceDark border-4 border-ocean flex items-center justify-center font-mono text-xs text-white">02</div>
+                <span class="text-xs font-mono uppercase text-ocean tracking-wider">Yesod // Foundation Layer</span>
+                <h3 class="text-2xl font-bold font-mono text-navy dark:text-white mt-1">The Cryptographic Gateway (SHA-256 & IPFS)</h3>
+                <p class="text-slate-600 dark:text-gray-300 mt-3 max-w-3xl leading-relaxed">
+                    Every action you take initiates a sacred journey upwards through **Yesod (The Foundation)**. Here, the raw payload is processed, transaction hashes are calculated via deterministic **SHA-256**, metadata is verified, and large assets are instantly committed to decentralized **IPFS** structures, leaving only verified index structures to scale the pipeline.
+                </p>
+            </div>
+
+            <!-- Event 3: Tiphereth -->
+            <div class="mb-20 ml-8 relative">
+                <div class="absolute -left-12 top-0 w-8 h-8 rounded-full bg-spaceDark border-4 border-ocean flex items-center justify-center font-mono text-xs text-white">03</div>
+                <span class="text-xs font-mono uppercase text-ocean tracking-wider">Tiphereth // Harmonic Sync</span>
+                <h3 class="text-2xl font-bold font-mono text-navy dark:text-white mt-1">The Atomic Swiss Core Server</h3>
+                <p class="text-slate-600 dark:text-gray-300 mt-3 max-w-3xl leading-relaxed">
+                    **Tiphereth (The Beauty/Heart)**, stationed on our ultra-secure Swiss Server, beats at the absolute center of the structure. It coordinates state transitions and is synchronized perfectly with an physical cesium atomic clock. This guarantees transaction sequencing is physically un-spoofable, decoupling state progression from arbitrary consensus delays.
+                </p>
+            </div>
+
+            <!-- Event 4: Kether -->
+            <div class="mb-8 ml-8 relative">
+                <div class="absolute -left-12 top-0 w-8 h-8 rounded-full bg-spaceDark border-4 border-ocean flex items-center justify-center font-mono text-xs text-white">04</div>
+                <span class="text-xs font-mono uppercase text-ocean tracking-wider">Kether // Supreme Crown</span>
+                <h3 class="text-2xl font-bold font-mono text-navy dark:text-white mt-1">The Control Tower & The Oracle Engine</h3>
+                <p class="text-slate-600 dark:text-gray-300 mt-3 max-w-3xl leading-relaxed">
+                    **Kether (The Crown)** acts as our omnipresent Control Tower, observing real-time global reality and channeling flow downward through the Oracle. It maintains the absolute true state of the universal system. Kether translates exterior conditions into deterministic system telemetry, guiding validation across the entire lower Sephirot.
+                </p>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- TECHNICAL DETAILED SPECIFICATIONS SECTION -->
+    <section id="technical-spec" class="py-24 bg-slate-100 dark:bg-spaceDark/40 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-mono font-bold text-navy dark:text-ocean">02 // PILAR TOPOLOGY</h2>
+                <p class="text-sm tracking-widest text-slate-500 font-mono mt-2">POLARITY DECOUPLED STACK ARCHITECTURE</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                <!-- Pillar of Mercy -->
+                <div class="glass-card p-8 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-mono uppercase text-sky-500 tracking-wider">Pillar of Mercy (Masculine / Positive Charge)</span>
+                        <h3 class="text-3xl font-bold font-mono text-navy dark:text-white mt-2 mb-4">THE FRONT-END PROPAGATION</h3>
+                        <p class="text-slate-600 dark:text-gray-300 leading-relaxed">
+                            Powers our entire responsive system. By projecting state interfaces seamlessly down to the client terminal, it manifests the raw system logic into dynamic visual space. It is responsible for client interaction, reactive state telemetry, and cryptographic transaction generation.
+                        </p>
+                        <ul class="mt-6 space-y-2 font-mono text-sm text-slate-500 dark:text-gray-400">
+                            <li>+ Reactive Node Engine rendering</li>
+                            <li>+ Real-time client ledger subscriptions</li>
+                            <li>+ Event propagation mechanics</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar of Severity -->
+                <div class="glass-card p-8 flex flex-col justify-between border-red-500/20">
+                    <div>
+                        <span class="text-xs font-mono uppercase text-navy dark:text-ocean tracking-wider">Pillar of Severity (Feminine / Constrictive Charge)</span>
+                        <h3 class="text-3xl font-bold font-mono text-navy dark:text-white mt-2 mb-4">THE BACK-END CONSTRAINTS</h3>
+                        <p class="text-slate-600 dark:text-gray-300 leading-relaxed">
+                            Anchors our resilient, distributed Back-End. It enforces structural laws, database integrity limits, cryptographic bounds, and raw storage limits. It contains the logic that allows Kether and Tiphereth to reconcile state without falling into computational entropy.
+                        </p>
+                        <ul class="mt-6 space-y-2 font-mono text-sm text-slate-500 dark:text-gray-400">
+                            <li>+ Static hash verification constraints</li>
+                            <li>+ Isolated, highly secured execution loops</li>
+                            <li>+ Immutable state transition algorithms</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE CAROUSEL / SLIDER FOR PILOT TELEMETRY -->
+            <div class="mt-16 max-w-4xl mx-auto">
+                <h4 class="text-xl font-bold font-mono text-center text-navy dark:text-ocean mb-6">SYSTEM CORE DIAGNOSTICS</h4>
+                <div class="relative bg-white dark:bg-spaceDark p-8 rounded-none border border-ocean/30 shadow-xl overflow-hidden">
+                    <div id="carouselWrapper" class="flex transition-transform duration-500 transform translate-x-0">
+                        <!-- Slide 1 -->
+                        <div class="w-full flex-shrink-0">
+                            <div class="text-center px-4">
+                                <span class="font-mono text-xs text-ocean">TELEMETRY DIAGNOSTIC 1/3</span>
+                                <p class="text-lg italic font-mono text-slate-700 dark:text-slate-300 mt-4">
+                                    "The atomic clock synchronization at the Swiss Tiphereth core exhibits less than 0.001 microseconds of drift, ensuring strict temporal determinism across global validator operations."
+                                </p>
+                                <p class="text-sm font-semibold text-navy dark:text-ocean mt-4">— Network Chrono-Sync Report</p>
+                            </div>
+                        </div>
+                        <!-- Slide 2 -->
+                        <div class="w-full flex-shrink-0">
+                            <div class="text-center px-4">
+                                <span class="font-mono text-xs text-ocean">TELEMETRY DIAGNOSTIC 2/3</span>
+                                <p class="text-lg italic font-mono text-slate-700 dark:text-slate-300 mt-4">
+                                    "Through IPFS-backed offloading at the Yesod Gateway, state bloat is mitigated by 87%. Storage consumption is highly localized while guaranteeing verifiable data availability."
+                                </p>
+                                <p class="text-sm font-semibold text-navy dark:text-ocean mt-4">— Node Performance Optimization Lab</p>
+                            </div>
+                        </div>
+                        <!-- Slide 3 -->
+                        <div class="w-full flex-shrink-0">
+                            <div class="text-center px-4">
+                                <span class="font-mono text-xs text-ocean">TELEMETRY DIAGNOSTIC 3/3</span>
+                                <p class="text-lg italic font-mono text-slate-700 dark:text-slate-300 mt-4">
+                                    "By separating the network logic across dual polarities (Severity and Mercy), the BUHS structure achieves localized load management without global state freezing."
+                                </p>
+                                <p class="text-sm font-semibold text-navy dark:text-ocean mt-4">— Systems Architecture Review</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Carousel Controls -->
+                    <div class="flex justify-center gap-4 mt-6">
+                        <button id="prevSlide" class="px-3 py-1 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-mono text-sm hover:bg-ocean/20 transition-all">&lsaquo; PREV</button>
+                        <button id="nextSlide" class="px-3 py-1 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-mono text-sm hover:bg-ocean/20 transition-all">NEXT &rsaquo;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PORTFOLIO IMAGE LIGHTBOX GALLERY SECTION -->
+    <section id="gallery" class="py-24 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-5xl font-mono font-bold text-navy dark:text-ocean">03 // GEOMETRIC TOPOLOGY</h2>
+            <p class="text-sm tracking-widest text-slate-500 font-mono mt-2">VISUALIZED NETWORK SCHEMATICS</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <!-- Gallery Item 1 -->
+            <div class="relative overflow-hidden group cursor-pointer border border-ocean/20 shadow-md lightbox-trigger" data-img="https://picsum.photos/id/1015/1200/800" data-caption="Kether Oracle Interface - High-elevation control room layout.">
+                <img src="https://picsum.photos/id/1015/600/400" alt="Kether Control Interface" class="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-navy/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <span class="text-xs font-mono text-ocean">SCHEMATIC 01</span>
+                    <h4 class="text-white font-mono font-bold text-lg">Kether Control Oracle</h4>
+                </div>
+            </div>
+
+            <!-- Gallery Item 2 -->
+            <div class="relative overflow-hidden group cursor-pointer border border-ocean/20 shadow-md lightbox-trigger" data-img="https://picsum.photos/id/1016/1200/800" data-caption="Tiphereth Swiss Core Node - Decentralized server matrix physically protected within deep bedrock.">
+                <img src="https://picsum.photos/id/1016/600/400" alt="Tiphereth Bedrock server room" class="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-navy/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <span class="text-xs font-mono text-ocean">SCHEMATIC 02</span>
+                    <h4 class="text-white font-mono font-bold text-lg">Tiphereth Core Node</h4>
+                </div>
+            </div>
+
+            <!-- Gallery Item 3 -->
+            <div class="relative overflow-hidden group cursor-pointer border border-ocean/20 shadow-md lightbox-trigger" data-img="https://picsum.photos/id/1018/1200/800" data-caption="Yesod Gateway Topology - Multi-threaded SHA-256 calculation systems.">
+                <img src="https://picsum.photos/id/1018/600/400" alt="Cryptographic hardware matrix" class="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-navy/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <span class="text-xs font-mono text-ocean">SCHEMATIC 03</span>
+                    <h4 class="text-white font-mono font-bold text-lg">Yesod Cryptographic Gateway</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ ACCORDION SECTION -->
+    <section id="faq" class="py-24 bg-slate-100 dark:bg-spaceDark/40 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-mono font-bold text-navy dark:text-ocean">04 // PROTOCOL INQUIRIES</h2>
+                <p class="text-sm tracking-widest text-slate-500 font-mono mt-2">TECHNICAL TRUTH AND ARCHITECTURE DEBUNKING</p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Accordion 1 -->
+                <div class="border border-ocean/20 bg-white dark:bg-spaceDark">
+                    <button class="faq-btn w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                        <span class="font-mono font-bold text-navy dark:text-white">Why use the Tree of Life as a structural schema?</span>
+                        <span class="faq-icon font-mono transition-transform duration-300 text-ocean">+</span>
+                    </button>
+                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <p class="px-6 pb-6 text-slate-600 dark:text-gray-300 text-sm leading-relaxed">
+                            It is an isomorphism, not a loose metaphor. Traditional systems suffer from structural entropy because they lack natural load balance. By separating system propagation and constraints along two polar axes (Severity and Mercy) anchored by a synchronized core clock (Tiphereth), we mimic the natural homeostasis found in organic models.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Accordion 2 -->
+                <div class="border border-ocean/20 bg-white dark:bg-spaceDark">
+                    <button class="faq-btn w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                        <span class="font-mono font-bold text-navy dark:text-white">How does Switzerland ensure Tiphereth synchronization?</span>
+                        <span class="faq-icon font-mono transition-transform duration-300 text-ocean">+</span>
+                    </button>
+                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <p class="px-6 pb-6 text-slate-600 dark:text-gray-300 text-sm leading-relaxed">
+                            The Swiss Central Core server uses dual-redundant cesium beam resonators to pull absolute time. This physical temporal grounding prevents network validator nodes from falling out of lockstep, ensuring transaction ordering remains mathematically absolute.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Accordion 3 -->
+                <div class="border border-ocean/20 bg-white dark:bg-spaceDark">
+                    <button class="faq-btn w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                        <span class="font-mono font-bold text-navy dark:text-white">Can external developers run Yesod processing endpoints?</span>
+                        <span class="faq-icon font-mono transition-transform duration-300 text-ocean">+</span>
+                    </button>
+                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <p class="px-6 pb-6 text-slate-600 dark:text-gray-300 text-sm leading-relaxed">
+                            Yes. Node applications running SHA-256 computing routines can hook directly into the open-source Yesod runtime. By routing large payloads to local IPFS daemons, nodes earn bandwidth priority in our decentralization queue.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MINIMAL FOOTER -->
+    <footer class="py-8 border-t border-ocean/20 bg-white dark:bg-spaceDark/90 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-mono text-slate-500 dark:text-gray-400">
+            <div>
+                © 2026 THE BIGTREE UNIVERSAL HARMONIC SYSTEM. ALL CODES SECURED.
+            </div>
+            <div class="flex gap-6">
+                <a href="#" class="hover:text-ocean transition-colors">GITHUB</a>
+                <a href="#" class="hover:text-ocean transition-colors">IPFS_GATEWAY</a>
+                <a href="#" class="hover:text-ocean transition-colors">LEDGER_LEDGER</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BACK TO TOP BUTTON -->
+    <button id="backToTop" class="fixed bottom-6 right-6 p-3 bg-ocean text-white shadow-lg rounded-none opacity-0 invisible transition-all duration-300 hover:bg-navy z-50 font-mono text-xs" aria-label="Back to Top">
+        ▲ TOP
+    </button>
+
+    <!-- LIGHTBOX MODAL CONTAINER -->
+    <div id="lightbox" class="fixed inset-0 z-50 bg-black/95 flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <button id="closeLightbox" class="absolute top-6 right-6 text-white font-mono text-xl focus:outline-none bg-white/10 px-4 py-2 hover:bg-white/20">&times; CLOSE</button>
+        <img id="lightboxImg" src="" alt="Lightbox Visual" class="max-w-full max-h-[80vh] object-contain border border-white/20">
+        <p id="lightboxCaption" class="text-gray-300 mt-4 font-mono text-center text-sm max-w-2xl"></p>
+    </div>
+
+    <!-- MAIN JAVASCRIPT SYSTEM ENGINE -->
+    <script>
+        // Core state tracker
+        const state = {
+            menuOpen: false,
+            currentSlide: 0,
+            dark: true
+        };
+
+        // DOM elements cache
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const menuBtn = document.getElementById('menuBtn');
+        const navOverlay = document.getElementById('navOverlay');
+        const bar1 = document.querySelector('.id-bar-1');
+        const bar2 = document.querySelector('.id-bar-2');
+        const bar3 = document.querySelector('.id-bar-3');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const backToTop = document.getElementById('backToTop');
+
+        // Dark/Light toggle mechanics
+        function applyTheme() {
+            if (state.dark) {
+                document.documentElement.classList.add('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        }
+        
+        // Initialize default theme state
+        applyTheme();
+
+        themeToggle.addEventListener('click', () => {
+            state.dark = !state.dark;
+            applyTheme();
+        });
+
+        // Hamburger open / close triggers
+        function toggleMenu() {
+            state.menuOpen = !state.menuOpen;
+            if (state.menuOpen) {
+                navOverlay.classList.remove('translate-x-full');
+                bar1.classList.add('transform', 'rotate-45', 'translate-y-2');
+                bar2.classList.add('opacity-0');
+                bar3.classList.add('transform', '-rotate-45', '-translate-y-2');
+            } else {
+                navOverlay.classList.add('translate-x-full');
+                bar1.classList.remove('transform', 'rotate-45', 'translate-y-2');
+                bar2.classList.remove('opacity-0');
+                bar3.classList.remove('transform', '-rotate-45', '-translate-y-2');
+            }
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (state.menuOpen) toggleMenu();
+            });
+        });
+
+        // Carousel Slider implementation
+        const carouselWrapper = document.getElementById('carouselWrapper');
+        const totalSlides = 3;
+
+        function updateSlide() {
+            carouselWrapper.style.transform = `translateX(-${state.currentSlide * 100}%)`;
+        }
+
+        document.getElementById('nextSlide').addEventListener('click', () => {
+            state.currentSlide = (state.currentSlide + 1) % totalSlides;
+            updateSlide();
+        });
+
+        document.getElementById('prevSlide').addEventListener('click', () => {
+            state.currentSlide = (state.currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlide();
+        });
+
+        // FAQ Accordion Engine
+        document.querySelectorAll('.faq-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const parent = btn.parentElement;
+                const content = parent.querySelector('.faq-content');
+                const icon = btn.querySelector('.faq-icon');
+                
+                // Toggle state
+                if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                    content.style.maxHeight = '0px';
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    // Close others
+                    document.querySelectorAll('.faq-content').forEach(c => c.style.maxHeight = '0px');
+                    document.querySelectorAll('.faq-icon').forEach(i => i.style.transform = 'rotate(0deg)');
+                    
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.style.transform = 'rotate(45deg)';
+                }
+            });
+        });
+
+        // Lightbox implementation
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxCaption = document.getElementById('lightboxCaption');
+
+        document.querySelectorAll('.lightbox-trigger').forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const imgUrl = trigger.getAttribute('data-img');
+                const caption = trigger.getAttribute('data-caption');
+                lightboxImg.src = imgUrl;
+                lightboxCaption.textContent = caption;
+                lightbox.classList.remove('opacity-0', 'pointer-events-none');
+            });
+        });
+
+        document.getElementById('closeLightbox').addEventListener('click', () => {
+            lightbox.classList.add('opacity-0', 'pointer-events-none');
+        });
+
+        // Window scroll monitoring
+        window.addEventListener('scroll', () => {
+            // Back to top logic
+            if (window.scrollY > 400) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+            } else {
+                backToTop.classList.add('opacity-0', 'invisible');
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
