@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bigtree of Life - Digital Network</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        /* Arrière-plan technologique/sacré */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 0),
+                radial-gradient(rgba(99, 102, 241, 0.03) 2px, transparent 0);
+            background-size: 40px 40px, 20px 20px;
+            background-position: 0 0, 10px 10px;
+            z-index: -1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #e2e8f0;
+            text-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+        }
+
+        /* Conteneur principal de l'Arbre */
+        .tree-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 780px;
+            margin: 0 auto;
+        }
+
+        /* SVG pour tracer les sentiers (liens) entre les Sephirots */
+        .tree-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .tree-svg line {
+            stroke: rgba(99, 102, 241, 0.25);
+            stroke-width: 2;
+            stroke-dasharray: 4 4;
+            animation: pulseLine 3s infinite alternate;
+        }
+
+        @keyframes pulseLine {
+            0% { stroke: rgba(99, 102, 241, 0.2); stroke-width: 2; }
+            100% { stroke: rgba(147, 51, 234, 0.4); stroke-width: 2.5; }
+        }
+
+        /* Style des Sephirots (Boutons) */
+        .sephiroth {
+            position: absolute;
+            z-index: 5;
+            transform: translate(-50%, -50%);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 110px;
+        }
+
+        .sephiroth-node {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.85);
+            border: 2px solid #6366f1;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3), inset 0 0 10px rgba(99, 102, 241, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #fff;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sephiroth-node::after {
+            content: '';
+            position: absolute;
+            top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border-radius: 50%;
+            border: 1px dashed rgba(147, 51, 234, 0.4);
+            transition: all 0.4s ease;
+        }
+
+        .sephiroth-label {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #cbd5e1;
+            text-align: center;
+            min-width: 160px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            transition: color 0.3s ease;
+        }
+
+        /* Hover Effects */
+        .sephiroth:hover .sephiroth-node {
+            background: #6366f1;
+            border-color: #a855f7;
+            box-shadow: 0 0 25px #6366f1, 0 0 40px #a855f7;
+            transform: scale(1.12);
+            color: #ffffff;
+        }
+
+        .sephiroth:hover .sephiroth-label {
+            color: #6366f1;
+        }
+
+        .sephiroth:hover .sephiroth-node::after {
+            transform: rotate(90deg);
+            border-color: #fff;
+        }
+
+        /* Positionnement spécifique selon l'Arbre de Vie (coordonnées en %) */
+        /* Axe central : X = 50% */
+        /* Colonne Droite : X = 80% */
+        /* Colonne Gauche : X = 20% */
+
+        /* 1. Kether (Couronne) - Centre Haut */
+        #s1 { top: 7%; left: 50%; }
+        #s1 .sephiroth-node { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
+
+        /* 2. Chokmah (Sagesse) - Droite Haut */
+        #s2 { top: 18%; left: 80%; }
+        
+        /* 3. Binah (Intelligence) - Gauche Haut */
+        #s3 { top: 18%; left: 20%; }
+
+        /* 4. Chesed (Grâce) - Droite Milieu-Haut */
+        #s4 { top: 38%; left: 80%; }
+
+        /* 5. Gevurah (Force) - Gauche Milieu-Haut */
+        #s5 { top: 38%; left: 20%; }
+
+        /* 6. Tiphereth (Beauté) - Centre Milieu */
+        #s6 { top: 49%; left: 50%; }
+        #s6 .sephiroth-node { border-color: #f59e0b; box-shadow: 0 0 15px rgba(245,158,11,0.3); }
+
+        /* 7. Netzach (Victoire) - Droite Milieu-Bas */
+        #s7 { top: 69%; left: 80%; }
+
+        /* 8. Hod (Gloire) - Gauche Milieu-Bas */
+        #s8 { top: 69%; left: 20%; }
+
+        /* 9. Yesod (Fondation) - Centre Bas */
+        #s9 { top: 80%; left: 50%; }
+
+        /* 10. Malkuth (Royaume) - Centre Tout en Bas */
+        #s10 { top: 93%; left: 50%; }
+        #s10 .sephiroth-node { border-color: #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+
+        /* Responsive */
+        @media (max-height: 850px) {
+            .tree-container {
+                height: 680px;
+                transform: scale(0.9);
+                transform-origin: top center;
+            }
+            header { margin-bottom: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-overlay"></div>
+
+    <header>
+        <h1>BUHS TREE OF LIFE </h1>
+        <p>Decentralized Network & Sovereigns protocols by @Bigtree</p>
+    </header>
+
+    <div class="tree-container">
+        <!-- Liens physiques / Sentiers de l'Arbre de Vie -->
+        <svg class="tree-svg">
+            <!-- Piliers verticaux et externes -->
+            <line x1="20%" y1="18%" x2="20%" y2="38%" /> <!-- 3 to 5 -->
+            <line x1="20%" y1="38%" x2="20%" y2="69%" /> <!-- 5 to 8 -->
+            <line x1="80%" y1="18%" x2="80%" y2="38%" /> <!-- 2 to 4 -->
+            <line x1="80%" y1="38%" x2="80%" y2="69%" /> <!-- 4 to 7 -->
+            
+            <!-- Axe Central -->
+            <line x1="50%" y1="7%"  x2="50%" y2="49%" /> <!-- 1 to 6 -->
+            <line x1="50%" y1="49%" x2="50%" y2="80%" /> <!-- 6 to 9 -->
+            <line x1="50%" y1="80%" x2="50%" y2="93%" /> <!-- 9 to 10 -->
+
+            <!-- Traversées horizontales -->
+            <line x1="20%" y1="18%" x2="80%" y2="18%" /> <!-- 3 to 2 -->
+            <line x1="20%" y1="38%" x2="80%" y2="38%" /> <!-- 5 to 4 -->
+            <line x1="20%" y1="69%" x2="80%" y2="69%" /> <!-- 8 to 7 -->
+
+            <!-- Diagonales -->
+            <line x1="50%" y1="7%"  x2="20%" y2="18%" /> <!-- 1 to 3 -->
+            <line x1="50%" y1="7%"  x2="80%" y2="18%" /> <!-- 1 to 2 -->
+            
+            <line x1="20%" y1="18%" x2="50%" y2="49%" /> <!-- 3 to 6 -->
+            <line x1="80%" y1="18%" x2="50%" y2="49%" /> <!-- 2 to 6 -->
+            
+            <line x1="50%" y1="49%" x2="20%" y2="38%" /> <!-- 6 to 5 -->
+            <line x1="50%" y1="49%" x2="80%" y2="38%" /> <!-- 6 to 4 -->
+            
+            <line x1="20%" y1="38%" x2="50%" y2="80%" /> <!-- 5 to 9 -->
+            <line x1="80%" y1="38%" x2="50%" y2="80%" /> <!-- 4 to 9 -->
+            
+            <line x1="50%" y1="49%" x2="20%" y2="69%" /> <!-- 6 to 8 -->
+            <line x1="50%" y1="49%" x2="80%" y2="69%" /> <!-- 6 to 7 -->
+            
+            <line x1="20%" y1="69%" x2="50%" y2="80%" /> <!-- 8 to 9 -->
+            <line x1="80%" y1="69%" x2="50%" y2="80%" /> <!-- 7 to 9 -->
+        </svg>
+
+        <!-- 1. Kether -->
+        <a href="https://bigtreeconnection.com/buhs/RadarClock/Bigtree_WorldCam_Explorer.html" class="sephiroth" id="s1">
+            <div class="sephiroth-node">1</div>
+            <div class="sephiroth-label">Control Tower</div>
+        </a>
+
+        <!-- 2. Chokmah -->
+        <a href="https://bigtreeconnection.com/buhs/smartclock/SMARTCLOCK_index.html" class="sephiroth" id="s2">
+            <div class="sephiroth-node">2</div>
+            <div class="sephiroth-label">SmartClock</div>
+        </a>
+
+        <!-- 3. Binah -->
+        <a href="https://bigtreeconnection.com/buhs/xylem/xylem_index.html" class="sephiroth" id="s3">
+            <div class="sephiroth-node">3</div>
+            <div class="sephiroth-label">Xylem Protocol</div>
+        </a>
+
+        <!-- 4. Chesed -->
+        <a href="https://buhs-universal.xyz/" class="sephiroth" id="s4" target="_blank">
+            <div class="sephiroth-node">4</div>
+            <div class="sephiroth-label">WEB3</div>
+        </a>
+
+        <!-- 5. Gevurah -->
+        <a href="https://bigtreeconnection.com/buhs/Merkle_Tree/index.html" class="sephiroth" id="s5">
+            <div class="sephiroth-node">5</div>
+            <div class="sephiroth-label">Compile Merkle Tree</div>
+        </a>
+
+        <!-- 6. Tiphereth -->
+        <a href="https://bigtreeconnection.com/buhs/Heartbeat/index.html#home" class="sephiroth" id="s6">
+            <div class="sephiroth-node">6</div>
+            <div class="sephiroth-label">HeartBeat Server Sync</div>
+        </a>
+
+        <!-- 7. Netzach -->
+        <a href="https://inbrowser.link/" class="sephiroth" id="s7">
+            <div class="sephiroth-node">7</div>
+            <div class="sephiroth-label">IPFS Gate</div>
+        </a>
+
+        <!-- 8. Hod -->
+        <a href="https://bigtreeconnection.com/buhs/Time-Stamper/index.html" class="sephiroth" id="s8">
+            <div class="sephiroth-node">8</div>
+            <div class="sephiroth-label">Handler & Side-car</div>
+        </a>
+
+        <!-- 9. Yesod -->
+        <a href="https://buhs-time-stamper.netlify.app/pipeline.html" class="sephiroth" id="s9">
+            <div class="sephiroth-node">9</div>
+            <div class="sephiroth-label">HTTPS Pipeline</div>
+        </a>
+
+        <!-- 10. Malkuth -->
+        <a href="https://bigtreeconnection.com/gateway/index.html" class="sephiroth" id="s10">
+
+            <div class="sephiroth-node">10</div>
+            <div class="sephiroth-label">Architect and Tokenomics</div>
+        </a>
+    </div>
+
+</body>
+</html>
