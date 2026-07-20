@@ -19,7 +19,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between; /* Permet de caler le footer naturellement en bas */
             overflow-x: hidden;
             padding: 20px;
         }
@@ -31,17 +31,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* Ajout d'un dégradé sombre transparent pour l'intégration visuelle */
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 4px, 6px 100%;
-            z-index: 2; /* Passé à 2 pour appliquer l'effet de balayage CRT AU-DESSUS de l'image de fond */
+            z-index: 2;
             pointer-events: none;
         }
 
         header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-top: 10px;
+            margin-bottom: 20px;
             z-index: 10;
         }
 
@@ -61,24 +61,22 @@
             text-shadow: 0 0 5px rgba(0, 143, 17, 0.5);
         }
 
-        /* Conteneur principal de l'Arbre avec superposition de l'image de fond */
+        /* Conteneur principal de l'Arbre */
         .tree-container {
             position: relative;
             width: 100%;
             max-width: 600px;
-            height: 780px;
-            margin: 0 auto;
+            height: 750px;
+            margin: 0 auto flex-grow; /* Permet de centrer verticalement entre le header et le footer */
             
             /* --- CONFIGURATION DE L'IMAGE DE L'ARBRE DE VIE --- */
             background-image: url('04.jpg');
             background-position: center;
             background-repeat: no-repeat;
-            background-size: contain; /* Assure que l'arbre garde ses proportions sans être rogné */
-            /* Optionnel : vous pouvez ajouter une opacité ou un filtre si l'image masque trop le code */
-            /* filter: brightness(0.7) contrast(1.2); */
+            background-size: contain;
         }
 
-        /* SVG pour tracer les sentiers (liens) entre les Sephirots */
+        /* SVG pour tracer les sentiers */
         .tree-svg {
             position: absolute;
             top: 0;
@@ -101,7 +99,7 @@
             100% { stroke: rgba(0, 143, 17, 0.6); stroke-width: 2.5; }
         }
 
-        /* Style des Sephirots (Boutons) */
+        /* Style des Sephirots */
         .sephiroth {
             position: absolute;
             z-index: 5;
@@ -117,7 +115,7 @@
             width: 76px;
             height: 76px;
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.85); /* Légèrement plus transparent pour entrevoir le fond */
+            background: rgba(0, 0, 0, 0.85);
             border: 2px solid #00ff41;
             box-shadow: 0 0 15px rgba(0, 255, 65, 0.4), inset 0 0 10px rgba(0, 255, 65, 0.2);
             display: flex;
@@ -174,52 +172,60 @@
             border-color: #000000;
         }
 
-        /* Positionnement spécifique selon l'Arbre de Vie (coordonnées en %) */
-        /* Axe central : X = 50% */
-        /* Colonne Droite : X = 80% */
-        /* Colonne Gauche : X = 20% */
-
-        /* 1. Kether (Couronne) - Centre Haut */
+        /* Positions spécifiques de l'Arbre de Vie */
         #s1 { top: 7%; left: 50%; }
         #s1 .sephiroth-node { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 15px rgba(255,255,255,0.6); text-shadow: 0 0 5px #ffffff; }
-
-        /* 2. Chokmah (Sagesse) - Droite Haut */
         #s2 { top: 18%; left: 80%; }
-        
-        /* 3. Binah (Intelligence) - Gauche Haut */
         #s3 { top: 18%; left: 20%; }
-
-        /* 4. Chesed (Grâce) - Droite Milieu-Haut */
         #s4 { top: 38%; left: 80%; }
-
-        /* 5. Gevurah (Force) - Gauche Milieu-Haut */
         #s5 { top: 38%; left: 20%; }
-
-        /* 6. Tiphereth (Beauté) - Centre Milieu */
         #s6 { top: 48%; left: 50%; }
         #s6 .sephiroth-node { border-color: #00ff41; box-shadow: 0 0 20px rgba(0, 255, 65, 0.6); }
-
-        /* 7. Netzach (Victoire) - Droite Milieu-Bas */
         #s7 { top: 58%; left: 80%; }
-
-        /* 8. Hod (Gloire) - Gauche Milieu-Bas */
         #s8 { top: 58%; left: 20%; }
-
-        /* 9. Yesod (Fondation) - Centre Bas */
         #s9 { top: 68%; left: 50%; }
-
-        /* 10. Malkuth (Royaume) - Centre Tout en Bas */
         #s10 { top: 88%; left: 50%; }
         #s10 .sephiroth-node { border-color: #008f11; color: #008f11; box-shadow: 0 0 15px rgba(0, 143, 17, 0.4); text-shadow: 0 0 5px #008f11; }
+
+        /* --- STYLE DES BOUTONS DISCRETS EN BAS DE PAGE --- */
+        footer {
+            margin-top: 30px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .footer-btn {
+            color: #008f11;
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            padding: 6px 12px;
+            border: 1px solid rgba(0, 143, 17, 0.4);
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .footer-btn:hover {
+            color: #00ff41;
+            border-color: #00ff41;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+            background: rgba(0, 255, 65, 0.05);
+            cursor: pointer;
+        }
 
         /* Responsive */
         @media (max-height: 850px) {
             .tree-container {
-                height: 680px;
-                transform: scale(0.9);
+                height: 660px;
+                transform: scale(0.88);
                 transform-origin: top center;
             }
-            header { margin-bottom: 15px; }
+            header { margin-bottom: 10px; }
+            footer { margin-top: 15px; }
         }
     </style>
 </head>
@@ -233,104 +239,89 @@
     </header>
 
     <div class="tree-container">
-        <!-- Liens physiques / Sentiers de l'Arbre de Vie -->
         <svg class="tree-svg">
-            <!-- Piliers verticaux et externes -->
-            <line x1="20%" y1="18%" x2="20%" y2="38%" /> <!-- 3 to 5 -->
-            <line x1="20%" y1="38%" x2="20%" y2="58%" /> <!-- 5 to 8 -->
-            <line x1="80%" y1="18%" x2="80%" y2="38%" /> <!-- 2 to 4 -->
-            <line x1="80%" y1="38%" x2="80%" y2="58%" /> <!-- 4 to 7 -->
-            
-            <!-- Axe Central -->
-            <line x1="50%" y1="7%"  x2="50%" y2="49%" /> <!-- 1 to 6 -->
-            <line x1="50%" y1="49%" x2="50%" y2="80%" /> <!-- 6 to 9 -->
-            <line x1="50%" y1="80%" x2="50%" y2="93%" /> <!-- 9 to 10 -->
-
-            <!-- Traversées horizontales -->
-            <line x1="20%" y1="18%" x2="80%" y2="18%" /> <!-- 3 to 2 -->
-            <line x1="20%" y1="38%" x2="80%" y2="38%" /> <!-- 5 to 4 -->
-            <line x1="20%" y1="58%" x2="80%" y2="58%" /> <!-- 8 to 7 -->
-
-            <!-- Diagonales -->
-            <line x1="50%" y1="7%"  x2="20%" y2="18%" /> <!-- 1 to 3 -->
-            <line x1="50%" y1="7%"  x2="80%" y2="18%" /> <!-- 1 to 2 -->
-            
-            <line x1="20%" y1="18%" x2="50%" y2="49%" /> <!-- 3 to 6 -->
-            <line x1="80%" y1="18%" x2="50%" y2="49%" /> <!-- 2 to 6 -->
-            
-            <line x1="50%" y1="49%" x2="20%" y2="38%" /> <!-- 6 to 5 -->
-            <line x1="50%" y1="49%" x2="80%" y2="38%" /> <!-- 6 to 4 -->
-            
-            <line x1="20%" y1="58%" x2="50%" y2="68%" /> <!-- 8 to 9 -->
-            <line x1="80%" y1="58%" x2="50%" y2="68%" /> <!-- 7 to 9 -->
-            
-            <line x1="50%" y1="49%" x2="20%" y2="58%" /> <!-- 6 to 8 -->
-            <line x1="50%" y1="49%" x2="80%" y2="58%" /> <!-- 6 to 7 -->
-            
-            <line x1="20%" y1="58%" x2="50%" y2="88%" /> <!-- 8 to 10 -->
-            <line x1="80%" y1="58%" x2="50%" y2="88%" /> <!-- 7 to 10 -->
+            <line x1="20%" y1="18%" x2="20%" y2="38%" />
+            <line x1="20%" y1="38%" x2="20%" y2="58%" />
+            <line x1="80%" y1="18%" x2="80%" y2="38%" />
+            <line x1="80%" y1="38%" x2="80%" y2="58%" />
+            <line x1="50%" y1="7%"  x2="50%" y2="49%" />
+            <line x1="50%" y1="49%" x2="50%" y2="80%" />
+            <line x1="50%" y1="80%" x2="50%" y2="93%" />
+            <line x1="20%" y1="18%" x2="80%" y2="18%" />
+            <line x1="20%" y1="38%" x2="80%" y2="38%" />
+            <line x1="20%" y1="58%" x2="80%" y2="58%" />
+            <line x1="50%" y1="7%"  x2="20%" y2="18%" />
+            <line x1="50%" y1="7%"  x2="80%" y2="18%" />
+            <line x1="20%" y1="18%" x2="50%" y2="49%" />
+            <line x1="80%" y1="18%" x2="50%" y2="49%" />
+            <line x1="50%" y1="49%" x2="20%" y2="38%" />
+            <line x1="50%" y1="49%" x2="80%" y2="38%" />
+            <line x1="20%" y1="58%" x2="50%" y2="68%" />
+            <line x1="80%" y1="58%" x2="50%" y2="68%" />
+            <line x1="50%" y1="49%" x2="20%" y2="58%" />
+            <line x1="50%" y1="49%" x2="80%" y2="58%" />
+            <line x1="20%" y1="58%" x2="50%" y2="88%" />
+            <line x1="80%" y1="58%" x2="50%" y2="88%" />
         </svg>
 
-        <!-- 1. Kether -->
+        <!-- Sephirots -->
         <a href="https://bigtreeconnection.com/buhs/RadarClock/Bigtree_WorldCam_Explorer.html" class="sephiroth" id="s1">
             <div class="sephiroth-node">1</div>
             <div class="sephiroth-label">Control Tower</div>
         </a>
 
-        <!-- 2. Chokmah -->
         <a href="https://bigtreeconnection.com/buhs/smartclock/SMARTCLOCK_index.html" class="sephiroth" id="s2">
             <div class="sephiroth-node">2</div>
             <div class="sephiroth-label">Smart-Clock</div>
         </a>
 
-        <!-- 3. Binah -->
         <a href="https://bigtreeconnection.com/buhs/xylem/xylem_index.html" class="sephiroth" id="s3">
             <div class="sephiroth-node">3</div>
             <div class="sephiroth-label">Xylem Protocol</div>
         </a>
 
-        <!-- 4. Chesed -->
         <a href="https://bigtreeconnection.com/buhs/xylem/log/index.html" class="sephiroth" id="s4" target="_blank">
             <div class="sephiroth-node">4</div>
             <div class="sephiroth-label">Xylem Log</div>
         </a>
 
-        <!-- 5. Gevurah -->
         <a href="https://bigtreeconnection.com/buhs/Merkle_Tree/index.html" class="sephiroth" id="s5">
             <div class="sephiroth-node">5</div>
             <div class="sephiroth-label">Compile Merkle Tree</div>
         </a>
 
-        <!-- 6. Tiphereth -->
         <a href="https://bigtreeconnection.com/buhs/Heartbeat/index.html" class="sephiroth" id="s6">
             <div class="sephiroth-node">6</div>
             <div class="sephiroth-label">HeartBeat Server Sync</div>
         </a>
 
-        <!-- 7. Netzach -->
         <a href="https://inbrowser.link/" class="sephiroth" id="s7">
             <div class="sephiroth-node">7</div>
             <div class="sephiroth-label">IPFS Gate</div>
         </a>
 
-        <!-- 8. Hod -->
         <a href="https://bigtreeconnection.com/buhs/Time-Stamper/index.html" class="sephiroth" id="s8">
             <div class="sephiroth-node">8</div>
             <div class="sephiroth-label">Handler & Side-car</div>
         </a>
 
-        <!-- 9. Yesod -->
         <a href="https://buhs-time-stamper.netlify.app/pipeline.html" class="sephiroth" id="s9">
             <div class="sephiroth-node">9</div>
             <div class="sephiroth-label">HTTPS Pipeline</div>
         </a>
 
-        <!-- 10. Malkuth -->
         <a href="https://bigtreeconnection.com/gateway/index.html" class="sephiroth" id="s10">
             <div class="sephiroth-node">10</div>
             <div class="sephiroth-label">Architect and Tokenomics</div>
         </a>
     </div>
+
+    <!-- --- ZONE DE BAS DE PAGE (FOOTER) EN BAS DE L'ECRAN --- -->
+    <footer>
+        <a href="https://bigtreeconnection.com/buhs/Tree_of_life/network_raw.html" class="footer-btn" target="_blank">[ RAW ]</a>
+        <a href="https://bigtreeconnection.com/buhs/documentation/index.html" class="footer-btn" target="_blank">[ DOC ]</a>
+        <a href="https://bigtreeconnection.com/buhs/Tree_of_life/index.html" class="footer-btn" target="_blank">[ BLUE ]</a>
+    </footer>
 
 </body>
 </html>
