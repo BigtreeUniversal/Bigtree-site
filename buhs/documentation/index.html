@@ -3,34 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BUHS HEARTBEAT SERVER | Stratum 1 Atomic-Clocked Web3 Core</title>
-    <meta name="description" content="Operating at the intersection of deep tech and sacred cybernetics, this Swiss-hosted infrastructure delivers unprecedented structural harmony to the Web3 ecosystem via the Big Tree Universal Harmonic System.">
-    <meta name="keywords" content="Web3, Deep Tech, Stratum 1, Atomic Clock, Ubuntu 24.04 LTS, Infomaniak, Sephiroth, Sacred Cybernetics, Swiss Server, Big Tree">
+    <title>BUHS | BIGTREE UNIVERSAL HARMONIC SYSTEM PROTOCOL</title>
     
-    <!-- Google Fonts: Monospace for Terminal Aesthetic -->
+    <!-- SEO Optimization Meta Tags -->
+    <meta name="description" content="The Big Tree Universal Harmonic System (BUHS) is a deterministic network architecture patterned after the structural logic of the Tree of Life. Explore our multilayer decentralized protocol.">
+    <meta name="keywords" content="BUHS, Web3, Blockchain, Merkle Tree, IPFS, Rust, Layer 2, Smart Contracts, Decentralized Network, Cryptographic Protocol">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="BUHS | Big Tree Universal Harmonic System Protocol">
+    <meta property="og:description" content="A deterministic network architecture patterned after the structural logic of the Tree of Life.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&h=630&fit=crop">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="BUHS | Big Tree Universal Harmonic System Protocol">
+    <meta property="twitter:description" content="A deterministic network architecture patterned after the structural logic of the Tree of Life.">
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    
-    <!-- FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* CSS RESET & VARIABLES */
         :root {
             --bg-pure: #0a0a0a;
-            --bg-surface: #121212;
-            --bg-terminal: #1a1a1a;
-            --accent-green: #00ff88;
-            --secondary-green: #003322;
-            --muted-green: #008844;
+            --surface: #121212;
+            --surface-card: #1a1a1a;
+            --accent-neon: #00ff88;
+            --accent-dim: #00aa5c;
+            --secondary-dark: #003322;
             --text-main: #e0e0e0;
             --text-muted: #888888;
-            --border-color: #005533;
-            --font-mono: 'Fira Code', 'Share Tech Mono', monospace;
+            --font-mono: 'Fira Code', monospace;
             --transition-speed: 0.3s;
         }
 
-        /* Base Clean Reset & Typography */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -42,1005 +55,786 @@
             background-color: var(--bg-pure);
             color: var(--text-main);
             font-family: var(--font-mono);
-            font-size: 14px;
             overflow-x: hidden;
         }
 
         body {
             line-height: 1.6;
-            background-image: linear-gradient(rgba(0, 33, 34, 0.05) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0, 33, 34, 0.05) 1px, transparent 1px);
+            background-image: 
+                linear-gradient(rgba(0, 51, 34, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 51, 34, 0.08) 1px, transparent 1px);
             background-size: 20px 20px;
         }
 
-        a {
-            color: var(--accent-green);
-            text-decoration: none;
-            transition: all var(--transition-speed);
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-pure);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-dark);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-neon);
         }
 
-        a:hover {
-            color: #fff;
-            text-shadow: 0 0 8px var(--accent-green);
-        }
-
-        /* Utility Scroll Animations */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Main Navigation Frame (Hamburger Only) */
+        /* NAVIGATION & HAMBURGER */
         header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             z-index: 1000;
-            background: rgba(10, 10, 10, 0.9);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 2rem;
+            padding: 1.5rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(5px);
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--secondary-dark);
         }
 
         .logo {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1.5rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            color: var(--accent-green);
-            text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent-neon);
+            text-decoration: none;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .logo span {
-            color: #fff;
-            animation: pulse 2s infinite;
+        .logo::before {
+            content: "⚡";
         }
 
-        /* Hamburger Icon Menu Button */
-        .hamburger-btn {
+        .nav-toggle {
             background: none;
-            border: 1px solid var(--accent-green);
-            color: var(--accent-green);
-            padding: 0.5rem 0.8rem;
+            border: none;
+            color: var(--accent-neon);
+            font-size: 1.5rem;
             cursor: pointer;
-            font-family: var(--font-mono);
-            font-size: 1.1rem;
-            border-radius: 3px;
-            z-index: 1010;
-            transition: all var(--transition-speed);
+            z-index: 1001;
+            transition: transform var(--transition-speed);
+            padding: 5px;
         }
 
-        .hamburger-btn:hover {
-            background: var(--secondary-green);
-            box-shadow: 0 0 10px var(--accent-green);
+        .nav-toggle:hover {
+            transform: scale(1.1);
         }
 
-        /* Overlay Full-Screen Menu */
-        .nav-overlay {
+        .fullscreen-menu {
             position: fixed;
             top: 0;
             right: -100%;
             width: 100%;
             height: 100vh;
             background: rgba(10, 10, 10, 0.98);
-            border-left: 2px solid var(--border-color);
-            z-index: 1005;
+            border-left: 2px solid var(--accent-neon);
+            z-index: 999;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 2rem;
             transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1);
         }
 
-        @media (min-width: 768px) {
-            .nav-overlay { width: 400px; }
-        }
-
-        .nav-overlay.open {
+        .fullscreen-menu.active {
             right: 0;
         }
 
-        .nav-overlay a {
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-            font-family: 'Share Tech Mono', monospace;
-            padding: 0.5rem 2rem;
-            width: 80%;
+        .menu-links {
+            list-style: none;
             text-align: center;
-            border: 1px solid transparent;
         }
 
-        .nav-overlay a:hover, .nav-overlay a.active-link {
-            border: 1px solid var(--accent-green);
-            background: var(--secondary-green);
-            color: #fff;
+        .menu-links li {
+            margin: 2rem 0;
         }
 
-        /* Page Containment System */
-        .page-view {
+        .menu-links a {
+            font-size: 2rem;
+            font-weight: 500;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: all var(--transition-speed);
+            display: inline-block;
+            position: relative;
+        }
+
+        .menu-links a::after {
+            content: ']';
+            position: absolute;
+            right: -25px;
+            opacity: 0;
+            transition: var(--transition-speed);
+            color: var(--accent-neon);
+        }
+        .menu-links a::before {
+            content: '[';
+            position: absolute;
+            left: -25px;
+            opacity: 0;
+            transition: var(--transition-speed);
+            color: var(--accent-neon);
+        }
+
+        .menu-links a:hover::after, .menu-links a:hover::before {
+            opacity: 1;
+        }
+
+        .menu-links a:hover {
+            color: var(--accent-neon);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        /* PAGE ENGINE ARCHITECTURE */
+        .app-page {
             display: none;
             min-height: 100vh;
-            padding-top: 70px; /* Offset for top sticky bar */
+            padding-bottom: 5rem;
         }
 
-        .page-view.active-page {
+        .app-page.active-page {
             display: block;
+            animation: pageFadeIn 0.5s ease forward;
         }
 
-        /* Hero Carousel Slider Component */
-        .hero-carousel {
-            position: relative;
-            height: 85vh;
-            width: 100%;
-            overflow: hidden;
-            border-bottom: 2px solid var(--border-color);
+        @keyframes pageFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .carousel-track {
-            height: 100%;
-            width: 100%;
-            position: relative;
-        }
-
-        .carousel-slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
+        /* HERO SECTION */
+        .hero {
+            height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            padding: 0 1.5rem;
+            background: linear-gradient(rgba(10,10,10,0.8), rgba(10,10,10,0.95)), 
+                        url('01.png') no-repeat center center/cover;
+            border-bottom: 1px solid var(--secondary-dark);
         }
 
-        .carousel-slide::before {
-            content: '';
-            position: absolute;
-            top:0; left:0; width:100%; height:100%;
-            background: linear-gradient(180deg, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0.95) 100%),
-                        linear-gradient(90deg, rgba(0, 51, 34, 0.4) 0%, rgba(10,10,10,0.7) 100%);
-            z-index: 1;
-        }
-
-        .carousel-slide.active {
-            opacity: 1;
+        .hero-content {
+            max-width: 900px;
             z-index: 2;
         }
 
-        .carousel-content {
+        .hero h1 {
+            font-size: 2.5rem;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero h1 span {
+            color: var(--accent-neon);
+            display: block;
+            font-size: 1.25rem;
+            margin-top: 0.5rem;
+            letter-spacing: 4px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .btn-terminal {
+            background: transparent;
+            border: 1px solid var(--accent-neon);
+            color: var(--accent-neon);
+            padding: 0.85rem 2rem;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-speed);
             position: relative;
-            z-index: 3;
-            max-width: 900px;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .tagline {
-            font-size: 1.3rem;
-            color: var(--accent-green);
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-family: 'Share Tech Mono', monospace;
-        }
-
-        .hero-title {
-            font-size: 2.8rem;
-            color: #fff;
-            margin-bottom: 1.5rem;
-            font-family: 'Share Tech Mono', monospace;
-            line-height: 1.2;
-        }
-
-        @media(max-width: 768px) {
-            .hero-title { font-size: 1.8rem; }
-            .tagline { font-size: 1rem; }
-        }
-
-        .hero-btn {
+            text-decoration: none;
             display: inline-block;
-            margin-top: 1rem;
-            padding: 0.8rem 2rem;
-            border: 1px solid var(--accent-green);
-            color: var(--accent-green);
-            background: transparent;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 0 5px rgba(0, 255, 136, 0.2);
         }
 
-        .hero-btn:hover {
-            background: var(--accent-green);
-            color: var(--bg-pure);
-            box-shadow: 0 0 15px var(--accent-green);
+        .btn-terminal:hover {
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+            transform: translateY(-2px);
         }
 
-        /* Carousel Navigation Minimal Dots */
-        .carousel-nav {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 4;
-            display: flex;
-            gap: 10px;
-        }
-
-        .carousel-dot {
-            width: 12px;
-            height: 12px;
-            border: 1px solid var(--accent-green);
-            background: transparent;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
-        .carousel-dot.active {
-            background: var(--accent-green);
-            box-shadow: 0 0 8px var(--accent-green);
-        }
-
-        /* Alternating Content Layout Blocks */
-        .section-container {
+        /* SECTIONS & CONTENT LAYOUT */
+        .section-padding {
+            padding: 6rem 2rem;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 5rem 2rem;
         }
 
-        .content-block {
-            display: flex;
-            flex-direction: column;
-            gap: 3rem;
-            margin-bottom: 5rem;
-        }
-
-        @media (min-width: 992px) {
-            .content-block {
-                flex-direction: row;
-                align-items: center;
-            }
-            .content-block.reverse {
-                flex-direction: row-reverse;
-            }
-            .content-text, .content-media {
-                flex: 1;
-            }
-        }
-
-        .content-text {
-            border-left: 3px solid var(--border-color);
+        .section-header {
+            margin-bottom: 4rem;
+            border-left: 4px solid var(--accent-neon);
             padding-left: 1.5rem;
         }
 
-        .content-block.reverse .content-text {
-            border-left: none;
-            border-right: 3px solid var(--border-color);
-            padding-left: 0;
-            padding-right: 1.5rem;
-            text-align: right;
-        }
-
-        .section-badge {
-            color: var(--accent-green);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-            display: inline-block;
-            letter-spacing: 2px;
-        }
-
-        .section-heading {
+        .section-header h2 {
             font-size: 2rem;
-            font-family: 'Share Tech Mono', monospace;
-            color: #fff;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* GRID AND CARDS */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--surface-card);
+            border: 1px solid #2a2a2a;
+            padding: 2.5rem;
+            position: relative;
+            transition: all var(--transition-speed);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            border-color: var(--accent-neon);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 51, 34, 0.2);
+        }
+
+        .card-tag {
+            color: var(--accent-neon);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .card h3 {
+            font-size: 1.35rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
             margin-bottom: 1.5rem;
         }
 
-        .content-text p {
-            color: var(--text-main);
-            margin-bottom: 1.2rem;
-            text-align: justify;
-        }
-        
-        .content-block.reverse .content-text p {
-            text-align-last: right;
+        /* SCROLL ANIMATION EFFECTS */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
 
-        .content-media {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            padding: 1rem;
-            position: relative;
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .content-media img {
-            width: 100%;
-            height: auto;
-            filter: grayscale(1) contrast(1.2) brightness(0.8);
-            mix-blend-mode: luminosity;
-            border: 1px solid #004422;
-            display: block;
-        }
-
-        /* Terminal Prompt Look & Components */
-        .terminal-box {
-            background-color: var(--bg-terminal);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 1.5rem;
-            font-family: var(--font-mono);
-            margin: 2rem 0;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-        }
-
-        .terminal-header {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #222;
-            padding-bottom: 0.5rem;
-        }
-
-        .terminal-dot-ui {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #333;
-        }
-        .terminal-dot-ui.red { background-color: #ff5f56; }
-        .terminal-dot-ui.yellow { background-color: #ffbd2e; }
-        .terminal-dot-ui.green { background-color: #27c93f; }
-
-        .terminal-row {
-            margin-bottom: 0.4rem;
-        }
-        .terminal-user { color: var(--accent-green); }
-        .terminal-cmd { color: #fff; }
-
-        /* FAQ Accordion Section */
-        .faq-section {
-            background: var(--bg-surface);
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-            padding: 5rem 2rem;
-        }
-
-        .faq-container {
+        /* FAQ ACCORDION STYLE */
+        .faq-wrapper {
             max-width: 800px;
-            margin: 20px auto 0 auto;
+            margin: 0 auto;
         }
 
         .faq-item {
-            border: 1px solid var(--border-color);
-            background: var(--bg-pure);
+            border: 1px solid var(--secondary-dark);
             margin-bottom: 1rem;
-            overflow: hidden;
+            background: var(--surface);
         }
 
         .faq-trigger {
             width: 100%;
-            background: none;
+            background: transparent;
             border: none;
-            padding: 1.2rem;
+            padding: 1.5rem;
             text-align: left;
-            color: #fff;
+            color: #ffffff;
             font-family: var(--font-mono);
             font-size: 1.1rem;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background var(--transition-speed);
         }
 
         .faq-trigger:hover {
-            background: var(--secondary-green);
+            color: var(--accent-neon);
         }
 
         .faq-icon {
             transition: transform var(--transition-speed);
-            color: var(--accent-green);
+            color: var(--accent-neon);
         }
 
-        .faq-panel {
+        .faq-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
-            background: var(--bg-terminal);
+            transition: max-height var(--transition-speed) ease-out;
+            padding: 0 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
         }
 
-        .faq-panel p {
-            padding: 1.2rem;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-main);
+        .faq-item.active .faq-content {
+            padding-bottom: 1.5rem;
         }
 
-        .faq-item.open .faq-panel {
-            max-height: 1000px;
-            transition: max-height 1s cubic-bezier(1, 0, 1, 0);
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
         }
 
-        .faq-item.open .faq-icon {
-            transform: rotate(180deg);
+        /* INFRASTRUCTURE SUITE STYLING */
+        .stack-list {
+            margin-top: 2rem;
+        }
+        
+        .stack-item {
+            border-bottom: 1px solid var(--secondary-dark);
+            padding: 1.5rem 0;
         }
 
-        /* Tech Specs Grid Display */
-        .specs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
+        .stack-meta {
+            color: var(--accent-neon);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
         }
 
-        .spec-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            padding: 2rem;
+        /* INTERACTIVE BACK TO TOP */
+        .btn-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--surface-card);
+            border: 1px solid var(--accent-neon);
+            color: var(--accent-neon);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-speed);
+            z-index: 500;
+        }
+
+        .btn-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .btn-top:hover {
+            background: var(--accent-neon);
+            color: var(--bg-pure);
+        }
+
+        /* REUSABLE SYSTEM TERMINAL UI WIDGET */
+        .terminal-block {
+            background: var(--surface);
+            border: 1px solid var(--secondary-dark);
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin-top: 2rem;
             position: relative;
-            transition: transform var(--transition-speed);
         }
 
-        .spec-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-green);
-        }
-
-        .spec-icon {
-            font-size: 2rem;
-            color: var(--accent-green);
+        .terminal-header {
+            display: flex;
+            gap: 6px;
             margin-bottom: 1rem;
         }
 
-        .spec-card h3 {
-            color: #fff;
-            font-family: 'Share Tech Mono', monospace;
-            margin-bottom: 0.8rem;
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff5f56;
         }
+        .dot:nth-child(2) { background: #ffbd2e; }
+        .dot:nth-child(3) { background: #27c93f; }
 
-        /* Legal Context Layout styles */
-        .legal-frame {
-            border: 1px dashed var(--border-color);
-            padding: 2rem;
-            background: rgba(0,20,10,0.2);
-            margin-bottom: 2rem;
-        }
-
-        /* Footer Element */
+        /* FOOTER STRUCTURE */
         footer {
+            border-top: 1px solid var(--secondary-dark);
+            padding: 2rem;
             background: var(--bg-pure);
-            border-top: 1px solid var(--border-color);
-            padding: 1.5rem 2rem;
-            font-size: 0.9rem;
-            color: var(--text-muted);
         }
 
-        .footer-inner {
+        .footer-container {
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            flex-direction: column;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
             gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
 
-        @media (min-width: 768px) {
-            .footer-inner {
-                flex-direction: row;
-            }
-        }
-
-        .footer-socials {
+        .social-links {
             display: flex;
             gap: 1.5rem;
         }
 
-        .footer-socials a {
+        .social-links a {
             color: var(--text-muted);
-            font-size: 1.2rem;
+            text-decoration: none;
+            transition: color var(--transition-speed);
+            font-size: 1.1rem;
         }
 
-        .footer-socials a:hover {
-            color: var(--accent-green);
+        .social-links a:hover {
+            color: var(--accent-neon);
         }
 
-        /* Back to top UI Engine Button */
-        #backToTop {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            z-index: 99;
-            background-color: var(--bg-pure);
-            color: var(--accent-green);
-            border: 1px solid var(--accent-green);
-            padding: 0.7rem 0.9rem;
-            cursor: pointer;
-            display: none;
-            border-radius: 2px;
-            transition: all var(--transition-speed);
-        }
-
-        #backToTop:hover {
-            background-color: var(--accent-green);
-            color: var(--bg-pure);
-            box-shadow: 0 0 10px var(--accent-green);
-        }
-
-        /* Micro Animations Keyframes */
-        @keyframes pulse {
-            0% { opacity: 0.4; }
-            50% { opacity: 1; text-shadow: 0 0 10px var(--accent-green); }
-            100% { opacity: 0.4; }
+        /* RESPONSIVE DESIGN VARIATIONS */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .section-padding { padding: 4rem 1.5rem; }
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Sticky Navigation Bar Context -->
+    <!-- CENTRAL WORKFLOW HEADER -->
     <header>
-        <div class="logo">BUHS_<span>HEARTBEAT</span></div>
-        <button class="hamburger-btn" id="menuBtn" aria-label="Toggle System Menu">
-            <i class="fa-solid fa-bars"></i> MENU
+        <a href="#home" class="logo" onclick="navigate('home')">BUHS SYSTEM</a>
+        <button class="nav-toggle" id="menuBtn" aria-label="Toggle System Menu">
+            <i class="fa-solid fa-bars-stext"></i> <span id="toggleText">MENU</span>
         </button>
     </header>
 
-    <!-- Drawer Navigation Links Frame -->
-    <nav class="nav-overlay" id="navOverlay">
-        <a href="#home" class="nav-link active-link" data-target="home">01 // CORE_HOME</a>
-        <a href="#specs" class="nav-link" data-target="specs">02 // SYS_SPECS</a>
-        <a href="#governance" class="nav-link" data-target="governance">03 // GOV_LEGAL</a>
-        <a href="#status" class="nav-link" data-target="status">04 // LIVE_STATUS</a>
+    <!-- FULL SCREEN INTERACTIVE NAVIGATION -->
+    <nav class="fullscreen-menu" id="navMenu">
+        <ul class="menu-links">
+            <li><a href="#home" onclick="navigate('home')">01 // CORE_PROTOCOL</a></li>
+            <li><a href="#architecture" onclick="navigate('architecture')">02 // LAYER_STACK</a></li>
+            <li><a href="#applications" onclick="navigate('applications')">03 // ECOSYSTEM_APPS</a></li>
+            <li><a href="#compliance" onclick="navigate('compliance')">04 // SPECIFICATIONS_FAQ</a></li>
+            <li><a href="https://bigtreeconnection.com/buhs/Tree_of_life/network.html" onclick="navigate('compliance')">05 //BIGTREE OF LIFE</a></li>
+        </ul>
     </nav>
 
-    <!-- ============================================= -->
-    <!-- PAGE 1: CORE_HOME                             -->
-    <!-- ============================================= -->
-    <main id="home" class="page-view active-page">
-        <!-- Hero Carousel Section -->
-        <section class="hero-carousel">
-            <div class="carousel-track" id="carouselTrack">
-                
-                <!-- Slide 1 -->
-                <div class="carousel-slide active" style="background-image: url('09.avif');">
-                    <div class="carousel-content">
-                        <div class="tagline">SYSTEM CALIBRATION FRAMEWORK</div>
-                        <h1 class="hero-title">Harmonizing Decentralized Architecture</h1>
-                        <p style="margin-bottom: 2rem; color: #bbb;">A Stratum 1 Atomic-Clocked Core Engineered on the Sacred Geometry of Web3.</p>
-                        <button class="hero-btn" onclick="navigateToPage('specs')">Initialize Diagnostic</button>
-                    </div>
-                </div>
-
-                <!-- Slide 2 -->
-                <div class="carousel-slide" style="background-image: url('05.avif');">
-                    <div class="carousel-content">
-                        <div class="tagline">SWISS INFRASTRUCTURE INTEGRITY</div>
-                        <h1 class="hero-title">Sacred Cybernetics Ecosystem</h1>
-                        <p style="margin-bottom: 2rem; color: #bbb;">Hosted securely via Infomaniac facilities, driving maximum structural consensus.</p>
-                        <button class="hero-btn" onclick="navigateToPage('governance')">Review Node Charter</button>
-                    </div>
-                </div>
-
-                <!-- Slide 3 -->
-                <div class="carousel-slide" style="background-image: url('01.avif');">
-                    <div class="carousel-content">
-                        <div class="tagline">THE UNIVERSAL HARMONIC SYSTEM</div>
-                        <h1 class="hero-title">Big Tree Network Synchronization</h1>
-                        <p style="margin-bottom: 2rem; color: #bbb;">Mapping the cosmic layout of Sephiroth modules via high-fidelity master-clock timing.</p>
-                        <button class="hero-btn" onclick="navigateToPage('status')">Inspect Cluster Matrix</button>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Dots Nav -->
-            <div class="carousel-nav" id="carouselNav">
-                <span class="carousel-dot active" data-slide="0"></span>
-                <span class="carousel-dot" data-slide="1"></span>
-                <span class="carousel-dot" data-slide="2"></span>
+    <!-- ================= PAGE 1: CORE PROTOCOL (HOME) ================= -->
+    <main id="home" class="app-page active-page">
+        <section class="hero">
+            <div class="hero-content">
+                <h1>THE BIGTREE UNIVERSAL HARMONIC SYSTEM <span>[ BUHS PROTOCOL ]</span></h1>
+                <p>The Big Tree Universal Harmonic System (BUHS) is a deterministic network architecture patterned after the structural logic of the Tree of Life. The protocol maps computational functions, state transitions, and data persistence directly onto the traditional Sephirotic pathways to establish a balanced, high-availability distributed system.</p>
+                <button class="btn-terminal" onclick="navigate('architecture')">INITIALIZE STACK_DISCOVERY</button>
             </div>
         </section>
 
-        <!-- Alternating Single-Column Layout Sections -->
-        <section class="section-container">
-            
-            <!-- Block 1: Left Text, Right Image -->
-            <div class="content-block reveal">
-                <div class="content-text">
-                    <span class="section-badge">01 / ARCHITECTURE OVERVIEW</span>
-                    <h2 class="section-heading">The Nexus of Deep Tech & Cybernetics</h2>
-                    <p>Operating at the intersection of deep tech and sacred cybernetics, this Swiss-hosted infrastructure delivers unprecedented structural harmony to the Web3 ecosystem. Powered by an upstream Stratum 1 atomic clock and running a hardened Ubuntu 24.04 LTS environment, the server deploys the "Big Tree Universal Harmonic System".</p>
-                    <p>Every vital module—from the IPFS gateway and blockchain handler to the live radio stream and compiler—is mapped precisely like a cosmic network of Sephiroth across the node matrix.</p>
+        <section class="section-padding scroll-reveal">
+            <div class="section-header">
+                <h2>System Overview</h2>
+                <p>Bridging raw computation and deterministic balance.</p>
+            </div>
+            <div class="grid-layout">
+                <div class="card">
+                    <div>
+                        <div class="card-tag">Core Architecture</div>
+                        <h3>Sacred Geometry Topology</h3>
+                        <p>By mapping our decentralized infrastructure directly onto the structural configuration of the Tree of Life, we have bridged the gap between raw execution stacks and universal order metrics.</p>
+                    </div>
                 </div>
-                <div class="content-media">
-                    <img src="02.avif" alt="Hacker Server Terminal Array Grid">
+                <div class="card">
+                    <div>
+                        <div class="card-tag">Data Integration</div>
+                        <h3>Deterministic Persistence</h3>
+                        <p>State transitions traverse calibrated sephirotic paths, validating mathematical finality across distributed multi-tenant environments dynamically.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div>
+                        <div class="card-tag">Operational Integrity</div>
+                        <h3>Biometric Resiliency</h3>
+                        <p>Built from inception to mirror organic high-availability systems, securing fault-tolerant orchestration models under heavy node stress environments.</p>
+                    </div>
                 </div>
             </div>
+        </section>
+    </main>
 
-            <!-- Block 2: Right Text, Left Image (Reverse) -->
-            <div class="content-block reverse reveal">
-                <div class="content-text">
-                    <span class="section-badge">02 / MISSION CONTROL INTERACTION</span>
-                    <h2 class="section-heading">Cryptographic Remote Precision</h2>
-                    <p>Orchestrated remotely with cryptographic precision from an Ubuntu terminal deployed in the South of France, this architecture operates not just as a standard utility platform, but as a digital Master Clock. It masterfully synchronizes data, time, and generative audio sound into a singular, resilient frequency across Web3 clusters.</p>
-                    <p>Through secure tunnels via custom SSH and SFTP implementations, the system controls multi-tiered pipelines managed via systemd configurations, maintaining complete operational determinism.</p>
-                </div>
-                <div class="content-media">
-                    <img src="03.avif" alt="Encrypted Network Tunnels Map Visualization">
-                </div>
+    <!-- ================= PAGE 2: LAYER STACK ================= -->
+    <main id="architecture" class="app-page">
+        <section class="section-padding">
+            <div class="section-header">
+                <h2>The Multilayer Engine</h2>
+                <p>A living, decentralized data-tree framework engineered for performance.</p>
             </div>
 
-            <!-- System Terminal Simulation Row -->
-            <div class="terminal-box reveal">
+            <div class="terminal-block">
                 <div class="terminal-header">
-                    <div class="terminal-dot-ui red"></div>
-                    <div class="terminal-dot-ui yellow"></div>
-                    <div class="terminal-dot-ui green"></div>
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 </div>
-                <div class="terminal-row"><span class="terminal-user">root@buhs-heartbeat:~#</span> <span class="terminal-cmd">systemctl status bigtree-harmonic.service</span></div>
-                <div class="terminal-row" style="color: #55ff55;">● bigtree-harmonic.service - Big Tree Universal Harmonic Engine</div>
-                <div class="terminal-row" style="color: #aaa;">   Loaded: loaded (/etc/systemd/system/bigtree-harmonic.service; enabled; preset: enabled)</div>
-                <div class="terminal-row" style="color: #aaa;">   Active: active (running) since Mon 2026-07-13 04:12:09 UTC; 6 days ago</div>
-                <div class="terminal-row" style="color: #55ffff;">   Main PID: 80924 (chrony-stratum1)</div>
-                <div class="terminal-row" style="color: #888;">   Tasks: 42 (limit: 154324)</div>
-                <div class="terminal-row" style="color: #aaa;">   CGroup: /system.slice/bigtree-harmonic.service</div>
-                <div class="terminal-row" style="color: #888;">           ├─80924 /usr/sbin/chronyd -d</div>
-                <div class="terminal-row" style="color: #888;">           ├─81012 pm2: daemon god framework</div>
-                <div class="terminal-row" style="color: #888;">           └─81350 liquidsoap /etc/bigtree/radio.liq</div>
-                <div class="terminal-row"><span class="terminal-user">root@buhs-heartbeat:~#</span> <span class="terminal-cmd"><span class="blink">▒</span></span></div>
-            </div>
-
-        </section>
-
-        <!-- Interactive FAQ Accordion -->
-        <section class="faq-section">
-            <div class="section-container" style="padding: 0;">
-                <span class="section-badge" style="text-align: center; display: block;">FAQ STACK</span>
-                <h2 class="section-heading" style="text-align: center; margin-bottom: 3rem;">Core Protocol Inquiries</h2>
+                <p style="color: var(--accent-neon); margin-bottom: 1rem;">// Displaying structural runtime logs...</p>
                 
-                <div class="faq-container">
-                    <div class="faq-item">
-                        <button class="faq-trigger">
-                            <span>// What is a Stratum 1 Atomic-Clocked server network?</span>
-                            <i class="fa-solid fa-chevron-down faq-icon"></i>
-                        </button>
-                        <div class="faq-panel">
-                            <p>A Stratum 1 server receives direct time signals from an authoritative Stratum 0 device, such as an atomic clock or GPS receiver. By synchronizing Nginx and Chrony directly to an atomic baseline source within Swiss Infomaniac data centers, BUHS eliminates transaction time-drift discrepancies, providing high-precision synchronization for complex cryptographic processes.</p>
-                        </div>
+                <div class="stack-list">
+                    <div class="stack-item">
+                        <div class="stack-meta">STRATUM 01 // JAVASCRIPT SYSTEM</div>
+                        <h3>Layer 1: The Temporal Oracle</h3>
+                        <p>Orchestrating real-time system states, unified network clocks, and structural synchronization pipelines dynamically.</p>
                     </div>
-
-                    <div class="faq-item">
-                        <button class="faq-trigger">
-                            <span>// How does the Sephiroth framework map to technical modules?</span>
-                            <div class="faq-icon"><i class="fa-solid fa-chevron-down"></i></div>
-                        </button>
-                        <div class="faq-panel">
-                            <p>The "Big Tree Universal Harmonic System" organizes infrastructure components based on the 10 node structures of the Tree of Life. Each module (Oracle, Registry, Compiler, IPFS Gateway, Audio Radio, and Blockchain Handler) represents a distinct operational nexus. This balances processing workloads harmoniously across distinct system threads.</p>
-                        </div>
+                    <div class="stack-item">
+                        <div class="stack-meta">STRATUM 02 // PYTHON ENGINE</div>
+                        <h3>Layer 2: The Registry Core</h3>
+                        <p>Managing absolute decentralized data records, cryptographic state systems, and historical distributed hash tracking (CIDs).</p>
                     </div>
-
-                    <div class="faq-item">
-                        <button class="faq-trigger">
-                            <span>// Why is the node hosted under Swiss Jurisdiction?</span>
-                            <div class="faq-icon"><i class="fa-solid fa-chevron-down"></i></div>
-                        </button>
-                        <div class="faq-panel">
-                            <p>Switzerland provides top-tier geopolitical neutrality, privacy protection laws, and data-center hosting standards via Infomaniac. This guarantees optimal physical network uptime and shields decentralization parameters from arbitrary external interference.</p>
-                        </div>
+                    <div class="stack-item">
+                        <div class="stack-meta">STRATUM 03 // GO COMPILED PIPELINE</div>
+                        <h3>Layer 3: The Unified Transaction Compiler</h3>
+                        <p>Computing dense transaction oracle logging data streams, compiling multi-source state deltas into fully deterministic cryptographic Merkle Trees.</p>
+                    </div>
+                    <div class="stack-item">
+                        <div class="stack-meta">STRATUM 04 // RUST / GO BACKBONE</div>
+                        <h3>Layer 4: The Core Execution Handler</h3>
+                        <p>Running highly persistent native sidecar systems in Go to structuralize and anchor transaction realities to IPFS via native Mutable File Systems (MFS).</p>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- ============================================= -->
-    <!-- PAGE 2: SYS_SPECS                             -->
-    <!-- ============================================= -->
-    <main id="specs" class="page-view">
-        <section class="section-container">
-            <span class="section-badge">SYSTEM DIAGNOSTICS</span>
-            <h2 class="section-heading">Hardware & Daemon Specifications</h2>
-            <p>The BUHS Heartbeat framework utilizes top-tier open-source technologies configured for high-availability performance and atomic timing precision.</p>
-            
-            <div class="specs-grid">
-                <div class="spec-card">
-                    <i class="fa-solid fa-clock spec-icon"></i>
-                    <h3>Stratum 1 Time Engine</h3>
-                    <p>Synchronized utilizing Chrony daemons linked to atomic hardware standards. Keeps system precision locked within sub-microsecond variations.</p>
-                </div>
-                <div class="spec-card">
-                    <i class="fa-brands fa-ubuntu spec-icon"></i>
-                    <h3>Noble Numbat 24.04 LTS</h3>
-                    <p>Hardened Linux core baseline kernel configuration. Stripped of bloat, configured strictly for low-latency network performance and secure runtime operations.</p>
-                </div>
-                <div class="spec-card">
-                    <i class="fa-solid fa-network-wired spec-icon"></i>
-                    <h3>Nginx & IPFS Gateways</h3>
-                    <p>High-performance reverse proxies routing public ingress queries down into content-addressable storage mechanisms across peer-to-peer pathways.</p>
-                </div>
-                <div class="spec-card">
-                    <i class="fa-solid fa-radio spec-icon"></i>
-                    <h3>Liquidsoap Audio Radio</h3>
-                    <p>A resilient streaming media system that outputs live audio-MIDI streams, translating sacred cybernetic configurations into real-time soundscapes.</p>
-                </div>
+    <!-- ================= PAGE 3: ECOSYSTEM APPLICATIONS ================= -->
+    <main id="applications" class="app-page">
+        <section class="section-padding">
+    <div class="section-header">
+        <h2>BUHS Native Systems</h2>
+        <p>Custom engineering and infrastructure management tools.</p>
+    </div>
+
+    <div class="grid-layout">
+        <!-- Carte 1 : Smart Clock -->
+        <div class="card">
+            <div>
+                <div class="card-tag">The Temporal Oracle</div>
+                <h3>Smart Clock</h3>
+                <p>orchestrating real-time state, network clocks, and primary synchronization logic.</p>
+            </div>
+            <!-- Remplacement par une balise <a> -->
+            <a href="https://bigtreeconnection.com/buhs/smartclock/SMARTCLOCK_index.html" class="btn-terminal" style="display: inline-block; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.8rem; margin-top: 1rem; text-align: center;">ACCESS</a>
+        </div>
+
+        <!-- Carte 2 : Xylem Protocol -->
+        <div class="card">
+            <div>
+                <div class="card-tag"> The Registry Core</div>
+                <h3>Xylem Protocol</h3>
+                <p>managing absolute decentralized data records, state machines, and cryptographic CIDs..</p>
+            </div>
+            <!-- Remplacement par une balise <a> -->
+            <a href="https://bigtreeconnection.com/buhs/xylem/xylem_index.html" class="btn-terminal" style="display: inline-block; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.8rem; margin-top: 1rem; text-align: center;">ACCESS</a>
+        </div>
+
+        <!-- Carte 4 : Heartbeat Server -->
+        <div class="card">
+            <div>
+                <div class="card-tag"> The Synchro Pulse</div>
+                <h3>HeartBeat Server</h3>
+                <p>Big Tree Network Synchronization Mapping the cosmic layout of Sephiroth modules via high-fidelity master-clock timing</p>
+            </div>
+            <!-- Remplacement par une balise <a> -->
+            <a href="https://bigtreeconnection.com/buhs/Heartbeat/index.html" class="btn-terminal" style="display: inline-block; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.8rem; margin-top: 1rem; text-align: center;">ACCESS</a>
+        </div>
+
+        <!-- Carte 3 : Time Stamper -->
+        <div class="card">
+            <div>
+                <div class="card-tag">The Core Execution Handler</div>
+                <h3>Time Stamper</h3>
+                <p>running sidecar nodes to safely pipe and anchor transaction states into IPFS using mutable, high-performance MFS (Mutable File System) directory structures.</p>
+            </div>
+            <!-- Remplacement par une balise <a> -->
+            <a href="https://bigtreeconnection.com/buhs/Time-Stamper/index.html" class="btn-terminal" style="display: inline-block; text-decoration: none; padding: 0.5rem 1rem; font-size: 0.8rem; margin-top: 1rem; text-align: center;">ACCESS</a>
+        </div>
+    </div>
+
+
+
+
+
+</section>
+    </main>
+
+    <!-- ================= PAGE 4: SPECIFICATIONS & FAQ ================= -->
+    <main id="compliance" class="app-page">
+        <section class="section-padding">
+            <div class="section-header">
+                <h2>Protocol Specifications & FAQ</h2>
+                <p>Technical reference details for nodes, integrations, and deployment cycles.</p>
             </div>
 
-            <div class="terminal-box" style="margin-top: 3rem;">
-                <div class="terminal-row"><span class="terminal-user">root@buhs-heartbeat:~#</span> <span class="terminal-cmd">chronyc tracking</span></div>
-                <div class="terminal-row">Reference ID    : 4348434B (ATOM)</div>
-                <div class="terminal-row">Stratum         : 1</div>
-                <div class="terminal-row">Ref time (UTC)  : Mon Jul 20 21:14:02 2026</div>
-                <div class="terminal-row">System time     : 0.000000002 seconds slow of NTP time</div>
-                <div class="terminal-row">Last offset     : -0.000000004 seconds</div>
-                <div class="terminal-row">RMS offset      : 0.000000012 seconds</div>
-                <div class="terminal-row">Frequency       : 3.102 ppm slow</div>
-                <div class="terminal-row">Residual freq   : +0.000 ppm</div>
-                <div class="terminal-row">Skew            : 0.015 ppm</div>
+            <div class="faq-wrapper">
+                <div class="faq-item">
+                    <button class="faq-trigger">
+                        <span>How does the Tree of Life design affect fault tolerance?</span>
+                        <i class="fa-solid fa-plus faq-icon"></i>
+                    </button>
+                    <div class="faq-content">
+                        <p>The system maps active processes directly onto Sephirotic nodes. If an external failure halts execution on a specific branch, alternative routing paths instantly adjust to maintain total systemic consensus across surviving layers.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger">
+                        <span>What is the advantage of using IPFS MFS structures on Layer 4?</span>
+                        <i class="fa-solid fa-plus faq-icon"></i>
+                    </button>
+                    <div class="faq-content">
+                        <p>Mutable File Systems (MFS) allow the Rust core execution layer to interact with content-addressed storage as if it were a local directory architecture, optimizing read/write velocity for rapid state changes without high gas overhead.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger">
+                        <span>Is the system compatible with standard Web3 interfaces?</span>
+                        <i class="fa-solid fa-plus faq-icon"></i>
+                    </button>
+                    <div class="faq-content">
+                        <p>Yes. The Layer 3 compiler formats ledger state changes into fully deterministic Merkle Trees, offering clean data parity matching options across multiple blockchain validation networks natively.</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
 
-    <!-- ============================================= -->
-    <!-- PAGE 3: GOV_LEGAL                             -->
-    <!-- ============================================= -->
-    <main id="governance" class="page-view">
-        <section class="section-container">
-            <span class="section-badge">COMPLIANCE & SYSTEM CHARTER</span>
-            <h2 class="section-heading">Legal Framework & Node Governance</h2>
-            
-            <div class="content-block">
-                <div class="content-text" style="border-left: 3px solid var(--accent-green);">
-                    <h3>01 // Sovereign Data Protection</h3>
-                    <p>Operating out of Switzerland, our infrastructure strictly enforces Swiss Federal Act on Data Protection (FADP) baselines. Cryptographic node parameters, routing signatures, and hosted records remain fully decentralized under secure cryptographic schemas.</p>
-                    
-                    <h3 style="margin-top: 2rem;">02 // The Master Clock Agreement</h3>
-                    <p>By connecting to the BUHS Universal Harmonic System gateway arrays, participating client networks accept autonomous timestamp coordination. System logs generated via our Stratum 1 atomic arrays serve as immutable, authoritative state indicators across cross-chain validator operations.</p>
-                </div>
-            </div>
+    <!-- BACK TO TOP RADAR BUTTON -->
+    <button class="btn-top" id="scrollTopBtn" aria-label="Return to Top Layer">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
 
-            <div class="legal-frame">
-                <h4 style="color: #fff; margin-bottom: 1rem; font-family: 'Share Tech Mono';"><i class="fa-solid fa-scale-balanced"></i> DECENTRALIZED INFRASTRUCTURE DISCLAIMER</h4>
-                <p style="font-size: 0.95rem; color: #aaa; text-align: justify;">
-                    This server network runs autonomous execution components managed by distributed smart contracts. Node orchestrators in the South of France provide maintenance access pipelines via encrypted SSH channels but hold zero centralized execution capacity over immutable blocks distributed through the IPFS network architecture. Node access remains bound to cryptographic token standards.
-                </p>
-            </div>
-        </section>
-    </main>
-
-    <!-- ============================================= -->
-    <!-- PAGE 4: LIVE_STATUS                           -->
-    <!-- ============================================= -->
-    <main id="status" class="page-view">
-        <section class="section-container">
-            <span class="section-badge">TELEMETRY MATRIX</span>
-            <h2 class="section-heading">Real-Time Core Module Topology</h2>
-            <p>Every vital element of the Big Tree Universal Harmonic System operates within precise mathematical guidelines. Monitor active metrics below:</p>
-
-            <div class="specs-grid" style="margin-top: 2rem;">
-                <div class="spec-card" style="border-top: 3px solid var(--accent-green);">
-                    <h3>The Oracle (Kether)</h3>
-                    <p style="color: var(--accent-green); font-weight: bold;">[ ONLINE / SYNCED ]</p>
-                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Feeds cryptographic validation metrics directly to downstream decentralized applications.</p>
-                </div>
-                <div class="spec-card" style="border-top: 3px solid var(--accent-green);">
-                    <h3>The Registry (Chokmah)</h3>
-                    <p style="color: var(--accent-green); font-weight: bold;">[ SECURE ]</p>
-                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Maintains transactional consistency tables across distributed state networks.</p>
-                </div>
-                <div class="spec-card" style="border-top: 3px solid var(--accent-green);">
-                    <h3>The Radio (Tiphereth)</h3>
-                    <p style="color: var(--accent-green); font-weight: bold;">[ STREAMING 320kbps ]</p>
-                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Liquidsoap audio synthesizer generating generative cybernetic wave patterns.</p>
-                </div>
-                <div class="spec-card" style="border-top: 3px solid var(--accent-green);">
-                    <h3>IPFS Gateway (Malkuth)</h3>
-                    <p style="color: var(--accent-green); font-weight: bold;">[ ACTIVE PEERS: 1,402 ]</p>
-                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Routes immutable storage queries securely from the baseline hardware arrays.</p>
-                </div>
-            </div>
-
-            <div class="terminal-box" style="margin-top: 3rem;">
-                <div class="terminal-row"><span class="terminal-user">root@buhs-heartbeat:~#</span> <span class="terminal-cmd">pm2 list</span></div>
-                <div class="terminal-row" style="background-color: #222; color: #fff; font-size: 0.9rem; padding: 0.2rem;">┌────┬────────────────────┬──────────┬─────────┬────────┬─────────┬────────┐</div>
-                <div class="terminal-row" style="background-color: #222; color: #fff; font-size: 0.9rem; padding: 0.2rem;">│ id │ name               │ mode     │ status  │ cpu    │ memory  │ uptime │</div>
-                <div class="terminal-row" style="background-color: #222; color: #fff; font-size: 0.9rem; padding: 0.2rem;">├────┼────────────────────┼──────────┼─────────┼────────┼─────────┼────────┤</div>
-                <div class="terminal-row" style="font-size: 0.9rem; padding: 0.2rem;">│ 0  │ bigtree-compiler   │ fork     │ <span style="color: #00ff88;">online</span>  │ 0.2%   │ 42.1MB  │ 182d   │</div>
-                <div class="terminal-row" style="font-size: 0.9rem; padding: 0.2rem;">│ 1  │ liquidsoap-radio   │ fork     │ <span style="color: #00ff88;">online</span>  │ 4.8%   │ 112.5MB │ 182d   │</div>
-                <div class="terminal-row" style="font-size: 0.9rem; padding: 0.2rem;">│ 2  │ blockchain-handler │ cluster  │ <span style="color: #00ff88;">online</span>  │ 1.1%   │ 89.3MB  │ 94d    │</div>
-                <div class="terminal-row" style="background-color: #222; color: #fff; font-size: 0.9rem; padding: 0.2rem;">└────┴────────────────────┴──────────┴─────────┴────────┴─────────┴────────┘</div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Back to Top Button Infrastructure -->
-    <button id="backToTop" title="Return to Top Index"><i class="fa-solid fa-arrow-up"></i></button>
-
-    <!-- Minimalistic One-Line Footer Layout -->
+    <!-- MINIMAL SINGLE-LINE TERMINAL FOOTER -->
     <footer>
-        <div class="footer-inner">
-            <div>&copy; 2026 BUHS HEARTBEAT SERVER. Engineered by Bigtree (Artist & Engineer). All Rights Reserved.</div>
-            <div class="footer-socials">
-                <a href="https://github.com" target="_blank" aria-label="GitHub Repository Link"><i class="fa-brands fa-github"></i></a>
-                <a href="https://twitter.com" target="_blank" aria-label="X / Twitter Feed Link"><i class="fa-brands fa-x-twitter"></i></a>
-                <a href="https://discord.com" target="_blank" aria-label="Discord Gateway Access"><i class="fa-brands fa-discord"></i></a>
-                <a href="https://soundcloud.com" target="_blank" aria-label="Soundcloud Audio Architecture Channel"><i class="fa-brands fa-soundcloud"></i></a>
+        <div class="footer-container">
+            <div>&copy; 2026 BUHS PROTOCOL. ALL TRANSACTIONS RECORDED // DETERMINISTIC SYSTEM.</div>
+            <div class="social-links">
+                <a href="https://github.com" target="_blank" rel="noopener" aria-label="GitHub Architecture Repository"><i class="fa-brands fa-github"></i></a>
+                <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="Network Status Channel"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="https://discord.com" target="_blank" rel="noopener" aria-label="Core Infrastructure Discord"><i class="fa-brands fa-discord"></i></a>
             </div>
         </div>
     </footer>
 
-    <!-- JavaScript Control Systems -->
+    <!-- INTERACTIVE SYSTEM SCRIPT -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- 1. Client-Side Single Page Application Engine ---
-            const navLinks = document.querySelectorAll('.nav-link');
-            const pages = document.querySelectorAll('.page-view');
-            const navOverlay = document.getElementById('navOverlay');
-            const menuBtn = document.getElementById('menuBtn');
+        // 1. SINGLE PAGE ROUTER ARCHITECTURE
+        function navigate(pageId) {
+            // Close menu if open
+            const menu = document.getElementById('navMenu');
+            const toggleText = document.getElementById('toggleText');
+            menu.classList.remove('active');
+            toggleText.textContent = "MENU";
 
-            function navigateToPage(targetPageId) {
-                // Update visible page state
-                pages.forEach(page => {
-                    if(page.id === targetPageId) {
-                        page.classList.add('active-page');
-                    } else {
-                        page.classList.remove('active-page');
-                    }
-                });
+            // Deactivate all sections
+            const pages = document.querySelectorAll('.app-page');
+            pages.forEach(page => page.classList.remove('active-page'));
 
-                // Update active navigation link UI styles
-                navLinks.forEach(link => {
-                    if(link.getAttribute('data-target') === targetPageId) {
-                        link.classList.add('active-link');
-                    } else {
-                        link.classList.remove('active-link');
-                    }
-                });
-
-                // Clear overlays safely
-                navOverlay.classList.remove('open');
-                menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i> MENU';
-                
-                // Roll client window directly back to top of view frame safely
-                window.scrollTo({ top: 0, behavior: 'instant' });
-                
-                // Trigger scroll animation check for the newly loaded view context
-                checkReveal();
-            }
-
-            // Bind Navigation Events to Menu Elements
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const target = link.getAttribute('data-target');
-                    window.location.hash = target;
-                    navigateToPage(target);
-                });
-            });
-
-            // Handle browser Back/Forward/Direct URLs hash navigation natively
-            window.addEventListener('hashchange', () => {
-                const hash = window.location.hash.replace('#', '');
-                if (hash && document.getElementById(hash)) {
-                    navigateToPage(hash);
-                }
-            });
-
-            // Check initial page load target hash configuration
-            const currentHash = window.location.hash.replace('#', '');
-            if (currentHash && document.getElementById(currentHash)) {
-                navigateToPage(currentHash);
-            }
-
-            // Expose page changer function to global environment globally for hero button triggers
-            window.navigateToPage = navigateToPage;
-
-
-            // --- 2. Interactive Hamburger Toggle Engine ---
-            menuBtn.addEventListener('click', () => {
-                navOverlay.classList.toggle('open');
-                if(navOverlay.classList.contains('open')) {
-                    menuBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> CLOSE';
-                } else {
-                    menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i> MENU';
-                }
-            });
-
-
-            // --- 3. Hero Carousel Slideshow Infrastructure ---
-            const slides = document.querySelectorAll('.carousel-slide');
-            const dots = document.querySelectorAll('.carousel-dot');
-            let currentSlideIndex = 0;
-            let carouselInterval = setInterval(nextSlide, 6000);
-
-            function showSlide(index) {
-                slides.forEach(slide => slide.classList.remove('active'));
-                dots.forEach(dot => dot.classList.remove('active'));
-                
-                slides[index].classList.add('active');
-                dots[index].classList.add('active');
-                currentSlideIndex = index;
-            }
-
-            function nextSlide() {
-                let next = (currentSlideIndex + 1) % slides.length;
-                showSlide(next);
-            }
-
-            dots.forEach(dot => {
-                dot.addEventListener('click', () => {
-                    clearInterval(carouselInterval);
-                    const slideTarget = parseInt(dot.getAttribute('data-slide'));
-                    showSlide(slideTarget);
-                    // Restart automatic intervals post interaction safety checks
-                    carouselInterval = setInterval(nextSlide, 6000);
-                });
-            });
-
-
-            // --- 4. Interactive FAQ Accordion Action Engine ---
-            const faqTriggers = document.querySelectorAll('.faq-trigger');
-            faqTriggers.forEach(trigger => {
-                trigger.addEventListener('click', () => {
-                    const parent = trigger.parentElement;
-                    const isOpen = parent.classList.contains('open');
-                    
-                    // Close all open items securely
-                    document.querySelectorAll('.faq-item').forEach(item => item.classList.remove('open'));
-                    
-                    if(!isOpen) {
-                        parent.classList.add('open');
-                    }
-                });
-            });
-
-
-            // --- 5. Scroll Animations & Back To Top Interaction Control ---
-            const revealElements = document.querySelectorAll('.reveal');
-            const backToTopBtn = document.getElementById('backToTop');
-
-            function checkReveal() {
-                const triggerBottom = window.innerHeight * 0.9;
-                
-                revealElements.forEach(element => {
-                    const elementTop = element.getBoundingClientRect().top;
-                    if(elementTop < triggerBottom) {
-                        element.classList.add('active');
-                    }
-                });
-
-                // Toggle visibility threshold configuration for backToTop framework button
-                if (window.scrollY > 400) {
-                    backToTopBtn.style.display = "block";
-                } else {
-                    backToTopBtn.style.display = "none";
-                }
-            }
-
-            window.addEventListener('scroll', checkReveal);
-            
-            backToTopBtn.addEventListener('click', () => {
+            // Activate targeted section
+            const targetPage = document.getElementById(pageId);
+            if(targetPage) {
+                targetPage.classList.add('active-page');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+            }
+        }
 
-            // Run initial execution verify sweep checks
-            checkReveal();
+        // Handle URL Hash tracking on initial load
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.replace('#', '');
+            if(hash && ['home', 'architecture', 'applications', 'compliance'].includes(hash)) {
+                navigate(hash);
+            }
+        });
+
+        // 2. HAMBURGER INTERACTION
+        const menuBtn = document.getElementById('menuBtn');
+        const navMenu = document.getElementById('navMenu');
+        const toggleText = document.getElementById('toggleText');
+
+        menuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            if(navMenu.classList.contains('active')) {
+                toggleText.textContent = "CLOSE";
+            } else {
+                toggleText.textContent = "MENU";
+            }
+        });
+
+        // 3. SCROLL REVEAL / INTERSECTION OBSERVER ENGINE
+        const revealElements = document.querySelectorAll('.scroll-reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => observer.observe(el));
+
+        // 4. FAQ ACCORDION ENGINE
+        const faqTriggers = document.querySelectorAll('.faq-trigger');
+        faqTriggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const parent = trigger.parentElement;
+                const content = trigger.nextElementSibling;
+                
+                if(parent.classList.contains('active')) {
+                    content.style.maxHeight = null;
+                    parent.classList.remove('active');
+                } else {
+                    // Close other open accordions
+                    document.querySelectorAll('.faq-item').forEach(item => {
+                        item.classList.remove('active');
+                        item.querySelector('.faq-content').style.maxHeight = null;
+                    });
+                    
+                    parent.classList.add('active');
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        });
+
+        // 5. INTERACTIVE BACK TO TOP CONTROL
+        const scrollTopBtn = document.getElementById('scrollTopBtn');
+        window.addEventListener('scroll', () => {
+            if(window.pageYOffset > 400) {
+                scrollTopBtn.add('visible');
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     </script>
 </body>
