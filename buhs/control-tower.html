@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE BIGTREE UNIVERSAL CONTROL TOWER | Metatron View</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: JetBrains Mono & Share Tech Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        term: {
+                            black: '#0a0a0a',
+                            surface: '#121212',
+                            card: '#1a1a1a',
+                            green: '#00ff88',
+                            greenDark: '#003322',
+                            greenDim: '#008844',
+                            amber: '#ffb700',
+                            caribbeanRed: '#ff3366',
+                            caribbeanYellow: '#ffcc00',
+                            caribbeanGreen: '#00cc66'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['"JetBrains Mono"', '"Share Tech Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Terminal FX */
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0a0a0a;
+            color: #00ff88;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Scanline Overlay */
+        .scanline-overlay {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.03),
+                rgba(0, 255, 0, 0.01),
+                rgba(0, 0, 255, 0.03)
+            );
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+        }
+
+        /* Light Mode Overrides */
+        [data-theme="light"] {
+            background-color: #eef2f0;
+            color: #005522;
+        }
+        [data-theme="light"] .bg-term-black { background-color: #eef2f0 !important; }
+        [data-theme="light"] .bg-term-surface { background-color: #e2e8e5 !important; }
+        [data-theme="light"] .bg-term-card { background-color: #d5ded9 !important; border-color: #a0c8b0 !important; }
+        [data-theme="light"] .text-term-green { color: #006633 !important; }
+        [data-theme="light"] .border-term-green { border-color: #008844 !important; }
+        [data-theme="light"] .scanline-overlay { opacity: 0.1; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #003322;
+            border: 1px solid #00ff88;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ff88;
+        }
+
+        /* Slide-up animations on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Solar Azimuth Needle Dynamic Rotation */
+        #azimuthNeedle {
+            transition: transform 1s ease-in-out;
+            transform-origin: 50% 50%;
+        }
+
+        /* Dynamic Caribbean Theme Mode for v2.0 */
+        .caribbean-mode {
+            border-color: #ffcc00 !important;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+        }
+
+        /* Pulsing Status Dot */
+        .pulse-dot {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="relative min-h-screen selection:bg-term-green selection:text-term-black">
+
+    <!-- Scanline Overlay Effect -->
+    <div class="fixed inset-0 scanline-overlay z-50"></div>
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-40 bg-term-black/90 backdrop-blur border-b border-term-green/30 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            
+            <!-- Brand Identity -->
+            <a href="#" onclick="switchPage('home')" class="flex items-center space-x-3 group">
+                <div class="w-8 h-8 rounded border border-term-green flex items-center justify-center bg-term-greenDark/50 group-hover:bg-term-green group-hover:text-term-black transition">
+                    <i class="fa-solid me-0 fa-tower-broadcast text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold tracking-widest text-lg block leading-none">BIGTREE<span class="text-xs text-term-green/60 ml-1">v2.7</span></span>
+                    <span class="text-[10px] text-term-green/70 uppercase tracking-tighter hidden sm:block">Control Tower // Metatron Overwatch</span>
+                </div>
+            </a>
+
+            <!-- Status Indicator + Actions -->
+            <div class="flex items-center space-x-4">
+                
+                <!-- System Status -->
+                <div class="hidden md:flex items-center space-x-2 text-xs border border-term-green/30 bg-term-surface px-3 py-1 rounded">
+                    <span class="w-2 h-2 rounded-full bg-term-green pulse-dot"></span>
+                    <span class="text-term-green/80">SYS_ONLINE: <span id="clockUTC">00:00:00 UTC</span></span>
+                </div>
+
+                <!-- Dark / Light Mode Toggle -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 border border-term-green/40 hover:border-term-green rounded bg-term-surface transition" title="Toggle Terminal Light/Dark Mode">
+                    <i id="themeIcon" class="fa-solid fa-moon text-term-green"></i>
+                </button>
+
+                <!-- Hamburger Trigger Button -->
+                <button id="hamburgerBtn" onclick="toggleMenu()" class="p-2 border border-term-green bg-term-greenDark hover:bg-term-green hover:text-term-black rounded transition focus:outline-none">
+                    <i id="menuIcon" class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- FULLSCREEN HAMBURGER OVERLAY MENU -->
+    <div id="fullMenu" class="fixed inset-0 bg-term-black/98 z-30 flex flex-col justify-between p-6 sm:p-12 hidden transition-all duration-300 border-b border-term-green">
+        <div class="max-w-4xl mx-auto w-full pt-16">
+            <div class="text-xs text-term-green/50 border-b border-term-green/20 pb-2 mb-8">
+                // SYSTEM NAVIGATION MATRIX — SELECT DIRECTIVE
+            </div>
+            <nav class="space-y-6">
+                <a href="#home" onclick="switchPage('home')" class="nav-item group block text-2xl sm:text-4xl font-bold hover:text-term-green flex items-center justify-between border-b border-term-green/10 pb-4">
+                    <span><span class="text-term-green/40 group-hover:text-term-green mr-4">01.</span>OVERVIEW & NEXUS</span>
+                    <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition transform group-hover:translate-x-2"></i>
+                </a>
+                <a href="#architecture" onclick="switchPage('architecture')" class="nav-item group block text-2xl sm:text-4xl font-bold hover:text-term-green flex items-center justify-between border-b border-term-green/10 pb-4">
+                    <span><span class="text-term-green/40 group-hover:text-term-green mr-4">02.</span>CORE ARCHITECTURE</span>
+                    <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition transform group-hover:translate-x-2"></i>
+                </a>
+                <a href="#versions" onclick="switchPage('versions')" class="nav-item group block text-2xl sm:text-4xl font-bold hover:text-term-green flex items-center justify-between border-b border-term-green/10 pb-4">
+                    <span><span class="text-term-green/40 group-hover:text-term-green mr-4">03.</span>VERSIONS & ECOSYSTEM</span>
+                    <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition transform group-hover:translate-x-2"></i>
+                </a>
+                <a href="#redline" onclick="switchPage('redline')" class="nav-item group block text-2xl sm:text-4xl font-bold hover:text-term-green flex items-center justify-between border-b border-term-green/10 pb-4">
+                    <span><span class="text-term-green/40 group-hover:text-term-green mr-4">04.</span>REDLINE PROTOCOL</span>
+                    <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition transform group-hover:translate-x-2"></i>
+                </a>
+                <a href="#vision" onclick="switchPage('vision')" class="nav-item group block text-2xl sm:text-4xl font-bold hover:text-term-green flex items-center justify-between border-b border-term-green/10 pb-4">
+                    <span><span class="text-term-green/40 group-hover:text-term-green mr-4">05.</span>METATRON VISION</span>
+                    <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition transform group-hover:translate-x-2"></i>
+                </a>
+            </nav>
+        </div>
+
+        <div class="max-w-4xl mx-auto w-full pt-6 border-t border-term-green/20 flex flex-col sm:flex-row justify-between text-xs text-term-green/60 gap-4">
+            <div>STATUS: DEPLOYED // NO_DOM_OVERHEAD</div>
+            <div>BIGTREE ARCHITECTURE © 2026</div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-16">
+
+        <!-- HERO CAROUSEL SECTION -->
+        <section class="relative border border-term-green bg-term-surface rounded-lg p-4 sm:p-6 shadow-2xl overflow-hidden reveal">
+            
+            <!-- Terminal Header Bar -->
+            <div class="flex items-center justify-between border-b border-term-green/30 pb-3 mb-6 text-xs">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                    <span class="font-bold ml-2 hidden sm:inline">CONTROL_TOWER_HERO_HERMES_V2.7.sh</span>
+                </div>
+                <div class="text-term-green/70">
+                    SLIDE <span id="carouselCurrentNum">1</span> / 3
+                </div>
+            </div>
+
+            <!-- Carousel Content Slides Container -->
+            <div class="relative min-h-[360px] sm:min-h-[420px] flex items-center">
+                
+                <!-- Slide 1 -->
+                <div id="slide-0" class="hero-slide transition-opacity duration-500 w-full grid md:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-4">
+                        <div class="inline-block border border-term-green bg-term-greenDark/40 text-xs px-2 py-1 rounded">
+                            // PRIMARY OVERWATCH NODE
+                        </div>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-none text-white">
+                            THE METATRON VIEW
+                        </h1>
+                        <p class="text-sm sm:text-base text-term-green/80">
+                            "The ultimate multi-stream portal at the top of the Tree of Life."
+                        </p>
+                        <p class="text-xs text-term-green/60 leading-relaxed">
+                            A zero-clutter, lightweight JavaScript portal aggregating real-time global webcams, specialized radio channels, and the iconic BigTree Radio.
+                        </p>
+                        <div class="pt-4 flex flex-wrap gap-3">
+                            <button onclick="switchPage('architecture')" class="bg-term-green text-term-black font-bold text-xs uppercase px-5 py-3 rounded hover:bg-white transition flex items-center space-x-2">
+                                <span>Explore Core Architecture</span>
+                                <i class="fa-solid fa-code"></i>
+                            </button>
+                            <a href="#matrix-demo" class="border border-term-green text-term-green text-xs font-bold uppercase px-5 py-3 rounded hover:bg-term-greenDark transition flex items-center space-x-2">
+                                <span>Live Stream Matrix</span>
+                                <i class="fa-solid fa-play"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="relative border border-term-green/40 rounded bg-term-black p-2 h-64 sm:h-80 overflow-hidden group">
+                        <img src="07.png" alt="Global Stream Visualization" class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-term-black via-transparent to-transparent"></div>
+                        <div class="absolute bottom-3 left-3 text-xs font-mono bg-term-black/80 p-2 border border-term-green/40 rounded">
+                            LIVE_FEED // TOKYO_NEON_STREAM_09
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div id="slide-1" class="hero-slide transition-opacity duration-500 w-full grid md:grid-cols-2 gap-8 items-center hidden">
+                    <div class="space-y-4">
+                        <div class="inline-block border border-term-amber bg-term-amber/10 text-term-amber text-xs px-2 py-1 rounded">
+                            // EARLY WARNING DISCOVERY
+                        </div>
+                        <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-none text-white">
+                            3X KĪLAUEA ERUPTION PREDICTIONS
+                        </h2>
+                        <p class="text-sm sm:text-base text-term-green/80">
+                            Crowdsourced environmental analysis in real-time.
+                        </p>
+                        <p class="text-xs text-term-green/60 leading-relaxed">
+                            By continuously observing synchronized atmospheric and geophysical live streams, Control Tower users predicted Kīlauea volcanic eruptions three separate times—a full 24 hours prior to official seismic spikes.
+                        </p>
+                        <div class="pt-4">
+                            <button onclick="switchPage('redline')" class="bg-term-amber text-term-black font-bold text-xs uppercase px-5 py-3 rounded hover:bg-white transition flex items-center space-x-2">
+                                <span>Inspect Redline Logs</span>
+                                <i class="fa-solid fa-file-waveform"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="relative border border-term-amber/40 rounded bg-term-black p-2 h-64 sm:h-80 overflow-hidden group">
+                        <img src="bafybeig4j2bjhacb3fdr2grbiabztiffsmq4o77j5fspnld2kvg4zpdzg4.png" alt="Kilauea Volcano Stream" class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-term-black via-transparent to-transparent"></div>
+                        <div class="absolute bottom-3 left-3 text-xs font-mono bg-term-black/80 p-2 border border-term-amber/40 rounded text-term-amber">
+                            GEOPHYSICAL_CAM // KILAUEA_HAWAII_ACTIVE
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div id="slide-2" class="hero-slide transition-opacity duration-500 w-full grid md:grid-cols-2 gap-8 items-center hidden">
+                    <div class="space-y-4">
+                        <div class="inline-block border border-term-green bg-term-greenDark/40 text-xs px-2 py-1 rounded">
+                            // ECOSYSTEM VERSIONS
+                        </div>
+                        <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-none text-white">
+                            v2.0 CARIBBEAN & v2.7 DEEP TECH
+                        </h2>
+                        <p class="text-sm sm:text-base text-term-green/80">
+                            From cheerful vert-jaune-rouge classic vibes to modular Web3 crypto & weather widgets.
+                        </p>
+                        <p class="text-xs text-term-green/60 leading-relaxed">
+                            Whether you need lightweight continuous stream zapping or full-stack telemetry with live chat and stream analytics, the ecosystem fits every terminal display.
+                        </p>
+                        <div class="pt-4">
+                            <button onclick="switchPage('versions')" class="bg-term-green text-term-black font-bold text-xs uppercase px-5 py-3 rounded hover:bg-white transition flex items-center space-x-2">
+                                <span>Compare Ecosystem Versions</span>
+                                <i class="fa-solid fa-layer-group"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="relative border border-term-green/40 rounded bg-term-black p-2 h-64 sm:h-80 overflow-hidden group">
+                        <img src="Screenshot_20260602_011207.png" alt="Ecosystem UI Preview" class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-term-black via-transparent to-transparent"></div>
+                        <div class="absolute bottom-3 left-3 text-xs font-mono bg-term-black/80 p-2 border border-term-green/40 rounded">
+                            VERSION_MATRIX // DEEP_TECH_2.7
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Carousel Controls -->
+            <div class="flex items-center justify-between border-t border-term-green/30 pt-4 mt-6">
+                <div class="flex space-x-2">
+                    <button onclick="setSlide(0)" class="carousel-dot w-3 h-3 rounded-full bg-term-green"></button>
+                    <button onclick="setSlide(1)" class="carousel-dot w-3 h-3 rounded-full bg-term-green/30"></button>
+                    <button onclick="setSlide(2)" class="carousel-dot w-3 h-3 rounded-full bg-term-green/30"></button>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="prevSlide()" class="p-2 border border-term-green/50 hover:bg-term-green hover:text-term-black rounded transition">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button onclick="nextSlide()" class="p-2 border border-term-green/50 hover:bg-term-green hover:text-term-black rounded transition">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- DYNAMIC PAGE CONTENT CONTAINER -->
+        
+        <!-- PAGE 1: HOME / OVERVIEW (DEFAULT) -->
+        <div id="page-home" class="page-content space-y-12">
+            
+            <!-- What is Control Tower -->
+            <section class="border border-term-green/30 bg-term-surface p-6 sm:p-8 rounded-lg reveal">
+                <div class="max-w-3xl space-y-4">
+                    <div class="text-xs text-term-green/60 uppercase tracking-widest">// DIRECTIVE Overview</div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white">WHAT IS THE CONTROL TOWER?</h2>
+                    <p class="text-sm leading-relaxed text-term-green/80">
+                        The <strong>Control Tower</strong> sits at the very crown of the BigTree architecture. Designed as a lightweight, pure JavaScript/HTML portal, it aggregates real-time webcams, specialized radio feeds, and the iconic BigTree Radio into a seamless visual nexus.
+                    </p>
+                    <p class="text-xs leading-relaxed text-term-green/70">
+                        Forget tab switching and clutter—Control Tower offers effortless, zero-friction navigation through embedded global streams. From the golden hour in Rio to midnight neon in Tokyo, or monitoring the active Kīlauea volcano in Hawaii, experience the planet's heartbeat in real time.
+                    </p>
+                    
+                    <blockquote class="border-l-2 border-term-green pl-4 py-2 italic text-xs text-term-green bg-term-greenDark/20 my-4">
+                        "By continuously observing atmospheric and geophysical live streams, Control Tower users have successfully predicted Kīlauea eruptions three times—a day before official spikes."
+                    </blockquote>
+                </div>
+            </section>
+
+            <!-- INTERACTIVE MATRIX STREAM SWITCHER DEMO -->
+            <section id="matrix-demo" class="border border-term-green bg-term-black p-6 rounded-lg reveal space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-term-green/30 pb-4 gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold flex items-center space-x-2">
+                            <i class="fa-solid fa-tv text-term-green"></i>
+                            <span>LIVE MATRIX SIMULATOR [ONE-CLICK ZAPPING]</span>
+                        </h3>
+                        <p class="text-xs text-term-green/60">Simulated low-latency iframe zapper without tab clutter.</p>
+                    </div>
+                    <!-- Audio Control Simulation -->
+                    <div class="flex items-center space-x-3 bg-term-surface p-2 rounded border border-term-green/40">
+                        <i class="fa-solid fa-radio text-term-green animate-pulse"></i>
+                        <span class="text-xs font-bold">BIGTREE RADIO STREAM:</span>
+                        <button id="radioToggleBtn" onclick="toggleRadio()" class="text-xs border border-term-green px-2 py-1 bg-term-greenDark hover:bg-term-green hover:text-term-black transition">
+                            PLAY AUDIO
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <!-- Main Stream Viewport -->
+                    <div class="lg:col-span-2 relative bg-term-surface border border-term-green/40 rounded p-2 h-72 sm:h-96 flex flex-col justify-between">
+                        <div id="streamViewport" class="relative w-full h-full bg-black rounded overflow-hidden flex items-center justify-center">
+                            <img id="streamImage" src="01.png" alt="Active Stream View" class="w-full h-full object-cover">
+                            <div class="absolute top-3 left-3 bg-term-black/80 border border-term-green text-[10px] px-2 py-1 rounded">
+                                <span class="w-2 h-2 rounded-full bg-red-500 inline-block mr-1 pulse-dot"></span>
+                                LIVE EMBED // <span id="streamLabel">RIO DE JANEIRO — COPACABANA SUNSET</span>
+                            </div>
+                            <div class="absolute bottom-3 right-3 bg-term-black/80 border border-term-green text-[10px] px-2 py-1 rounded text-term-green">
+                                FREQ: 108.4 MHz | FPS: 60.0
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stream Selector Channels List -->
+                    <div class="space-y-3">
+                        <div class="text-xs font-bold border-b border-term-green/20 pb-1">CHANNELS MATRIX (CLICK TO ZAP)</div>
+                        <div class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                            <button onclick="zapStream('RIO DE JANEIRO — COPACABANA SUNSET', '02.png')" class="w-full text-left p-3 border border-term-green/30 bg-term-surface hover:border-term-green rounded text-xs transition flex justify-between items-center group">
+                                <div>
+                                    <div class="font-bold group-hover:text-term-green">01. RIO DE JANEIRO</div>
+                                    <div class="text-[10px] text-term-green/50">Golden hour atmospheric camera</div>
+                                </div>
+                                <i class="fa-solid fa-play text-term-green/40 group-hover:text-term-green"></i>
+                            </button>
+
+                            <button onclick="zapStream('TOKYO NEON CROSSING — SHIBUYA', 'Screenshot_20260721_201747.png')" class="w-full text-left p-3 border border-term-green/30 bg-term-surface hover:border-term-green rounded text-xs transition flex justify-between items-center group">
+                                <div>
+                                    <div class="font-bold group-hover:text-term-green">02. TOKYO MIDNIGHT</div>
+                                    <div class="text-[10px] text-term-green/50">Urban real-time stream grid</div>
+                                </div>
+                                <i class="fa-solid fa-play text-term-green/40 group-hover:text-term-green"></i>
+                            </button>
+
+                            <button onclick="zapStream('KĪLAUEA VOLCANO — HAWAII OBS', 'Screenshot_20260601_171031.png')" class="w-full text-left p-3 border border-term-green/30 bg-term-surface hover:border-term-green rounded text-xs transition flex justify-between items-center group">
+                                <div>
+                                    <div class="font-bold group-hover:text-term-amber text-term-amber/90">03. KĪLAUEA VOLCANO</div>
+                                    <div class="text-[10px] text-term-amber/60">Geophysical predictive node</div>
+                                </div>
+                                <i class="fa-solid fa-triangle-exclamation text-term-amber"></i>
+                            </button>
+
+                            <button onclick="zapStream('AFRICA SAVANNAH — DUSK RADAR', 'Screenshot_20260702_172620.png')" class="w-full text-left p-3 border border-term-green/30 bg-term-surface hover:border-term-green rounded text-xs transition flex justify-between items-center group">
+                                <div>
+                                    <div class="font-bold group-hover:text-term-green">04. AFRICA HORIZON</div>
+                                    <div class="text-[10px] text-term-green/50">Daylight disappearance tracker</div>
+                                </div>
+                                <i class="fa-solid fa-play text-term-green/40 group-hover:text-term-green"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CARD GRID FEATURE HIGHLIGHTS -->
+            <section class="grid md:grid-cols-3 gap-6 reveal">
+                <!-- Card 1 -->
+                <div class="border border-term-green/30 bg-term-surface p-6 rounded-lg hover:border-term-green transition space-y-3">
+                    <div class="w-10 h-10 rounded border border-term-green bg-term-greenDark/40 flex items-center justify-center text-term-green">
+                        <i class="fa-solid fa-bolt text-lg"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white">LIGHTWEIGHT PURE JS</h3>
+                    <p class="text-xs text-term-green/70 leading-relaxed">
+                        No bulky frameworks, zero heavy npm overhead. Control Tower runs entirely as a minimal single page HTML/JS module for maximum efficiency.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="border border-term-green/30 bg-term-surface p-6 rounded-lg hover:border-term-green transition space-y-3">
+                    <div class="w-10 h-10 rounded border border-term-green bg-term-greenDark/40 flex items-center justify-center text-term-green">
+                        <i class="fa-solid fa-compass text-lg"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white">AZIMUTHAL RADAR</h3>
+                    <p class="text-xs text-term-green/70 leading-relaxed">
+                        Integrated single yellow-needle solar radar to track exact live daylight and solar trajectory across global time zones simultaneously.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="border border-term-green/30 bg-term-surface p-6 rounded-lg hover:border-term-green transition space-y-3">
+                    <div class="w-10 h-10 rounded border border-term-green bg-term-greenDark/40 flex items-center justify-center text-term-green">
+                        <i class="fa-solid fa-eye text-lg"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white">METATRON OVERWATCH</h3>
+                    <p class="text-xs text-term-green/70 leading-relaxed">
+                        Positioned at the highest crown of the BigTree architecture. A total, omnipresent visual perspective on planetary developments.
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE 2: CORE ARCHITECTURE & FEATURES -->
+        <div id="page-architecture" class="page-content space-y-12 hidden">
+            <section class="border border-term-green/30 bg-term-surface p-6 sm:p-8 rounded-lg reveal space-y-6">
+                <div>
+                    <div class="text-xs text-term-green/60 uppercase tracking-widest">// SPECIFICATIONS</div>
+                    <h2 class="text-3xl font-bold text-white">CORE ARCHITECTURE & FEATURES</h2>
+                    <p class="text-xs text-term-green/70 mt-1">Built for speed, clarity, and continuous discovery.</p>
+                </div>
+
+                <!-- Architecture Feature Matrix Cards -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="border border-term-green/30 bg-term-black p-5 rounded space-y-2">
+                        <div class="flex items-center space-x-2 text-term-green font-bold text-sm">
+                            <i class="fa-solid fa-border-all"></i>
+                            <span>LIVE STREAM MATRIX</span>
+                        </div>
+                        <p class="text-xs text-term-green/70 leading-relaxed">
+                            Instant single-click switching between curated global webcams and web-radio feeds. Operates through sanitized iframe/embed integration protocols ensuring ultra-fast switching speed.
+                        </p>
+                    </div>
+
+                    <div class="border border-term-green/30 bg-term-black p-5 rounded space-y-2">
+                        <div class="flex items-center space-x-2 text-term-green font-bold text-sm">
+                            <i class="fa-solid fa-clock"></i>
+                            <span>AZIMUTHAL SOLAR RADAR</span>
+                        </div>
+                        <p class="text-xs text-term-green/70 leading-relaxed">
+                            A minimal precision clock featuring a single solar needle to track live daylight positioning across time zones without extra latitudinal clock clutter.
+                        </p>
+                    </div>
+
+                    <div class="border border-term-green/30 bg-term-black p-5 rounded space-y-2">
+                        <div class="flex items-center space-x-2 text-term-green font-bold text-sm">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>CURATED & COMPLIANT</span>
+                        </div>
+                        <p class="text-xs text-term-green/70 leading-relaxed">
+                            Constantly maintained and updated to provide a legal, conscious, and immersive window into global reality. Non-intrusive and privacy-first design.
+                        </p>
+                    </div>
+
+                    <div class="border border-term-green/30 bg-term-black p-5 rounded space-y-2">
+                        <div class="flex items-center space-x-2 text-term-green font-bold text-sm">
+                            <i class="fa-solid fa-mobile-screen"></i>
+                            <span>CROSS-PLATFORM READINESS</span>
+                        </div>
+                        <p class="text-xs text-term-green/70 leading-relaxed">
+                            Native performance across desktop, mobile, and tablet screens. Automatic viewport adjustments and touch-optimized zapping controls.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- INTERACTIVE SOLAR AZIMUTH WIDGET DEMO -->
+                <div class="border border-term-green/40 bg-term-black p-6 rounded text-center space-y-4">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">// AZIMUTHAL SOLAR RADAR SIMULATOR</h3>
+                    <p class="text-xs text-term-green/60">Live simulation of the single yellow needle solar position indicator.</p>
+                    
+                    <div class="relative w-48 h-48 mx-auto border-2 border-term-green rounded-full flex items-center justify-center bg-term-surface">
+                        <!-- Compass Markers -->
+                        <span class="absolute top-2 text-[10px] text-term-green/60 font-bold">N (0°)</span>
+                        <span class="absolute bottom-2 text-[10px] text-term-green/60 font-bold">S (180°)</span>
+                        <span class="absolute left-2 text-[10px] text-term-green/60 font-bold">W (270°)</span>
+                        <span class="absolute right-2 text-[10px] text-term-green/60 font-bold">E (90°)</span>
+
+                        <!-- Solar Center Dot -->
+                        <div class="w-3 h-3 rounded-full bg-term-amber border border-white z-10"></div>
+
+                        <!-- Needle -->
+                        <div id="azimuthNeedle" class="absolute w-1 h-20 bg-gradient-to-t from-transparent via-term-amber to-yellow-300 rounded origin-bottom bottom-1/2" style="transform: rotate(120deg);"></div>
+                    </div>
+
+                    <div class="flex justify-center space-x-3 text-xs">
+                        <button onclick="rotateNeedle(45)" class="px-3 py-1 border border-term-green hover:bg-term-green hover:text-term-black rounded">SET MORNING (45°)</button>
+                        <button onclick="rotateNeedle(180)" class="px-3 py-1 border border-term-green hover:bg-term-green hover:text-term-black rounded">SET NOON (180°)</button>
+                        <button onclick="rotateNeedle(300)" class="px-3 py-1 border border-term-green hover:bg-term-green hover:text-term-black rounded">SET SUNSET (300°)</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE 3: VERSIONS & ECOSYSTEM -->
+        <div id="page-versions" class="page-content space-y-12 hidden">
+            <section class="border border-term-green/30 bg-term-surface p-6 sm:p-8 rounded-lg reveal space-y-8">
+                <div>
+                    <div class="text-xs text-term-green/60 uppercase tracking-widest">// DEPLOYED EDITIONS</div>
+                    <h2 class="text-3xl font-bold text-white">VERSIONS & ECOSYSTEM</h2>
+                    <p class="text-xs text-term-green/70 mt-1">Select an architecture version to inspect modular capability.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Version 2.0 -->
+                    <div id="v20Card" class="border-2 border-term-green/40 bg-term-black p-6 rounded-lg space-y-4 transition duration-300">
+                        <div class="flex justify-between items-center border-b border-term-green/20 pb-3">
+                            <div>
+                                <span class="text-xs px-2 py-0.5 rounded bg-term-caribbeanGreen text-black font-bold">v2.0</span>
+                                <h3 class="text-xl font-bold text-white mt-1">THE CARIBBEAN CLASSIC</h3>
+                            </div>
+                            <div class="flex space-x-1">
+                                <span class="w-3 h-3 rounded-full bg-term-caribbeanRed inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-term-caribbeanYellow inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-term-caribbeanGreen inline-block"></span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-term-green/80 leading-relaxed">
+                            Bright, iconic, and unyielding. The quintessential version built for pure vibe and instant global observation. Features vert-jaune-rouge styling and immediate streaming with zero initialization delay.
+                        </p>
+                        <ul class="text-xs text-term-green/60 space-y-2 list-disc list-inside">
+                            <li>Instant audio-visual sync</li>
+                            <li>Single yellow solar needle</li>
+                            <li>Ultra-low memory footprint</li>
+                        </ul>
+                        <button onclick="https://bigtreeconnection.com/buhs/RadarClock/Bigtree_WorldCam_Explorer.html" class="w-full py-2 border border-term-caribbeanYellow text-term-caribbeanYellow hover:bg-term-caribbeanYellow hover:text-black font-bold text-xs rounded transition">
+                            PREVIEW V2.0 VIBE MODE
+                        </button>
+                    </div>
+
+                    <!-- Version 2.7 -->
+                    <div id="v27Card" class="border-2 border-term-green bg-term-black p-6 rounded-lg space-y-4 transition duration-300">
+                        <div class="flex justify-between items-center border-b border-term-green/20 pb-3">
+                            <div>
+                                <span class="text-xs px-2 py-0.5 rounded bg-term-green text-black font-bold">v2.7</span>
+                                <h3 class="text-xl font-bold text-white mt-1">DEEP TECH SUITE</h3>
+                            </div>
+                            <span class="text-xs text-term-green font-mono border border-term-green px-2 py-0.5 rounded">MODULAR</span>
+                        </div>
+                        <p class="text-xs text-term-green/80 leading-relaxed">
+                            Upgraded with modular Web3 widgets including real-time crypto tickers, local & global weather intelligence feeds, dynamic live web-chat, and stream telemetry analytics.
+                        </p>
+                        <ul class="text-xs text-term-green/60 space-y-2 list-disc list-inside">
+                            <li>Crypto ticker widget integration</li>
+                            <li>Live global weather telemetry</li>
+                            <li>Decentralized stream chat channel</li>
+                        </ul>
+                        <button onclick="https://bigtreeconnection.com/buhs/RadarClock/CONTROL_TOWER_V2.7.html" class="w-full py-2 bg-term-green text-term-black font-bold text-xs rounded hover:bg-white transition">
+                            LAUNCH V2.7 DEEP TECH
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE 4: REDLINE PROTOCOL & SNAPSHOTS -->
+        <div id="page-redline" class="page-content space-y-12 hidden">
+            <section class="border border-term-green/30 bg-term-surface p-6 sm:p-8 rounded-lg reveal space-y-6">
+                <div>
+                    <div class="text-xs text-term-green/60 uppercase tracking-widest">// CERTIFIED SNAPSHOT REGISTRY</div>
+                    <h2 class="text-3xl font-bold text-white">REDLINE PROTOCOL</h2>
+                    <p class="text-xs text-term-green/70 mt-1">Dual Snapshots Combo: Control-Tower & Smart-Clock verification sync.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Control-Tower Snapshot -->
+                    <div class="border border-term-green/40 bg-term-black p-5 rounded space-y-4">
+                        <div class="flex justify-between items-center text-xs border-b border-term-green/20 pb-2">
+                            <span class="font-bold text-term-green">SNAPSHOT A: CONTROL-TOWER</span>
+                            <span class="text-term-green/50">HASH: 0x8F3...A21</span>
+                        </div>
+                        <div class="h-48 bg-term-surface border border-term-green/20 rounded relative overflow-hidden flex items-center justify-center">
+                            <img src="Screenshot_20260530_011155.png" alt="Control Tower Snapshot" class="w-full h-full object-cover opacity-80">
+                            <div class="absolute inset-0 bg-term-green/10 pointer-events-none"></div>
+                            <span class="absolute bottom-2 left-2 bg-term-black text-[10px] px-2 py-1 rounded text-term-green border border-term-green/30">
+                                MERKLE_ROOT_VERIFIED
+                            </span>
+                        </div>
+                        <p class="text-xs text-term-green/70">
+                            Continuous camera state snapshot captured and timestamped via OpenTimestamps and IPFS registry.
+                        </p>
+                    </div>
+
+                    <!-- Smart-Clock Snapshot -->
+                    <div class="border border-term-green/40 bg-term-black p-5 rounded space-y-4">
+                        <div class="flex justify-between items-center text-xs border-b border-term-green/20 pb-2">
+                            <span class="font-bold text-term-green">SNAPSHOT B: SMART-CLOCK</span>
+                            <span class="text-term-green/50">HASH: 0x7B2...E90</span>
+                        </div>
+                        <div class="h-48 bg-term-surface border border-term-green/20 rounded relative overflow-hidden flex items-center justify-center">
+                            <img src="Screenshot_20260530_021834.png" alt="Smart Clock Snapshot" class="w-full h-full object-cover opacity-80">
+                            <div class="absolute inset-0 bg-term-green/10 pointer-events-none"></div>
+                            <span class="absolute bottom-2 left-2 bg-term-black text-[10px] px-2 py-1 rounded text-term-green border border-term-green/30">
+                                TIME_AZIMUTH_SYNCED
+                            </span>
+                        </div>
+                        <p class="text-xs text-term-green/70">
+                            Dual complementary module clock output matching exact azimuthal solar positioning at time of recording.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE 5: METATRON VISION -->
+        <div id="page-vision" class="page-content space-y-12 hidden">
+            <section class="border border-term-green/30 bg-term-surface p-6 sm:p-8 rounded-lg reveal space-y-6">
+                <div>
+                    <div class="text-xs text-term-green/60 uppercase tracking-widest">// PHILOSOPHY & OVERWATCH</div>
+                    <h2 class="text-3xl font-bold text-white">THE VISION: METATRON OVERWATCH</h2>
+                </div>
+
+                <div class="space-y-4 text-sm text-term-green/80 leading-relaxed max-w-3xl">
+                    <p>
+                        Control Tower is more than a dashboard—it is a perspective shift.
+                    </p>
+                    <p class="text-xs text-term-green/70">
+                        It requires zero complex setup. Plug it in, launch the sound, and let the world stream in. By merging global radio feeds with synchronized planetary visual streams, Control Tower grants you a total, omnipresent view of the Earth.
+                    </p>
+                    
+                    <div class="p-6 border border-term-green bg-term-black rounded-lg text-center space-y-3 my-8">
+                        <div class="text-xl font-bold text-white tracking-widest uppercase">
+                            Turn it on. See everything. Feel the light.
+                        </div>
+                        <p class="text-xs text-term-green/60">
+                            At the top of the BigTree architecture, Metatron Overwatch provides total global synchronicity.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- NEWSLETTER / SUBSCRIBE SECTION -->
+        <section class="border border-term-green/40 bg-term-surface p-6 sm:p-8 rounded-lg reveal space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-envelope-open-text text-term-green"></i>
+                        <span>SUBSCRIBE TO STREAM LOGS & updates</span>
+                    </h3>
+                    <p class="text-xs text-term-green/70 mt-1">Get real-time notification alerts on new camera feeds and seismic updates.</p>
+                </div>
+
+                <form onsubmit="handleSubscribe(event)" class="w-full md:w-auto flex flex-col sm:flex-row gap-2">
+                    <input type="email" id="subEmail" placeholder="operator@bigtree.network" required class="bg-term-black border border-term-green/50 text-term-green text-xs px-4 py-3 rounded focus:outline-none focus:border-term-green min-w-[260px]">
+                    <button type="submit" class="bg-term-green text-term-black font-bold text-xs uppercase px-6 py-3 rounded hover:bg-white transition">
+                        Subscribe
+                    </button>
+                </form>
+            </div>
+            <div id="subSuccessMsg" class="hidden text-xs text-term-green font-bold pt-2">
+                [✓] DISPATCH SUCCESSFUL: Address registered to Redline Log feed.
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-term-green/30 bg-term-black py-6 px-4 mt-16 text-xs">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <!-- Minimal Single Line Footer Info -->
+            <div class="text-term-green/60">
+                © 2026 THE BIGTREE UNIVERSAL CONTROL TOWER // METATRON OVERWATCH
+            </div>
+
+            <!-- Social Links -->
+            <div class="flex items-center space-x-6 text-term-green">
+                <a href="#" class="hover:text-white transition" title="Terminal Network"><i class="fa-brands fa-github text-base"></i></a>
+                <a href="#" class="hover:text-white transition" title="X Protocol"><i class="fa-brands fa-x-twitter text-base"></i></a>
+                <a href="#" class="hover:text-white transition" title="IPFS Portal"><i class="fa-solid fa-cubes text-base"></i></a>
+                <a href="#" class="hover:text-white transition" title="BigTree Radio Feed"><i class="fa-solid fa-radio text-base"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BACK TO TOP BUTTON -->
+    <button id="backToTopBtn" onclick="scrollToTop()" class="fixed bottom-6 right-6 w-10 h-10 border border-term-green bg-term-surface text-term-green rounded flex items-center justify-center opacity-0 pointer-events-none transition duration-300 hover:bg-term-green hover:text-term-black z-40">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- JAVASCRIPT ARCHITECTURE CONTROLLER -->
+    <script>
+        // System Clock UTC Simulation
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toUTCString().split(' ')[4] + ' UTC';
+            document.getElementById('clockUTC').textContent = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Theme Toggle (Dark / Light)
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                themeIcon.className = 'fa-solid fa-sun text-yellow-600';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fa-solid fa-moon text-term-green';
+            }
+        }
+
+        // Hamburger Menu Toggle
+        let menuOpen = false;
+        function toggleMenu() {
+            const menu = document.getElementById('fullMenu');
+            const menuIcon = document.getElementById('menuIcon');
+            menuOpen = !menuOpen;
+            if (menuOpen) {
+                menu.classList.remove('hidden');
+                menuIcon.className = 'fa-solid fa-xmark text-xl';
+            } else {
+                menu.classList.add('hidden');
+                menuIcon.className = 'fa-solid fa-bars text-xl';
+            }
+        }
+
+        // Multi-page Router Switcher
+        function switchPage(pageId) {
+            // Close menu if open
+            if (menuOpen) toggleMenu();
+
+            // Hide all pages
+            const pages = document.querySelectorAll('.page-content');
+            pages.forEach(page => page.classList.add('hidden'));
+
+            // Show selected page
+            const targetPage = document.getElementById('page-' + pageId);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Trigger scroll reveal re-check
+            handleScrollReveal();
+        }
+
+        // Hero Slide Carousel Logic
+        let currentSlide = 0;
+        const totalSlides = 3;
+
+        function showSlide(index) {
+            currentSlide = (index + totalSlides) % totalSlides;
+            for (let i = 0; i < totalSlides; i++) {
+                const slide = document.getElementById(`slide-${i}`);
+                if (i === currentSlide) {
+                    slide.classList.remove('hidden');
+                } else {
+                    slide.classList.add('hidden');
+                }
+            }
+            document.getElementById('carouselCurrentNum').textContent = currentSlide + 1;
+
+            // Update Dot Indicators
+            const dots = document.querySelectorAll('.carousel-dot');
+            dots.forEach((dot, idx) => {
+                if (idx === currentSlide) {
+                    dot.classList.remove('bg-term-green/30');
+                    dot.classList.add('bg-term-green');
+                } else {
+                    dot.classList.remove('bg-term-green');
+                    dot.classList.add('bg-term-green/30');
+                }
+            });
+        }
+
+        function nextSlide() { showSlide(currentSlide + 1); }
+        function prevSlide() { showSlide(currentSlide - 1); }
+        function setSlide(index) { showSlide(index); }
+
+        // Auto Advance Slide Carousel
+        setInterval(nextSlide, 7000);
+
+        // Interactive Live Stream Zapper
+        function zapStream(name, imgUrl) {
+            document.getElementById('streamLabel').textContent = name;
+            document.getElementById('streamImage').src = imgUrl;
+        }
+
+        // Radio Audio Toggle Simulation
+        let isRadioPlaying = false;
+        function toggleRadio() {
+            const btn = document.getElementById('radioToggleBtn');
+            isRadioPlaying = !isRadioPlaying;
+            if (isRadioPlaying) {
+                btn.textContent = 'PAUSE AUDIO';
+                btn.className = 'text-xs border border-term-green px-2 py-1 bg-term-green text-term-black font-bold transition';
+            } else {
+                btn.textContent = 'PLAY AUDIO';
+                btn.className = 'text-xs border border-term-green px-2 py-1 bg-term-greenDark hover:bg-term-green hover:text-term-black transition';
+            }
+        }
+
+        // Solar Azimuth Needle Rotation
+        function rotateNeedle(deg) {
+            const needle = document.getElementById('azimuthNeedle');
+            if (needle) {
+                needle.style.transform = `rotate(${deg}deg)`;
+            }
+        }
+
+        // Caribbean Style Preview Toggle for v2.0
+        function activateCaribbeanStyle() {
+            const card = document.getElementById('v20Card');
+            card.classList.toggle('caribbean-mode');
+            alert("v2.0 Caribbean Vert-Jaune-Rouge mode activated for viewport testing.");
+        }
+
+        // Scroll Reveal Animations & Back-To-Top Button
+        function handleScrollReveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            const windowHeight = window.innerHeight;
+
+            reveals.forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                const elementVisible = 100;
+                if (elementTop < windowHeight - elementVisible) {
+                    el.classList.add('active');
+                }
+            });
+
+            // Back to top button visibility
+            const btt = document.getElementById('backToTopBtn');
+            if (window.scrollY > 300) {
+                btt.classList.remove('opacity-0', 'pointer-events-none');
+                btt.classList.add('opacity-100');
+            } else {
+                btt.classList.add('opacity-0', 'pointer-events-none');
+                btt.classList.remove('opacity-100');
+            }
+        }
+
+        window.addEventListener('scroll', handleScrollReveal);
+        window.addEventListener('load', handleScrollReveal);
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Subscription Form Handler
+        function handleSubscribe(e) {
+            e.preventDefault();
+            document.getElementById('subSuccessMsg').classList.remove('hidden');
+            document.getElementById('subEmail').value = '';
+        }
+    </script>
+</body>
+</html>
