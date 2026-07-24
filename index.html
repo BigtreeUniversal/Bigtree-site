@@ -4,30 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Titre SEO structuré pour cibler la marque et l'accroche -->
+    <!-- Titre clair et complet pour les moteurs de recherche -->
     <title>BIGTREE CONNECTION | Merging Music • Literature • Arts • Innovation</title>
     
-    <!-- Meta Description optimisée -->
-    <meta name="description" content="BIGTREE CONNECTION - Merging Music, Literature, Arts & Innovation. Découvez l'univers officiel BigTree Connection / Connexion.">
-    <meta name="keywords" content="Bigtree Connection, oliver bigtree, Big Tree Connection, Big Tree Connexion, Bigtree, Big tree, Reggae, Littérature, Arts et Innovation,">
+    <!-- Meta Description canonique -->
+    <meta name="description" content="BIGTREE CONNECTION - Portail officiel. Merging Music, Literature, Arts & Innovation. Découvrez l'univers Big Tree Connection / Connexion.">
     <meta name="robots" content="index, follow">
 
-    <!-- Canonical URL -->
+    <!-- Signalement de l'URL principale -->
     <link rel="canonical" href="https://bigtreeconnection.com/">
 
-    <!-- Open Graph (Partage Réseaux / WhatsApp) -->
-    <meta property="og:title" content="BIGTREE CONNECTION | Merging Music • Literature • Arts • Innovation">
-    <meta property="og:description" content="Découvrez le portail officiel BIGTREE CONNECTION : Musique, Littérature, Arts et Innovation.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://bigtreeconnection.com/">
-
-    <!-- Structured Data JSON-LD pour Google (Marque & Noms alternatifs) -->
+    <!-- Données structurées pour que Google associe toutes les variantes de nom -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "BIGTREE CONNECTION",
-      "alternateName": ["BigTree Connection", "Big Tree Connection", "Big Tree Connexion", "BigTree"],
+      "alternateName": ["BigTree Connection", "Big Tree Connection", "Big Tree Connexion", "BigTree, Oliver Bigtree"],
       "url": "https://bigtreeconnection.com/",
       "description": "Merging Music, Literature, Arts & Innovation"
     }
@@ -53,6 +46,8 @@
             position: relative;
             padding: 20px;
             max-width: 900px;
+            text-decoration: none;
+            color: inherit;
         }
 
         h1.logo-animation {
@@ -66,7 +61,6 @@
             color: #ffffff;
         }
 
-        /* Hook SEO & Tagline visible sous le titre */
         .seo-tagline {
             font-family: sans-serif;
             font-size: clamp(0.75rem, 2vw, 1rem);
@@ -78,13 +72,28 @@
             animation: fadeInTagline 2s 1.5s forwards ease-in-out;
         }
 
-        /* Ligne discrète Vert, Jaune, Rouge */
         .line-container {
             width: 0;
             height: 1px;
             margin: 25px auto;
             background: linear-gradient(to right, #2ecc71, #f1c40f, #e74c3c);
             animation: growLine 2s 1s forwards cubic-bezier(0.42, 0, 0.58, 1);
+        }
+
+        .enter-btn {
+            margin-top: 30px;
+            font-family: sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 5px;
+            color: #888;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: fadeInBtn 1s 2.5s forwards;
+            transition: color 0.3s;
+        }
+
+        .intro-container:hover .enter-btn {
+            color: #fff;
         }
 
         @keyframes fadeIn {
@@ -101,36 +110,24 @@
             to { width: 100%; }
         }
 
-        .enter-btn {
-            margin-top: 30px;
-            font-family: sans-serif;
-            font-size: 0.75rem;
-            letter-spacing: 5px;
-            color: #666;
-            text-transform: uppercase;
-            opacity: 0;
-            animation: fadeInBtn 1s 2.5s forwards;
-            transition: color 0.3s;
-        }
-
-        .intro-container:hover .enter-btn {
-            color: #fff;
-        }
-
         @keyframes fadeInBtn { to { opacity: 1; } }
     </style>
-    
-    <!-- Redirection automatique après 5s -->
-    <meta http-equiv="refresh" content="5;url=https://bigtreeconnection.com/home/index.html">
+
+    <!-- Redirection JS fluide au lieu du meta-refresh brut qui brouille Google -->
+    <script>
+        setTimeout(function() {
+            window.location.href = "./home/index.html";
+        }, 5000); // Redirige après 5 secondes
+    </script>
 </head>
 <body>
 
-    <main class="intro-container" onclick="window.location.href='/home/index.html'">
+    <a href="./home/index.html" class="intro-container">
         <h1 class="logo-animation">BIGTREE CONNECTION</h1>
         <p class="seo-tagline">Merging Music • Literature • Arts • Innovation</p>
         <div class="line-container"></div>
         <div class="enter-btn">Enter the portal</div>
-    </main>
+    </a>
 
 </body>
 </html>
