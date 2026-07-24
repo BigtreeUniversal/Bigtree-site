@@ -3,8 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WELCOME TO THE BIGTREE PORTAL</title>
-    <meta name="description" content="Littérature, Science & Musique.">
+    
+    <!-- Titre SEO structuré pour cibler la marque et l'accroche -->
+    <title>BIGTREE CONNECTION | Merging Music • Literature • Arts • Innovation</title>
+    
+    <!-- Meta Description optimisée -->
+    <meta name="description" content="BIGTREE CONNECTION - Merging Music, Literature, Arts & Innovation. Découvez l'univers officiel BigTree Connection / Connexion.">
+    <meta name="keywords" content="Bigtree Connection, oliver bigtree, Big Tree Connection, Big Tree Connexion, Bigtree, Big tree, Reggae, Littérature, Arts et Innovation,">
+    <meta name="robots" content="index, follow">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://bigtreeconnection.com/">
+
+    <!-- Open Graph (Partage Réseaux / WhatsApp) -->
+    <meta property="og:title" content="BIGTREE CONNECTION | Merging Music • Literature • Arts • Innovation">
+    <meta property="og:description" content="Découvrez le portail officiel BIGTREE CONNECTION : Musique, Littérature, Arts et Innovation.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bigtreeconnection.com/">
+
+    <!-- Structured Data JSON-LD pour Google (Marque & Noms alternatifs) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "BIGTREE CONNECTION",
+      "alternateName": ["BigTree Connection", "Big Tree Connection", "Big Tree Connexion", "BigTree"],
+      "url": "https://bigtreeconnection.com/",
+      "description": "Merging Music, Literature, Arts & Innovation"
+    }
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -23,30 +51,50 @@
             text-align: center;
             cursor: pointer;
             position: relative;
+            padding: 20px;
+            max-width: 900px;
         }
 
-        .logo-animation {
-            font-size: clamp(3rem, 10vw, 6rem);
-            letter-spacing: 20px;
+        h1.logo-animation {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            letter-spacing: 15px;
             text-transform: uppercase;
             font-weight: 400;
+            margin: 0;
             opacity: 0;
             animation: fadeIn 3s forwards ease-in-out;
             color: #ffffff;
+        }
+
+        /* Hook SEO & Tagline visible sous le titre */
+        .seo-tagline {
+            font-family: sans-serif;
+            font-size: clamp(0.75rem, 2vw, 1rem);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #ccc;
+            margin-top: 15px;
+            opacity: 0;
+            animation: fadeInTagline 2s 1.5s forwards ease-in-out;
         }
 
         /* Ligne discrète Vert, Jaune, Rouge */
         .line-container {
             width: 0;
             height: 1px;
-            margin: 20px auto;
+            margin: 25px auto;
             background: linear-gradient(to right, #2ecc71, #f1c40f, #e74c3c);
             animation: growLine 2s 1s forwards cubic-bezier(0.42, 0, 0.58, 1);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; letter-spacing: 40px; }
-            to { opacity: 1; letter-spacing: 20px; }
+            from { opacity: 0; letter-spacing: 35px; }
+            to { opacity: 1; letter-spacing: 15px; }
+        }
+
+        @keyframes fadeInTagline {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes growLine {
@@ -54,11 +102,11 @@
         }
 
         .enter-btn {
-            margin-top: 40px;
+            margin-top: 30px;
             font-family: sans-serif;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             letter-spacing: 5px;
-            color: #444;
+            color: #666;
             text-transform: uppercase;
             opacity: 0;
             animation: fadeInBtn 1s 2.5s forwards;
@@ -71,15 +119,18 @@
 
         @keyframes fadeInBtn { to { opacity: 1; } }
     </style>
-    <meta http-equiv="refresh" content="4;url=https://bigtreeconnection.com/home/index.html">
+    
+    <!-- Redirection automatique après 5s -->
+    <meta http-equiv="refresh" content="5;url=https://bigtreeconnection.com/home/index.html">
 </head>
 <body>
 
-    <div class="intro-container" onclick="window.location.href='/home/index.html'">
-        <div class="logo-animation">BigTree</div>
+    <main class="intro-container" onclick="window.location.href='/home/index.html'">
+        <h1 class="logo-animation">BIGTREE CONNECTION</h1>
+        <p class="seo-tagline">Merging Music • Literature • Arts • Innovation</p>
         <div class="line-container"></div>
         <div class="enter-btn">Enter the portal</div>
-    </div>
+    </main>
 
 </body>
 </html>
