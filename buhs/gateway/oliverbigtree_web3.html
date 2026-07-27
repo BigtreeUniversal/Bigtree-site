@@ -501,6 +501,17 @@
       }
     }
 
+    /**
+ * DÉFINIR LE CHEMIN DE L'IMAGE AVATAR
+ * @param {string} imagePath - Le chemin vers l'image (ex: 'images/mon_avatar.png' ou 'https://site.com/image.jpg')
+ */
+function setAvatarPath(imagePath) {
+  const avatarImg = document.getElementById('https://bigtreeconnection/home/logo.webp');
+  if (avatarImg) {
+    avatarImg.src = imagePath;
+  }
+}
+
     // Gestion de l'erreur d'image d'avatar
     function handleAvatarError(img) {
       // Fallback SVG avec lettre 'B' stylisée vert/noir si aucune image ne charge
