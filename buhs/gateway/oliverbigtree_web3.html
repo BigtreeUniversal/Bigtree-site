@@ -144,7 +144,6 @@
       align-items: center;
     }
 
-    /* Correctif & Stylisation de l'Avatar */
     .ens-avatar-wrapper {
       position: relative;
       width: 72px;
@@ -179,7 +178,6 @@
       margin-bottom: 24px;
     }
 
-    /* Boutons Terminal Stylisés */
     .term-btn {
       background: #000;
       color: var(--accent-green);
@@ -201,14 +199,8 @@
       overflow: hidden;
     }
 
-    .term-btn::before {
-      content: "[ ";
-      color: var(--accent-green-dim);
-    }
-    .term-btn::after {
-      content: " ]";
-      color: var(--accent-green-dim);
-    }
+    .term-btn::before { content: "[ "; color: var(--accent-green-dim); }
+    .term-btn::after { content: " ]"; color: var(--accent-green-dim); }
 
     .term-btn:hover {
       background: var(--accent-green);
@@ -216,9 +208,7 @@
       box-shadow: 0 0 15px rgba(0, 255, 102, 0.6);
       transform: translateY(-2px);
     }
-    .term-btn:hover::before, .term-btn:hover::after {
-      color: #000;
-    }
+    .term-btn:hover::before, .term-btn:hover::after { color: #000; }
 
     /* Module IPFS */
     .search-section {
@@ -280,7 +270,7 @@
       box-shadow: 0 0 12px rgba(255, 183, 3, 0.5);
     }
 
-    /* ZONE DE TEXTE CONSOLE EN DESSOUS (NOUVEAU) */
+    /* Zone console */
     .console-box {
       background: #020502;
       border: 1px solid var(--border-color);
@@ -307,9 +297,7 @@
       margin-bottom: 8px;
     }
 
-    .console-line {
-      margin: 3px 0;
-    }
+    .console-line { margin: 3px 0; }
 
     .cursor {
       display: inline-block;
@@ -325,7 +313,7 @@
       50% { opacity: 0; }
     }
 
-    /* SECTION DES BOUTONS LIENS ORIGINAUX EN BAS (NOUVEAU) */
+    /* Boutons bas de page */
     .extra-links-section {
       border-top: 1px dashed var(--border-color);
       padding-top: 16px;
@@ -381,7 +369,7 @@
 
   <div class="terminal-container">
     
-    <!-- Barre Supérieure Rétro Terminal -->
+    <!-- En-tête -->
     <div class="terminal-bar">
       <div class="terminal-dots">
         <div class="dot dot-red"></div>
@@ -404,7 +392,7 @@
       </div>
     </div>
 
-    <!-- ENS Profile Dashboard Component -->
+    <!-- ENS Profile Section -->
     <div class="ens-section">
       <div class="ens-header">
         <span class="ens-name">&gt; IDENTITY: oliverbigtree.base.eth</span>
@@ -416,9 +404,12 @@
       
       <div class="ens-grid">
         <div class="ens-avatar-wrapper">
-          <!-- Image Avatar corrigée avec fallback onerror si lien brisé -->
-          <img id="ensAvatar" class="ens-avatar" 
-               src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/in-use/symbol/Base_Symbol_Blue.svg" 
+          <!-- ================================================================= -->
+          <!-- MODIFIEZ L'EMPLACEMENT CI-DESSOUS (remplacez images/votre-photo.png) -->
+          <!-- ================================================================= -->
+          <img id="ensAvatar" 
+               class="ens-avatar" 
+               src="https://bigtreeconnection.com/home/logo.webp"
                onerror="handleAvatarError(this)" 
                alt="Avatar Base / ENS" />
         </div>
@@ -430,7 +421,7 @@
       </div>
     </div>
 
-    <!-- Raccourcis Boutons Prinicpaux -->
+    <!-- Boutons -->
     <div class="btn-grid">
       <a href="https://app.ens.domains/oliverbigtree.base.eth" target="_blank" class="term-btn">ENS NAME</a>
       <a href="https://paragraph.com/@bigtree.buhs" target="_blank" class="term-btn">ARTICLES.XYZ</a>
@@ -440,7 +431,7 @@
       <a href="https://bigtreeconnection.com/portailmusique/oliverbigtree/Bigtree_links.html" target="_blank" class="term-btn">SOCIAL LINKS</a>
     </div>
 
-    <!-- Module de recherche IPFS -->
+    <!-- IPFS -->
     <div class="search-section">
       <div class="search-title">&gt; RESOLVE IPFS / IPNS CONTENT (CID LOOKUP):</div>
       <div class="search-box">
@@ -456,7 +447,7 @@
       </div>
     </div>
 
-    <!-- ZONE DE TEXTE EN DESSOUS (SYSTEM CONSOLE & METRICS) -->
+    <!-- Console -->
     <div class="console-box">
       <div class="console-title">
         <span>&gt;_ SYSTEM LOGS & TELEMETRY</span>
@@ -474,7 +465,7 @@
       </div>
     </div>
 
-    <!-- BOUTONS LIENS ORIGINAUX EN BAS DE PAGE -->
+    <!-- Liens bas de page -->
     <div class="extra-links-section">
       <div class="section-label">&gt; EXTERNAL PROTOCOLS & MATRIX LINKS:</div>
       <div class="special-btn-grid">
@@ -483,7 +474,7 @@
         <a href="https://uniswap.org/" target="_blank" class="special-btn">🦄 UNISWAP DEX</a>
         <a href="https://etherscan.io/" target="_blank" class="special-btn">💎 ETHERSCAN</a>
         <a href="https://zora.co/" target="_blank" class="special-btn purple">🎨 ZORA PROTOCOL</a>
-
+        <a href="https://mirror.xyz/" target="_blank" class="special-btn">✍️ MIRROR BLOG</a>
       </div>
     </div>
 
@@ -501,37 +492,24 @@
       }
     }
 
-    /**
- * DÉFINIR LE CHEMIN DE L'IMAGE AVATAR
- * @param {string} imagePath - Le chemin vers l'image (ex: 'images/mon_avatar.png' ou 'https://site.com/image.jpg')
- */
-function setAvatarPath(imagePath) {
-  const avatarImg = document.getElementById('https://bigtreeconnection/home/logo.webp');
-  if (avatarImg) {
-    avatarImg.src = imagePath;
-  }
-}
-
-    // Gestion de l'erreur d'image d'avatar
+    // Image de secours en cas d'erreur sur l'image fournie
     function handleAvatarError(img) {
-      // Fallback SVG avec lettre 'B' stylisée vert/noir si aucune image ne charge
+      img.onerror = null;
       img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="%23050e14"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="monospace" font-size="28" font-weight="bold" fill="%2300ff66">B</text></svg>';
     }
 
-    // Interrogation automatique de la blockchain pour oliverbigtree.base.eth
     async function resolveBasename() {
       const ensName = "oliverbigtree.base.eth";
       const addressEl = document.getElementById('ensAddress');
       
       try {
-        const response = await fetch(`https://api.basescan.org/api?module=account&action=balance&address=oliverbigtree.base.eth`);
+        await fetch(`https://api.basescan.org/api?module=account&action=balance&address=oliverbigtree.base.eth`);
         addressEl.innerHTML = `<a href="https://basescan.org/address/${ensName}" target="_blank" style="color: var(--accent-green); text-decoration: underline;">oliverbigtree.base.eth ↗</a>`;
       } catch (err) {
         addressEl.innerText = "oliverbigtree.base.eth (Résolution active)";
       }
     }
 
-    // Journal d'activité interactif
     function logConsole(msg) {
       const logs = document.getElementById('consoleLogs');
       const line = document.createElement('div');
@@ -542,12 +520,9 @@ function setAvatarPath(imagePath) {
       logs.scrollTop = logs.scrollHeight;
     }
 
-    // Mise à jour de l'horloge système et télémétrie
     function updateMetrics() {
       const now = new Date();
       document.getElementById('liveClock').innerText = now.toUTCString().split(' ')[4] + ' UTC';
-      
-      // Simulation ping variable
       const randomPing = Math.floor(Math.random() * 12) + 18;
       document.getElementById('pingVal').innerText = randomPing + 'ms';
     }
@@ -555,9 +530,6 @@ function setAvatarPath(imagePath) {
     document.addEventListener("DOMContentLoaded", () => {
       resolveBasename();
       setInterval(updateMetrics, 1000);
-      
-      // Petit message dynamique dans le terminal après chargement
-      setTimeout(() => logConsole("[SYS] All node connections verified."), 1200);
     });
   </script>
 </body>
