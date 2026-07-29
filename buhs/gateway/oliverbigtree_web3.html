@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BIGTREE CONNECTION // ENS & IPFS TERMINAL v2.0</title>
+  <title>BIGTREE CONNECTION // ENS & IPFS TERMINAL v2.1</title>
   <style>
     :root {
       --bg-color: #030703;
@@ -270,6 +270,95 @@
       box-shadow: 0 0 12px rgba(255, 183, 3, 0.5);
     }
 
+    /* Nouveau Module Journal IPFS */
+    .journal-section {
+      background: #000;
+      padding: 16px;
+      border-radius: 4px;
+      border: 1px solid var(--accent-green);
+      box-shadow: inset 0 0 10px rgba(0, 255, 102, 0.05);
+      margin-bottom: 24px;
+    }
+
+    .journal-title {
+      font-size: 0.9rem;
+      color: var(--accent-green);
+      font-weight: bold;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .journal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .journal-entry {
+      background: #040a04;
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-green);
+      padding: 10px 12px;
+      border-radius: 3px;
+    }
+
+    .journal-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--accent-amber);
+      margin-bottom: 6px;
+    }
+
+    .journal-text {
+      font-size: 0.83rem;
+      color: var(--text-main);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .journal-cid-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #000;
+      padding: 4px 8px;
+      border-radius: 3px;
+      border: 1px solid #112211;
+      font-size: 0.75rem;
+    }
+
+    .cid-text {
+      color: var(--accent-blue);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--accent-green-dim);
+      color: var(--accent-green);
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      border-radius: 2px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .action-btn:hover {
+      background: var(--accent-green);
+      color: #000;
+    }
+
     /* Zone console */
     .console-box {
       background: #020502;
@@ -377,7 +466,7 @@
         <div class="dot dot-green"></div>
       </div>
       <div class="header-title">&gt;_ BIGTREE CONNECTION // GATEWAY TERMINAL</div>
-      <span style="font-size: 0.75rem; color: #555;">v2.0.4</span>
+      <span style="font-size: 0.75rem; color: #555;">v2.1.0</span>
     </div>
 
     <!-- Status Bar -->
@@ -404,9 +493,6 @@
       
       <div class="ens-grid">
         <div class="ens-avatar-wrapper">
-          <!-- ================================================================= -->
-          <!-- MODIFIEZ L'EMPLACEMENT CI-DESSOUS (remplacez images/votre-photo.png) -->
-          <!-- ================================================================= -->
           <img id="ensAvatar" 
                class="ens-avatar" 
                src="https://bigtreeconnection.com/home/logo.webp"
@@ -433,14 +519,14 @@
       <a href="https://bigtreeconnection.com/portailmusique/oliverbigtree/Bigtree_links.html" target="_blank" class="term-btn">SOCIAL LINKS</a>
     </div>
 
-    <!-- IPFS -->
+    <!-- IPFS Resolver -->
     <div class="search-section">
       <div class="search-title">&gt; RESOLVE IPFS / IPNS CONTENT (CID LOOKUP):</div>
       <div class="search-box">
         <select id="gateway">
+          <option value="https://odd-brown-pike.myfilebase.com/ipfs/">Filebase</option>
           <option value="https://ipfs.io/ipfs/">ipfs.io</option>
           <option value="https://dweb.link/ipfs/">dweb.link</option>
-          <option value="https://odd-brown-pike.myfilebase.com/ipfs/">Filebase</option>
           <option value="https://gateway.pinata.cloud/ipfs/">Pinata</option>
         </select>
         <input type="text" id="cidInput" placeholder="Saisir CID (ex: QmXo... ou bafy...)">
@@ -448,7 +534,18 @@
       </div>
     </div>
 
-    <!-- Console -->
+    <!-- MODULE JOURNAL IPFS / PARUTIONS -->
+    <div class="journal-section">
+      <div class="journal-title">
+        <span>&gt;_ DAILY LOGS & PROOFS OF PREDICTION</span>
+        <span style="font-size: 0.72rem; color: var(--accent-amber);">IPFS ANCHORED</span>
+      </div>
+      <div class="journal-list" id="journalList">
+        <!-- Généré dynamiquement en JS -->
+      </div>
+    </div>
+
+    <!-- Console Logs -->
     <div class="console-box">
       <div class="console-title">
         <span>&gt;_ SYSTEM LOGS & TELEMETRY</span>
@@ -475,25 +572,92 @@
         <a href="https://uniswap.org/" target="_blank" class="special-btn">🦄 UNISWAP DEX</a>
         <a href="https://etherscan.io/" target="_blank" class="special-btn">💎 ETHERSCAN</a>
         <a href="https://zora.co/" target="_blank" class="special-btn purple">🎨 ZORA PROTOCOL</a>
-        
       </div>
     </div>
 
   </div>
 
   <script>
+    // --- DONNÉES DU JOURNAL IPFS (À mettre à jour selon tes parutions) ---
+    const journalData = [
+  {
+    date: "2026-07-29 08:30 UTC",
+    title: "🌋 PREDICTION: Éruption Volcan Hawaii",
+    summary: "Signaux sismiques détectés et horodatés sur Blockchain BUHS et pin sur Filebase avant hier publication officielle",
+    cids: [
+      { label: "Prediction", cid: "QmXb6r4n9AKPg3dRBeKJ5nS9Xub1FHVWZ7HFqzLByGRdXz" },
+      { label: "Stamp Proof", cid: "QmV5SK4EChAmH4KzwpNmf9cdhBJ3o6s1v4jp2Y82aCMXoB" },
+      { label: "Metatron View", cid: "QmXQvH7broPK6ARug8wRrhpKTNWdpLZrFTzDQeRhRQV3A2" }
+    ]
+  }
+];
+
+    function renderJournal() {
+  const container = document.getElementById('journalList');
+  container.innerHTML = '';
+
+  journalData.forEach(entry => {
+    const item = document.createElement('div');
+    item.className = 'journal-entry';
+
+    // Génération des lignes de CIDs multiples
+    let cidsHtml = '';
+    entry.cids.forEach(itemCid => {
+      cidsHtml += `
+        <div class="journal-cid-box" style="margin-top: 5px;">
+          <span style="color: var(--accent-amber); font-weight: bold; min-width: 110px;">[${itemCid.label}]</span>
+          <span class="cid-text">${itemCid.cid}</span>
+          <button class="action-btn" onclick="copyCid('${itemCid.cid}', this)">COPIER</button>
+          <button class="action-btn" onclick="quickResolve('${itemCid.cid}')">OUVRIR ↗</button>
+        </div>
+      `;
+    });
+
+    item.innerHTML = `
+      <div class="journal-meta">
+        <span>[DATE: ${entry.date}]</span>
+        <span style="color: var(--accent-green); font-weight: bold;">${entry.title}</span>
+      </div>
+      <div class="journal-text">${entry.summary}</div>
+      ${cidsHtml}
+    `;
+
+    container.appendChild(item);
+  });
+}
+
+    function copyCid(cid, btnEl) {
+      navigator.clipboard.writeText(cid).then(() => {
+        const originalText = btnEl.innerText;
+        btnEl.innerText = 'COPIÉ !';
+        btnEl.style.borderColor = 'var(--accent-amber)';
+        btnEl.style.color = 'var(--accent-amber)';
+        logConsole(`CID copié : ${cid.substring(0, 12)}...`);
+        setTimeout(() => {
+          btnEl.innerText = originalText;
+          btnEl.style.borderColor = '';
+          btnEl.style.color = '';
+        }, 2000);
+      });
+    }
+
+    function quickResolve(cid) {
+      const gateway = document.getElementById('gateway').value;
+      logConsole(`Quick resolve vers : ${cid.substring(0, 10)}...`);
+      window.open(gateway + cid, '_blank');
+    }
+
     function openIpfs() {
       const cid = document.getElementById('cidInput').value.trim();
       const gateway = document.getElementById('gateway').value;
       if (cid) {
-        logConsole(`Navigating to CID: ${cid.substring(0, 10)}...`);
+        logConsole(`Navigation vers CID : ${cid.substring(0, 10)}...`);
         window.open(gateway + cid, '_blank');
       } else {
         alert("Veuillez entrer un CID IPFS valide.");
       }
     }
 
-    // Image de secours en cas d'erreur sur l'image fournie
     function handleAvatarError(img) {
       img.onerror = null;
       img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="%23050e14"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="monospace" font-size="28" font-weight="bold" fill="%2300ff66">B</text></svg>';
@@ -530,6 +694,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       resolveBasename();
+      renderJournal();
       setInterval(updateMetrics, 1000);
     });
   </script>
