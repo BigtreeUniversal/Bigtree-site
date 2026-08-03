@@ -73,7 +73,7 @@ To prove the prior existence of your document in the future, you must retain:
   and Bitcoin blockchain timestamping via OpenTimestamps (OTS):
   👉 Access Advanced Audit & Smart Contract Services:
 
-     https://xylem.bigtreeconnection.com/official_log.html
+     https://xylem.bigtreeconnection.com/verif_protocol/audit_console.html
 
 
 --------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ https://buhs-time-stamper.netlify.app/pipeline.html
 
 AUDIT
 
-https://xylem.bigtreeconnection.com/verify.html
+https://xylem.bigtreeconnection.com/verif_protocol/audit_console.html
 
 ---------------------------------------------------------------------------------
 
