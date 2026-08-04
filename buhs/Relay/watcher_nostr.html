@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Oracle Audit Gate - Nostr Watcher</title>
+    <style>
+        body { background: #0d1117; color: #c9d1d9; font-family: monospace; padding: 20px; }
+        .gate-card { border: 1px solid #30363d; border-radius: 8px; padding: 20px; background: #161b22; max-width: 800px; margin: auto; }
+        .status { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+        .live { background: #238636; color: white; }
+        .waiting { background: #d29922; color: black; }
+        pre { background: #0d1117; padding: 15px; border-radius: 6px; overflow-x: auto; color: #7ee787; border: 1px solid #30363d; }
+        .highlight { color: #58a6ff; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="gate-card">
+    <h2>[ ORACLE_AUDIT_GATE // NOSTR_WATCHER ]</h2>
+    <p>Statut du Watcher: <span id="status" class="status waiting">Connexion au Relai...</span></p>
+    
+    <hr style="border-color: #30363d;">
+
+    <h3>Dernier Event ID Capturé :</h3>
+    <p id="event-id" class="highlight">En attente d'un événement...</p>
+
+    <h3>Payload Décodé (OTS / CID IPFS) :</h3>
+    <pre id="payload">// Le contenu de la note Nostr apparaîtra ici dès détection...</pre>
+</div>
+
+<script>
+    // Configuration de l'Oracle
+    const TARGET_PUBKEY = "e86de0991b2a8b77ee542df3861136fd75b8898e5ad09e27b5a655fc"; // Hex d'Oliver Bigtree
+    const RELAYS = ["wss://relay.damus.io", "wss://nos.lol"];
+
+    let ws = null;
+
+    function initNostrGate() {
+        const statusEl = document.getElementById("status");
+        const eventIdEl = document.getElementById("event-id");
+        const payloadEl = document.getElementById("payload");
+
+        // Connexion au premier relai Nostr
+        ws = new WebSocket(RELAYS[0]);
+
+        ws.onopen = () => {
+            statusEl.textContent = "EN ÉCOUTE (LIVE)";
+            statusEl.className = "status live";
+
+            // Envoi de la souscription Nostr (REQ)
+            // Filtre : Uniquement les notes (kind 1) signées par Oliver Bigtree
+            const reqMessage = JSON.stringify([
+                "REQ",
+                "oracle_gate_subscription",
+                {
+                    authors: [TARGET_PUBKEY],
+                    kinds: [1],
+                    limit: 1 // Récupère le tout dernier événement et écoute les suivants
+                }
+            ]);
+            ws.send(reqMessage);
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            // Structure d'un message Nostr reçu: ["EVENT", subscription_id, event_object]
+            if (data[0] === "EVENT" && data[2]) {
+                const nostrEvent = data[2];
+
+                // Mise à jour instantanée de l'interface Gate
+                eventIdEl.textContent = nostrEvent.id;
+                
+                try {
+                    // Tente de formater le JSON s'il est sous forme d'objet dans la note
+                    const parsedContent = JSON.parse(nostrEvent.content);
+                    payloadEl.textContent = JSON.stringify(parsedContent, null, 2);
+                } catch(e) {
+                    // Sinon affiche le texte brut
+                    payloadEl.textContent = nostrEvent.content;
+                }
+            }
+        };
+
+        ws.onerror = (err) => {
+            statusEl.textContent = "ERREUR DE CONNEXION";
+            statusEl.className = "status waiting";
+        };
+
+        ws.onclose = () => {
+            statusEl.textContent = "DÉCONNECTÉ - TENTATIVE RECONNEXION...";
+            statusEl.className = "status waiting";
+            setTimeout(initNostrGate, 3000); // Reconnexion automatique
+        };
+    }
+
+    // Démarrage automatique au chargement du fichier HTML
+    window.addEventListener("DOMContentLoaded", initNostrGate);
+</script>
+
+</body>
+</html>
