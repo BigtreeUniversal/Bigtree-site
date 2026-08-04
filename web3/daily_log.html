@@ -510,14 +510,18 @@
     <!-- Boutons -->
     <div class="btn-grid">
       <a href="https://app.ens.domains/oliverbigtree.base.eth" target="_blank" class="term-btn">ENS NAME</a>
+      <a href="https://bigtreeconnection.com/buhs/RadarClock/Bigtree_WorldCam_Explorer.html" target="_blank" class="term-btn">CONTROL TOWER</a>
+      <a href="https://bigtreeconnection.com/jukebox/index.html" target="_blank" class="term-btn">JUKEBOX</a>
       <a href="https://xylem.bigtreeconnection.com/index_xylem.html" target="_blank" class="term-btn">BLOCKCHAIN BUHS</a>
       <a href="https://github.com/BigtreeUniversal/Xylem_Protocol/actions/workflows/sync-and-oracle.yml" target="_blank" class="term-btn">BOTS BUHS</a>
       <a href="https://bigtreeconnection.com/buhs/Tree_of_life/network.html" target="_blank" class="term-btn">TREE OF LIFE</a>
       <a href="https://buhs-universal.xyz/" target="_blank" class="term-btn">NAV CENTER</a>
       <a href="https://bigtreeconnection.com" target="_blank" class="term-btn">WEB SITE</a>
+      <a href="https://buhs-time-stamper.netlify.app/pipeline.html" target="_blank" class="term-btn">NANO STAMPER</a>
       <a href="https://bigtreeconnection.com/buhs/Redline/Redline_Log_index.html" target="_blank" class="term-btn">REDLINE LOG</a>
       <a href="https://paragraph.com/@bigtree.buhs" target="_blank" class="term-btn">ARTICLES.XYZ</a>
-      <a href="https://njump.me/npub1apk7pxgm929h0mj59hecvyfkl46m3zvwttgfufa45e2lec3evlmqs85zmx" target="_blank" class="term-btn">NOSTR RELAYS</a>
+      <a href="https://xylem.bigtreeconnection.com/watcher.html" target="_blank" class="term-btn">WATCHER NOSTR</a>
+      <a href="https://njump.me/npub1apk7pxgm929h0mj59hecvyfkl46m3zvwttgfufa45e2lec3evlmqs85zmx" target="_blank" class="term-btn">NOSTR ID</a>
       <a href="https://xylem.bigtreeconnection.com/verif_protocol/oracle_console.html" target="_blank" class="term-btn">24 ELDERS LOG</a>
       <a href="https://app.doppler.lol/tokens/base/0x14e732bbba1cd07685d2081869ca5062ac32463a" target="_blank" class="term-btn">TOKEN</a>
       <a href="https://bigtreeconnection.com/portailmusique/oliverbigtree/Bigtree_links.html" target="_blank" class="term-btn">SOCIAL LINKS</a>
@@ -549,6 +553,21 @@
         <!-- Généré dynamiquement en JS -->
       </div>
     </div>
+
+
+    <!-- MODULE RECHERCHE & EXPLORATEURS NOSTR EVENT ID -->
+<div class="search-section" style="border-color: var(--accent-purple);">
+  <div class="search-title" style="color: var(--accent-purple);">&gt; DÉCOUVREZ L'EVENT ID DU JOUR (NOSTR EXPLORERS):</div>
+  <div class="search-box">
+    <select id="nostrPlatform" style="border-color: var(--accent-purple); color: var(--accent-purple);">
+      <option value="njump">njump.me</option>
+
+      <option value="primal">primal.net</option>
+    </select>
+    <input type="text" id="nostrEventInput" placeholder="Saisir Event ID (note1... ou 64-hex)" style="border-color: var(--accent-purple);">
+    <button class="search-btn" style="background: var(--accent-purple); color: #000;" onclick="openNostrExplorer()">EXPLORER ↗</button>
+  </div>
+</div>
 
     <!-- Console Logs -->
     <div class="console-box">
@@ -586,12 +605,12 @@
     // --- DONNÉES DU JOURNAL IPFS (À mettre à jour selon tes parutions) ---
     const journalData = [
   {
-    date: "2026-07-29 08:30 UTC",
+    date: "2026-08-04 08:30 UTC",
     title: "🌋 PREDICTION du 27/07: Éruption Kilauéa 29/07",
     summary: "Magnifique Snapshot ce matin 4/08 à 4h54 UTC capturant simultanément le soleil au dessus de l'horizon à Hawaii et en Afrique du Sud ",
     cids: [
-      { label: "Snapshot", cid: "QmR7PrdXkocyYcZpUJWKeNr6vxrhB1xjnyJBQNsrSvSv6Y" },
-      { label: "Prediction", cid: "QmXb6r4n9AKPg3dRBeKJ5nS9Xub1FHVWZ7HFqzLByGRdXz" },
+      { label: "Metatron View", cid: "QmR7PrdXkocyYcZpUJWKeNr6vxrhB1xjnyJBQNsrSvSv6Y" },
+      { label: "Prophecy", cid: "QmXb6r4n9AKPg3dRBeKJ5nS9Xub1FHVWZ7HFqzLByGRdXz" },
       { label: "Metatron View", cid: "QmXQvH7broPK6ARug8wRrhpKTNWdpLZrFTzDQeRhRQV3A2" }
     ]
   }
@@ -679,6 +698,32 @@
         addressEl.innerText = "oliverbigtree.base.eth (Résolution active)";
       }
     }
+
+    function openNostrExplorer() {
+  const eventId = document.getElementById('nostrEventInput').value.trim();
+  const platform = document.getElementById('nostrPlatform').value;
+
+  if (!eventId) {
+    alert("Veuillez saisir un Event ID (format hexadecimal ou note1...)");
+    return;
+  }
+
+  let targetUrl = "";
+
+  switch (platform) {
+    case "njump":
+      targetUrl = `https://njump.me/${eventId}`;
+      break;
+
+    case "primal":
+      targetUrl = `https://primal.net/e/${eventId}`;
+      break;
+  }
+
+  logConsole(`Ouverture explorateur Nostr (${platform}) pour: ${eventId.substring(0, 10)}...`);
+  window.open(targetUrl, '_blank');
+}
+
 
     function logConsole(msg) {
       const logs = document.getElementById('consoleLogs');
