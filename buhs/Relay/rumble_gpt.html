@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Oracle Temps – Daily Event</title>
+<script src="https://unpkg.com/nostr-tools/lib/nostr.bundle.js"></script>
+
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0e0e11;
+    color: #e5e5e5;
+    margin: 0;
+    padding: 40px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+h1 {
+    font-weight: 500;
+    margin-bottom: 30px;
+    color: #fff;
+}
+
+.card {
+    background: #17171c;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.hour {
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.hash {
+    font-family: monospace;
+    font-size: 13px;
+    word-break: break-all;
+    margin-top: 5px;
+}
+
+.links {
+    margin-top: 10px;
+}
+
+a {
+    color: #7aa2f7;
+    text-decoration: none;
+    margin-right: 10px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.status {
+    margin-bottom: 20px;
+    opacity: 0.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Oracle Temporel – Journal du Jour</h1>
+    <div class="status" id="status">Connexion aux relays...</div>
+    <div id="feed"></div>
+</div>
+
+<script>
+const relays = [
+    "wss://relay.damus.io",
+    "wss://relay.snort.social",
+    "wss://relay.jumble.social",
+    "wss://relay.fevela.com"
+];
+
+const pubkey = "npub1apk7pxgm929h0mj59hecvyfkl46m3zvwttgfufa45e2lec3evlmqs85zmx"; // 🔥 à remplacer
+const kind = 30023; // ton event agrégateur
+
+const pool = new NostrTools.SimplePool();
+
+async function loadDailyEvent() {
+    const now = Math.floor(Date.now() / 1000);
+    const since = now - 86400;
+
+    document.getElementById("status").innerText = "Recherche du dernier event...";
+
+    const events = await pool.list(relays, [{
+        kinds: [kind],
+        authors: [pubkey],
+        since: since
+    }]);
+
+    if (!events.length) {
+        document.getElementById("status").innerText = "Aucun event trouvé.";
+        return;
+    }
+
+    // prend le plus récent
+    const event = events.sort((a,b)=>b.created_at-a.created_at)[0];
+
+    document.getElementById("status").innerText = "Event chargé ✔";
+
+    render(event);
+}
+
+function render(event) {
+    const container = document.getElementById("feed");
+    container.innerHTML = "";
+
+    // On suppose que chaque entrée est stockée en tag :
+    // ["e", event_id, cid, ots, hour]
+
+    event.tags.forEach(tag => {
+        if(tag[0] !== "e") return;
+
+        const event_id = tag[1];
+        const cid = tag[2];
+        const ots = tag[3];
+        const hour = tag[4];
+
+        const el = document.createElement("div");
+        el.className = "card";
+
+        el.innerHTML = `
+            <div class="hour">Heure ${hour}</div>
+            <div class="hash">Event: ${event_id}</div>
+            <div class="hash">CID: ${cid}</div>
+            <div class="links">
+                <a href="https://ipfs.io/ipfs/${cid}" target="_blank">IPFS</a>
+                <a href="${ots}" target="_blank">OTS</a>
+            </div>
+        `;
+
+        container.appendChild(el);
+    });
+}
+
+loadDailyEvent();
+</script>
+
+</body>
+</html>
