@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BUHS L1 | Watcher Nostr & Console Oracle (24 Elders)</title>
+    <title>BUHS L1 | Watcher Nostr & Day Groundation (24 Elders)</title>
     
     <meta name="description" content="Console d'écoute et d'audit Nostr en temps réel pour le protocole BUHS L1 / Xylem.">
     <meta name="robots" content="noindex, nofollow">
@@ -130,7 +130,7 @@
         .input-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: block; }
         .input-row { display: flex; gap: 10px; }
 
-        input[type="text"], textarea {
+        input[type="text"], input[type="number"], textarea {
             width: 100%;
             background: var(--bg-pure);
             color: #fff;
@@ -141,7 +141,7 @@
             font-size: 0.8rem;
         }
 
-        input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--accent-purple); }
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus { outline: none; border-color: var(--accent-purple); }
 
         .btn-pipeline {
             background: transparent;
@@ -171,6 +171,9 @@
 
         .btn-amber { border-color: var(--accent-amber); color: var(--accent-amber); }
         .btn-amber:hover:not(:disabled) { background: var(--accent-amber); color: var(--bg-pure); box-shadow: 0 0 15px rgba(255, 189, 46, 0.25); }
+
+        .btn-blue { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .btn-blue:hover:not(:disabled) { background: var(--accent-blue); color: var(--bg-pure); box-shadow: 0 0 15px rgba(88, 166, 255, 0.25); }
 
         .btn-secondary { border-color: var(--border-color); color: var(--text-main); }
         .btn-secondary:hover:not(:disabled) { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(88, 166, 255, 0.05); }
@@ -280,6 +283,33 @@
                         <a href="https://opentimestamps.org/" target="_blank" class="btn-pipeline btn-amber">
                             Ouvrir OpenTimestamps.org &gt;&gt;
                         </a>
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 5 : MODULE CONVERTISSEUR TEMPS UNIX -> UTC -->
+                <div class="item-card" style="margin-top:25px; border-color:var(--accent-blue);">
+                    <strong style="color:var(--accent-blue); font-size:0.85rem; display:block; margin-bottom:12px;">
+                        <i class="fa-solid fa-stopwatch"></i> [ ÉTAPE 5 ] Convertisseur de Timestamp Unix (Epoch -> UTC)
+                    </strong>
+                    <div class="input-group" style="margin-bottom:12px;">
+                        <label class="input-label">Entrez un timestamp Unix (Secondes, Millisecondes ou Nanosecondes) :</label>
+                        <div class="input-row">
+                            <input type="number" id="unixInput" placeholder="Ex: 1785596401 ou 1785596401827" oninput="convertUnixToUTC()">
+                            <button onclick="setNowUnix()" class="btn-pipeline btn-blue">
+                                <i class="fa-solid fa-clock"></i> Maintenant
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px;">
+                        <div style="background:var(--bg-pure); padding:10px; border-radius:4px; border:1px solid var(--border-color); font-size:0.75rem;">
+                            <span style="color:var(--text-muted); display:block;">ISO 8601 (UTC) :</span>
+                            <strong id="utcResult" style="color:#fff; font-size:0.85rem; word-break:break-all;">--</strong>
+                        </div>
+                        <div style="background:var(--bg-pure); padding:10px; border-radius:4px; border:1px solid var(--border-color); font-size:0.75rem;">
+                            <span style="color:var(--text-muted); display:block;">Heure Locale Client :</span>
+                            <strong id="localResult" style="color:var(--accent); font-size:0.85rem; word-break:break-all;">--</strong>
+                        </div>
                     </div>
                 </div>
 
@@ -438,7 +468,7 @@
                                 <a href="${otsUrl}" download="${otsFilename}" class="btn-pipeline" style="padding:6px 12px; font-size:0.75rem;">
                                     <i class="fa-solid fa-download"></i> Télécharger ${otsFilename}
                                 </a>
-                                <a href="https://ipfs.io/ipfs/${content.cid}" target="_blank" class="btn-pipeline btn-secondary" style="padding:6px 12px; font-size:0.75rem;">
+                                <a href="https://dweb.link/ipfs/${content.cid}" target="_blank" class="btn-pipeline btn-secondary" style="padding:6px 12px; font-size:0.75rem;">
                                     <i class="fa-solid fa-arrow-up-right-from-square"></i> IPFS
                                 </a>
                             </div>
@@ -452,6 +482,49 @@
             } catch (e) {
                 // Silencieux si le contenu texte n'est pas encore du JSON complet
             }
+        }
+
+        // ==============================================================================
+        // LOGIQUE CONVERTISSEUR UNIX -> UTC (ÉTAPES MULTI-UNITÉS)
+        // ==============================================================================
+        function convertUnixToUTC() {
+            const rawValue = document.getElementById('unixInput').value.trim();
+            const utcResult = document.getElementById('utcResult');
+            const localResult = document.getElementById('localResult');
+
+            if (!rawValue) {
+                utcResult.innerText = '--';
+                localResult.innerText = '--';
+                return;
+            }
+
+            let num = Number(rawValue);
+            if (isNaN(num)) {
+                utcResult.innerText = 'Entrée invalide';
+                localResult.innerText = 'Entrée invalide';
+                return;
+            }
+
+            // Normalisation : Détection secondes vs ms vs nanosecondes (format BUHS/Xylem)
+            if (rawValue.length === 10) num = num * 1000;           // Secondes
+            else if (rawValue.length === 16) num = Math.floor(num / 1000); // Microsecondes
+            else if (rawValue.length === 19) num = Math.floor(num / 1000000); // Nanosecondes
+
+            const d = new Date(num);
+
+            if (isNaN(d.getTime())) {
+                utcResult.innerText = 'Date invalide';
+                localResult.innerText = 'Date invalide';
+            } else {
+                utcResult.innerText = d.toISOString();
+                localResult.innerText = d.toLocaleString();
+            }
+        }
+
+        function setNowUnix() {
+            const nowSeconds = Math.floor(Date.now() / 1000);
+            document.getElementById('unixInput').value = nowSeconds;
+            convertUnixToUTC();
         }
 
         window.addEventListener("DOMContentLoaded", startMultiRelayWatcher);
