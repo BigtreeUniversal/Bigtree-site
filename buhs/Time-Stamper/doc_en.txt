@@ -46,8 +46,8 @@ To prove the prior existence of your document in the future, you must retain:
   The daily ledger aggregates all daily transactions into a sealed cryptographic Merkle tree (SEALED ROOT).
   
   * Automatic Compilation Schedule:
-    The daily log is compiled and published every night. Due to GitHub Actions execution queues, 
-    public deployment occurs within a variable window between 01:00 and 04:00 UTC.
+    The daily log is compiled and published every night. Due to BUHS Bots execution queues, 
+    public deployment occurs within a variable window between 05:00 and 06:00 UTC.
     
   * How to verify your transaction:
     Starting the day after your timestamping:
@@ -58,6 +58,17 @@ To prove the prior existence of your document in the future, you must retain:
        - Fetching the public ledger corresponding to your transaction date.
        - Verifying the temporal seal integrity: SHA256(PARENT_ROOT + DAY_MERKLE).
 
+  👉 Access Client-verify page: 
+     
+     https://xylem.bigtreeconnection.com/verify.html
+
+• Public Advanced Audit BUHS Blockchain (Smart Contracts & Bitcoin OTS):
+  For institutional, legal, or high-value proof cases requiring native BUHS smart contract anchoring 
+  and Bitcoin blockchain timestamping via OpenTimestamps (OTS):
+  👉 Access Advanced Audit & Smart Contract Services:
+
+     https://xylem.bigtreeconnection.com/verif_protocol/audit_console.html
+
 
 ⚡ NEED REAL-TIME PROOF OR ADVANCED AUDIT?
 
@@ -67,13 +78,6 @@ To prove the prior existence of your document in the future, you must retain:
   👉 Subscribe to CLI / Direct HTTP Pipeline:
 
      https://buhs-universal.xyz/subscribe.html
-
-• Advanced Audit (Smart Contracts & Bitcoin OTS):
-  For institutional, legal, or high-value proof cases requiring native BUHS smart contract anchoring 
-  and Bitcoin blockchain timestamping via OpenTimestamps (OTS):
-  👉 Access Advanced Audit & Smart Contract Services:
-
-     https://xylem.bigtreeconnection.com/verif_protocol/audit_console.html
 
 
 --------------------------------------------------------------------------------
