@@ -1,0 +1,13 @@
+{
+  "schema": "V1_SOVEREIGN",
+  "pipeline_id": "HEARTBEAT_01",
+  "file_name": "CREATION SITE INTERNET.pdf",
+  "file_size": 213031,
+  "file_sha256": "331782e46d6a379982a421c2793f8f469e895e700c32f69bc818a1584ce21182",
+  "transaction": {
+    "nano_time": "2026-08-06T09:24:46.922454430Z",
+    "uuid": "8be69412-a7bc-4828-b7e2-dd4b47b71044",
+    "leaf_hash": "f03f8e8c91d1b8f4539fc97c4b763f24c30791d27d8f5319ebed93ab0dd984b7"
+  },
+  "anchored_at": "2026-08-06T09:24:47.022Z"
+}
