@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <title>Transaction - BigTree Connection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-neutral-950 text-neutral-100 min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <div class="max-w-2xl w-full bg-neutral-900 border border-neutral-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+        
+        <div class="text-center space-y-2">
+            <span class="text-emerald-400 text-xs font-mono uppercase tracking-widest">Bigtree Universal</span>
+            <h1 class="text-2xl md:text-3xl font-bold">DOWNLOAD ACCESS</h1>
+            <p class="text-neutral-400 text-sm">Congratulations! Your transaction is confirmed.</p>
+        </div>
+
+        <!-- Album ZIP Chiffré sur IPFS -->
+        <div class="bg-neutral-950 border border-emerald-500/30 rounded-xl p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <h2 class="font-semibold text-white">Full Album (ZIP Format)</h2>
+                <p class="text-xs text-neutral-400">Encrypted 24 BITS HQ WAV Bundle</p>
+            </div>
+            <button id="dlBtn" onclick="decryptAndDownload()"
+               class="w-full md:w-auto text-center px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-medium text-sm rounded-lg transition shadow-lg shadow-emerald-500/20">
+                Decrypt & Download ZIP
+            </button>
+        </div>
+
+        <div id="status" class="text-center text-xs font-mono text-emerald-400 hidden"></div>
+
+        <div class="pt-4 border-t border-neutral-800 text-center text-xs text-neutral-500">
+            Problem with download? Contact us directly: <a href="mailto:bigtreeuniversal@proton.me" class="text-neutral-400 underline">bigtreeuniversal@proton.me</a>
+        </div>
+
+    </div>
+
+    <script>
+    // Remplace par le CID Filebase du fichier .bin chiffré
+    const ENCRYPTED_FILE_URL = "https://odd-brown-pike.myfilebase.com/ipfs/QmddSiFwyT21My2udqk9LWnmES6HnHQ7KwZd68G6kHZJ7h";
+
+    async function decryptAndDownload() {
+        const btn = document.getElementById('dlBtn');
+        const status = document.getElementById('status');
+        
+        // 1. Récupération de la clé dans les paramètres de l'URL (?key=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const secretKey = urlParams.get('key');
+
+        if (!secretKey) {
+            alert("Erreur : Clé de déchiffrement manquante dans l'URL.");
+            return;
+        }
+
+        try {
+            btn.disabled = true;
+            status.classList.remove('hidden');
+            status.innerText = "1/3 Downloading encrypted stream...";
+
+            // 2. Récupération du fichier chiffré depuis Filebase
+            const response = await fetch(ENCRYPTED_FILE_URL);
+            if (!response.ok) throw new Error("Impossible de récupérer le fichier sur IPFS.");
+            const buffer = await response.arrayBuffer();
+
+            status.innerText = "2/3 Decrypting archives in memory...";
+
+            // 3. Extraction des métadonnées (Salt, IV, Tag, Ciphertext)
+            const salt = buffer.slice(0, 16);
+            const iv = buffer.slice(16, 28);
+            const tag = buffer.slice(28, 44);
+            const cipherText = buffer.slice(44);
+
+            // Reconstitution du bloc pour WebCrypto API (Ciphertext + Tag)
+            const encryptedData = new Uint8Array(cipherText.byteLength + tag.byteLength);
+            encryptedData.set(new Uint8Array(cipherText), 0);
+            encryptedData.set(new Uint8Array(tag), cipherText.byteLength);
+
+            // 4. Dérivation de la clé côté navigateur (PBKDF2)
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                "raw", enc.encode(secretKey), { name: "PBKDF2" }, false, ["deriveKey"]
+            );
+
+            const key = await crypto.subtle.deriveKey(
+                { name: "PBKDF2", salt: salt, iterations: 100000, hash: "SHA-256" },
+                keyMaterial,
+                { name: "AES-GCM", length: 256 },
+                false,
+                ["decrypt"]
+            );
+
+            // 5. Déchiffrement AES-GCM
+            const decryptedBuffer = await crypto.subtle.decrypt(
+                { name: "AES-GCM", iv: iv },
+                key,
+                encryptedData
+            );
+
+            status.innerText = "3/3 Triggering download...";
+
+            // 6. Injection en téléchargement local (Blob)
+            const blob = new Blob([decryptedBuffer], { type: "application/zip" });
+            const blobUrl = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = "Bigtree_Too_Deep_For_Words_WAV.zip";
+            document.body.appendChild(a);
+            a.click();
+            
+            URL.revokeObjectURL(blobUrl);
+            document.body.removeChild(a);
+
+            status.innerText = "Download complete!";
+            btn.disabled = false;
+
+        } catch (err) {
+            console.error(err);
+            alert("Échec du déchiffrement. Vérifiez votre clé ou la connexion réseau.");
+            btn.disabled = false;
+            status.classList.add('hidden');
+        }
+    }
+    </script>
+</body>
+</html>
