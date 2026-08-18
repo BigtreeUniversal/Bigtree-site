@@ -1,0 +1,2 @@
+User-agent: *
+Disallow: /catalog/download_full-album_19.html
