@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Tree Records | Release Checkout</title>
+    <!-- Librairie Web3 Ethers.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-page: #000000;
+            --bg-card: #0a0a0a;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --accent-blue: #3b82f6;
+            --border: #1a1a1a;
+            --terminal-green: #00ff41;
+            --terminal-bg: #050505;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            margin: 0; padding: 20px; background: var(--bg-page); 
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+
+        .checkout-card {
+            background: var(--bg-card);
+            width: 100%; max-width: 420px;
+            padding: 30px; border-radius: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        .header { margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); }
+        .network-badge { 
+            background: rgba(59, 130, 246, 0.1); color: var(--accent-blue);
+            padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 700;
+            letter-spacing: 1px; border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        /* Cadre Cover Photo Responsive */
+        .cover-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            background: #111;
+            position: relative;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .cover-container:hover .cover-image {
+            transform: scale(1.02);
+        }
+
+        .product-meta { text-align: left; margin-bottom: 20px; }
+        .product-title { font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 4px 0; }
+        .product-artist { font-size: 13px; color: var(--text-muted); margin: 0; }
+        
+        /* Bloc Prix & Fiat */
+        .price-box { text-align: right; float: right; }
+        .product-price { font-size: 20px; font-weight: 800; color: var(--accent-blue); display: block; }
+        .fiat-price { font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px; font-family: monospace; }
+
+        /* Console Terminal Interactive */
+        .terminal-box {
+            background: var(--terminal-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 11px;
+            color: var(--terminal-green);
+            text-align: left;
+            min-height: 85px;
+            max-height: 110px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.9);
+            clear: both;
+        }
+
+        .terminal-line { margin: 0 0 4px 0; word-break: break-all; }
+        .terminal-line::before { content: "> "; color: var(--text-muted); }
+        .terminal-line.error { color: #ff4444; }
+        .terminal-line.success { color: #00ff41; font-weight: bold; }
+
+        .btn-pay {
+            background: #ffffff; color: #000000; width: 100%; padding: 16px;
+            border-radius: 10px; font-weight: 700; font-size: 15px;
+            border: none; cursor: pointer; transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-pay:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-pay:disabled { background: #222; color: #555; cursor: not-allowed; transform: none; }
+
+        @media (max-width: 480px) {
+            .checkout-card { padding: 20px; }
+            .product-title { font-size: 16px; }
+            .product-price { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="checkout-card">
+        <div class="header">
+            <img src="https://bigtreeconnection.com/home/logo_buhs_small.png" class="logo" alt="Big Tree Logo">
+            <span class="network-badge">BASE MAINNET</span>
+        </div>
+
+        <!-- Emplacement Image Pochette (Cover) -->
+        <div class="cover-container">
+            <img src="https://odd-brown-pike.myfilebase.com/ipfs/QmQkXBmi6iLLAUyXpSFd6Aj8oTGaWMVB8ECu8ajvJEo84v" alt="Too Deep for Words Cover" class="cover-image" onerror="this.src='https://via.placeholder.com/400x400/111111/888888?text=Album+Cover';">
+        </div>
+
+        <!-- Informations Métadonnées & Prix -->
+        <div class="product-meta">
+            <div class="price-box">
+                <span id="price-display" class="product-price">0.003 ETH</span>
+                <span id="fiat-display" class="fiat-price">~ calcul...</span>
+            </div>
+            <h1 class="product-title">Too Deep for Words</h1>
+            <p class="product-artist">Oliver Bigtree • Release 2019</p>
+        </div>
+
+        <!-- Console Terminal de Progression -->
+        <div id="terminal" class="terminal-box">
+            <div class="terminal-line">Système prêt. En attente d'interaction...</div>
+        </div>
+
+        <!-- Bouton Payer -->
+        <button id="pay-btn" onclick="payerEtTelecharger()" class="btn-pay">
+            <span>Payer & Télécharger</span>
+        </button>
+    </div>
+
+    <script>
+        const DESTINATION_WALLET = '0x3150808afe0cfb4fd22ee0d2249f48260a7377ac';[cite: 1]
+        const PRIX_ETH = 0.003;
+        const FILE_KEY = 'releases/2019-Too-Deep-for-Words/2019-Too-Deep-for-Words.zip';
+        const BASE_CHAIN_ID = '0x2105';
+
+        // Calcul dynamique de la valeur en EUR / USD via l'API CoinGecko
+        async function fetchFiatPrice() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=eur,usd');
+                const data = await res.json();
+                const ethEur = data.ethereum.eur;
+                const ethUsd = data.ethereum.usd;
+
+                const totalEur = (PRIX_ETH * ethEur).toFixed(2);
+                const totalUsd = (PRIX_ETH * ethUsd).toFixed(2);
+
+                document.getElementById('fiat-display').innerText = `~${totalEur} € / $${totalUsd}`;
+            } catch (err) {
+                document.getElementById('fiat-display').innerText = '';
+            }
+        }
+
+        function logConsole(msg, type = 'normal') {
+            const terminal = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = `terminal-line ${type}`;
+            line.innerText = msg;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        async function payerEtTelecharger() {
+            const btn = document.getElementById('pay-btn');
+            const terminal = document.getElementById('terminal');
+
+            terminal.innerHTML = '';
+            logConsole("Initialisation du pipeline de paiement...");
+
+            if (typeof window.ethereum === 'undefined') {
+                logConsole("Erreur: Aucun navigateur Web3/MetaMask détecté.", "error");
+                alert('Veuillez ouvrir cette page depuis MetaMask ou un navigateur compatible Web3.');
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                logConsole("Demande d'accès au portefeuille Web3...");
+
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                
+                const signer = provider.getSigner();
+                const userAddress = await signer.getAddress();
+                logConsole(`Wallet connecté: ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`);
+
+                logConsole("Vérification du réseau (Base Mainnet)...");
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: BASE_CHAIN_ID }],
+                    });
+                } catch (switchError) {
+                    if (switchError.code === 4902) {
+                        logConsole("Ajout du réseau Base au portefeuille...");
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: BASE_CHAIN_ID,
+                                chainName: 'Base Mainnet',
+                                rpcUrls: ['https://mainnet.base.org'],
+                                nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                                blockExplorerUrls: ['https://basescan.org']
+                            }]
+                        });
+                    }
+                }
+
+                logConsole(`Signature transaction (${PRIX_ETH} ETH)...`);
+                const tx = await signer.sendTransaction({
+                    to: DESTINATION_WALLET,
+                    value: ethers.utils.parseEther(PRIX_ETH.toString())
+                });
+
+                logConsole(`Tx envoyée: ${tx.hash.slice(0, 10)}...`);
+                logConsole("Ancrage sur Base en cours (attente bloc)...");
+
+                await tx.wait(1);
+                logConsole("Bloc validé on-chain!", "success");
+                logConsole("Génération du ticket R2 & transfert...", "success");
+                
+                setTimeout(() => {
+                    const downloadUrl = `https://base-r2-watcher.oliverbigtree.workers.dev/?tx=${tx.hash}&file=${encodeURIComponent(FILE_KEY)}`;
+                    window.location.href = downloadUrl;
+                }, 1000);
+
+            } catch (err) {
+                console.error(err);
+                logConsole("Transaction annulée ou rejetée.", "error");
+                btn.disabled = false;
+            }
+        }
+
+        // Lancer la conversion de devise au chargement de la page
+        fetchFiatPrice();
+    </script>
+</body>
+</html>
