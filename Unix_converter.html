@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Xylem Unix/UTC Terminal Tool</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --accent: #00ff66;
+      --accent-dim: rgba(0, 255, 102, 0.15);
+      --text: #c9d1d9;
+      --border: #30363d;
+      --font: 'Courier New', Courier, monospace;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .terminal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 10px var(--accent-dim);
+      width: 100%;
+      max-width: 650px;
+      overflow: hidden;
+    }
+
+    .header {
+      background: #21262d;
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .red { background: #ff5f56; }
+    .yellow { background: #ffbd2e; }
+    .green { background: #27c93f; }
+
+    .title {
+      margin-left: 15px;
+      font-size: 0.85em;
+      color: #8b949e;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .label {
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 70px;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      color: #fff;
+      font-family: var(--font);
+      padding: 10px;
+      border-radius: 4px;
+      box-sizing: border-box;
+      resize: none;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 5px var(--accent-dim);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: #21262d;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      font-family: var(--font);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: var(--accent);
+      color: #000;
+      font-weight: bold;
+    }
+
+    .output-box {
+      background: #000;
+      border: 1px dashed var(--accent);
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .output-line {
+      margin: 5px 0;
+      word-break: break-all;
+    }
+
+    .links {
+      border-top: 1px solid var(--border);
+      padding-top: 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .link-btn {
+      font-size: 0.8em;
+      color: #58a6ff;
+      border-color: #388bfd33;
+      text-decoration: none;
+    }
+
+    .link-btn:hover {
+      background: #388bfd33;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="terminal">
+  <div class="header">
+    <div class="dots">
+      <div class="dot red"></div>
+      <div class="dot yellow"></div>
+      <div class="dot green"></div>
+    </div>
+    <div class="title">BUHS xylem-timestamp-converter ~ v1.0</div>
+  </div>
+
+  <div class="content">
+    <span class="label">> Paste a Unix string or filename (e.g., xylem_1711900800.jpeg or ISO date) :</span>
+    
+    <div class="input-wrapper">
+      <textarea id="inputData" placeholder="Ex: xylem_1711900800.jpeg"></textarea>
+    </div>
+
+    <div class="actions">
+      <button onclick="pasteFromClipboard()">📋 Paste</button>
+      <button onclick="convert()">⚡ Convert</button>
+      <button onclick="copyResult()">📄 Copy </button>
+    </div>
+
+    <div class="output-box">
+      <div class="output-line"><strong>Extrait :</strong> <span id="extracted">-</span></div>
+      <div class="output-line"><strong>Résultat UTC :</strong> <span id="resUTC" style="color:var(--accent);">-</span></div>
+      <div class="output-line"><strong>Résultat Unix :</strong> <span id="resUnix" style="color:var(--accent);">-</span></div>
+    </div>
+
+    <div class="links">
+      <a class="link-btn" href="https://xylem.bigtreeconnection.com/verif_protocol/audit_console.html" target="_blank"> ⚙️ Audit Console</a>
+      <a class="link-btn" href="https://xylem.bigtreeconnection.com/index.html" target="_blank"> 🔎 Blockchain Log raw</a>
+      <a class="link-btn" href="https://xylem.bigtreeconnection.com/index_xylem.html" target="_blank"> 🚀 Blockchain Log optimized</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function pasteFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('inputData').value = text;
+      convert();
+    } catch (err) {
+      alert("Erreur lors de l'accès au presse-papier : " + err);
+    }
+  }
+
+  function convert() {
+    const raw = document.getElementById('inputData').value.trim();
+    if (!raw) return;
+
+    let extracted = raw;
+    let utcStr = "-";
+    let unixStr = "-";
+
+    // Cherche en priorité 13 chiffres (ms), sinon 10 chiffres (sec)
+    const unixMatch = raw.match(/\d{13}|\d{10}/);
+
+    if (unixMatch) {
+      const matchedStr = unixMatch[0];
+      let timestampMs;
+
+      if (matchedStr.length === 13) {
+        // Déjà en millisecondes
+        timestampMs = parseInt(matchedStr, 10);
+        extracted = `${matchedStr} (Unix ms)`;
+      } else {
+        // En secondes -> conversion en ms pour le constructeur Date
+        timestampMs = parseInt(matchedStr, 10) * 1000;
+        extracted = `${matchedStr} (Unix sec)`;
+      }
+
+      const date = new Date(timestampMs);
+
+      if (!isNaN(date.getTime())) {
+        utcStr = date.toUTCString() + " | " + date.toISOString();
+        unixStr = matchedStr;
+      }
+    } else {
+      // Détection format Date classique -> Unix
+      const parsedDate = Date.parse(raw);
+      if (!isNaN(parsedDate)) {
+        const date = new Date(parsedDate);
+        extracted = raw + " (Date texte)";
+        utcStr = date.toUTCString();
+        unixStr = date.getTime(); // Renvoie directement les ms
+      } else {
+        extracted = "Aucun timestamp Unix valide (10 ou 13 chiffres) trouvé.";
+      }
+    }
+
+    document.getElementById('extracted').innerText = extracted;
+    document.getElementById('resUTC').innerText = utcStr;
+    document.getElementById('resUnix').innerText = unixStr;
+  }
+
+  function copyResult() {
+    const utc = document.getElementById('resUTC').innerText;
+    const unix = document.getElementById('resUnix').innerText;
+    if (utc === "-") return;
+    
+    const textToCopy = `UTC: ${utc}\nUnix: ${unix}`;
+    navigator.clipboard.writeText(textToCopy);
+    alert("Résultat copié !");
+  }
+
+  // Conversion automatique lors de la frappe
+  document.getElementById('inputData').addEventListener('input', convert);
+</script>
+
+</body>
+</html>
