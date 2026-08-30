@@ -8,9 +8,12 @@
     <meta name="description" content="Console d'écoute et d'audit Nostr en temps réel pour le protocole BUHS L1 / Xylem.">
     <meta name="robots" content="noindex, nofollow">
     
+    <!-- Google Font Monospace -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Core Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -27,6 +30,7 @@
             --text-main: #d1d5db;
             --text-muted: #6b7280;
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,23 +38,26 @@
         body {
             background-color: var(--bg-pure);
             color: var(--text-main);
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             overflow-x: hidden;
+            font-size: 13.5px;
+            line-height: 1.6;
         }
 
         header {
             width: 100%;
             height: 70px;
-            background: rgba(10, 10, 10, 0.9);
+            background: rgba(10, 10, 10, 0.95);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 4%;
+            backdrop-filter: blur(10px);
         }
 
         .logo {
@@ -66,9 +73,9 @@
         .logo-dot {
             width: 8px;
             height: 8px;
-            background-color: var(--accent-purple);
+            background-color: var(--accent);
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--accent-purple);
+            box-shadow: 0 0 8px var(--accent);
         }
 
         main {
@@ -100,8 +107,8 @@
 
         .terminal-dots { display: flex; gap: 6px; }
         .terminal-dot { width: 10px; height: 10px; border-radius: 50%; background: #333; }
-        .terminal-dot.active-dot { background: var(--accent-purple); box-shadow: 0 0 6px var(--accent-purple); }
-        .terminal-status { font-size: 0.75rem; color: var(--accent-purple); }
+        .terminal-dot.active-dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+        .terminal-status { font-size: 0.75rem; color: var(--accent); }
 
         .workspace-content { padding: 30px; }
 
@@ -137,18 +144,18 @@
             border: 1px solid var(--border-color);
             border-radius: 4px;
             padding: 12px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 0.8rem;
         }
 
-        input[type="text"]:focus, input[type="number"]:focus, textarea:focus { outline: none; border-color: var(--accent-purple); }
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus { outline: none; border-color: var(--accent); }
 
         .btn-pipeline {
             background: transparent;
             color: var(--accent);
             border: 1px solid var(--accent);
             padding: 10px 18px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
@@ -182,7 +189,7 @@
             background: var(--bg-pure);
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            padding: 14px;
+            padding: 16px;
             margin-top: 12px;
         }
 
@@ -229,10 +236,10 @@
             <div class="workspace-content">
                 
                 <!-- ÉTAPE 1 : WATCHER AUTOMATIQUE NOSTR -->
-                <div class="item-card" style="margin-top:0; margin-bottom:25px; border-color:var(--border-color);">
+                <div class="item-card" style="margin-top:0; margin-bottom:20px; border-color:var(--border-color);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
                         <strong style="color:var(--accent); font-size:0.85rem;">
-                            <i class="fa-solid fa-eye"></i> [ ÉTAPE 1 ] Watcher Actif (Oliver Bigtree)
+                            <i class="fa-solid fa-eye"></i> [ ÉTAPE 1 ] Watcher Temps Réel (Oliver Bigtree)
                         </strong>
                         <span id="watcherStatus" class="status-badge status-live">
                             <i class="fa-solid fa-plug"></i> MULTI-RELAIS CONNECTÉS
@@ -241,16 +248,34 @@
                     <p style="font-size:0.75rem; margin-bottom:10px; color:var(--text-muted);">
                         Profil ciblé : <span class="pubkey-tag">npub1apk7pxgm929h0mj59hecvyfkl46m3zvwttgfufa45e2lec3evlmqs85zmx</span>
                     </p>
-                    <div style="font-size:0.8rem; background: var(--bg-pure); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color); word-break: break-all;">
+                    <div style="font-size:0.8rem; background: var(--surface-accent); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color); word-break: break-all;">
                         Dernier Event ID détecté : <strong id="detectedEventId" style="color:var(--accent-blue);">Recherche en cours sur les relais...</strong>
                     </div>
                 </div>
 
-                <!-- ÉTAPE 2 : EVENT ID ACTIVE -->
+                <!-- ÉTAPE 2 : NOUVEL ENCADRÉ - RECHERCHE MANUELLE D'EVENT ID HISTORIQUE (CORACLE / NJUMP) -->
+                <div class="item-card" style="margin-bottom:25px; border-color:var(--border-color);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                        <strong style="color:var(--accent); font-size:0.85rem;">
+                            <i class="fa-solid fa-folder-open"></i> [ ÉTAPE 2 ] Option Manuelle / Recherche Historique d'Event ID
+                        </strong>
+                        <span class="status-badge" style="background: rgba(88, 166, 255, 0.1); color: var(--accent-blue); border: 1px solid var(--accent-blue);">
+                            ARCHIVES NOSTR
+                        </span>
+                    </div>
+                    <p style="font-size:0.75rem; margin-bottom:12px; color:var(--text-muted);">
+                        Pour auditer une journée spécifique passée, accédez au journal Nostr (publication du jour J+1), copiez le profil <code style="color:var(--accent-purple);">npub</code>, ou ouvrez directement l'explorateur Coracle. Cliquez ensuite sur <i>les 3 petits points &gt; Détails</i>, décochez <i>"Show Raw version"</i> puis copiez l'<strong>Event ID</strong> :
+                    </p>
+                    <a href="https://coracle.social/nprofile1qqswsm0qnydj4zmhae2zmuuxzym06adc3x8945y7y766v40uuguk0aspz3mhxue69uhhyetvv9ujuerpd46hxtnfduqs6amnwvaz7tmwdaejumr0dsasqpku" target="_blank" class="btn-pipeline">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Parcourir le journal sur Coracle &gt;&gt;
+                    </a>
+                </div>
+
+                <!-- ÉTAPE 3 : EVENT ID ACTIVE -->
                 <div class="input-group">
-                    <label class="input-label">[ ÉTAPE 2 ] Saisie / Auto-capture de l'Event ID :</label>
+                    <label class="input-label">[ ÉTAPE 3 ] Saisie / Auto-capture de l'Event ID :</label>
                     <div class="input-row">
-                        <input type="text" id="nostrEventId" placeholder="Event ID capturé automatiquement...">
+                        <input type="text" id="nostrEventId" placeholder="Event ID capturé automatiquement ou collé manuellement...">
                         <button onclick="fetchEvent()" class="btn-pipeline btn-purple">
                             <i class="fa-solid fa-magnifying-glass"></i> Interroger
                         </button>
@@ -258,9 +283,9 @@
                     <div id="fetchStatus" style="font-size:0.75rem; margin-top:8px;"></div>
                 </div>
 
-                <!-- ÉTAPE 3 : DECODEUR TERMINAL -->
+                <!-- ÉTAPE 4 : DECODEUR TERMINAL -->
                 <div class="input-group">
-                    <label class="input-label">[ ÉTAPE 3 ] Décodeur Terminal &amp; Extraction des Preuves :</label>
+                    <label class="input-label">[ ÉTAPE 4 ] Décodeur Terminal &amp; Extraction des Preuves OTS :</label>
                     <textarea id="nostrPayload" rows="5" placeholder="Le contenu de la note chargée apparaîtra ici..."></textarea>
                     <button onclick="parsePayload()" class="btn-pipeline" style="margin-top:12px;">
                         <i class="fa-solid fa-key"></i> Décoder &amp; Extraire les Oracles
@@ -269,12 +294,12 @@
 
                 <div id="oraclesContainer"></div>
 
-                <!-- ÉTAPE 4 : OPENTIMESTAMPS -->
+                <!-- ÉTAPE 5 : OPENTIMESTAMPS -->
                 <div class="item-card" style="margin-top:25px; border-color:var(--accent-amber);">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                         <div>
                             <strong style="color:var(--accent-amber); font-size:0.85rem;">
-                                <i class="fa-solid fa-clock-rotate-left"></i> [ ÉTAPE 4 ] Ancrage Temporel Officiel
+                                <i class="fa-solid fa-clock-rotate-left"></i> [ ÉTAPE 5 ] Ancrage Temporel Officiel
                             </strong>
                             <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
                                 Téléchargez les fichiers `.ots` extraits puis déposez-les sur la plateforme officielle OpenTimestamps pour valider l'antériorité Bitcoin.
@@ -286,10 +311,10 @@
                     </div>
                 </div>
 
-                <!-- ÉTAPE 5 : MODULE CONVERTISSEUR TEMPS UNIX -> UTC -->
+                <!-- ÉTAPE 6 : MODULE CONVERTISSEUR TEMPS UNIX -> UTC -->
                 <div class="item-card" style="margin-top:25px; border-color:var(--accent-blue);">
                     <strong style="color:var(--accent-blue); font-size:0.85rem; display:block; margin-bottom:12px;">
-                        <i class="fa-solid fa-stopwatch"></i> [ ÉTAPE 5 ] Convertisseur de Timestamp Unix (Epoch -> UTC)
+                        <i class="fa-solid fa-stopwatch"></i> [ ÉTAPE 6 ] Convertisseur de Timestamp Unix (Epoch -&gt; UTC)
                     </strong>
                     <div class="input-group" style="margin-bottom:12px;">
                         <label class="input-label">Entrez un timestamp Unix (Secondes, Millisecondes ou Nanosecondes) :</label>
@@ -318,7 +343,7 @@
     </main>
 
     <footer>
-        SECURE NOSTR WATCHER V3.0 // UNIFIED SOUVEREIGN ENGINE (24 ELDERS ORACLE)
+        SECURE NOSTR WATCHER V3.0 // UNIFIED SOVEREIGN ENGINE (24 ELDERS ORACLE)
     </footer>
 
     <script>
@@ -480,13 +505,11 @@
                     container.appendChild(card);
                 }
             } catch (e) {
-                // Silencieux si le contenu texte n'est pas encore du JSON complet
+                // Silencieux si le contenu n'est pas encore un JSON valide
             }
         }
 
-        // ==============================================================================
-        // LOGIQUE CONVERTISSEUR UNIX -> UTC (ÉTAPES MULTI-UNITÉS)
-        // ==============================================================================
+        // Convertisseur Unix -> UTC
         function convertUnixToUTC() {
             const rawValue = document.getElementById('unixInput').value.trim();
             const utcResult = document.getElementById('utcResult');
@@ -505,10 +528,9 @@
                 return;
             }
 
-            // Normalisation : Détection secondes vs ms vs nanosecondes (format BUHS/Xylem)
-            if (rawValue.length === 10) num = num * 1000;           // Secondes
-            else if (rawValue.length === 16) num = Math.floor(num / 1000); // Microsecondes
-            else if (rawValue.length === 19) num = Math.floor(num / 1000000); // Nanosecondes
+            if (rawValue.length === 10) num = num * 1000;
+            else if (rawValue.length === 16) num = Math.floor(num / 1000);
+            else if (rawValue.length === 19) num = Math.floor(num / 1000000);
 
             const d = new Date(num);
 
