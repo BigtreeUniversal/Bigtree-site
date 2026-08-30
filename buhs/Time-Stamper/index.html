@@ -291,6 +291,36 @@
             box-shadow: 0 0 20px var(--accent-glow);
         }
 
+        /* Gros bouton héro pour l'audit final */
+        .btn-terminal-hero {
+            background: #021a0f;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            padding: 22px 36px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .btn-terminal-hero:hover {
+            background: var(--accent);
+            color: var(--bg-pure);
+            box-shadow: 0 0 35px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
         /* Slider Indicators */
         .slider-nav {
             position: absolute;
@@ -480,74 +510,21 @@
         }
 
         /* ==========================================================================
-           CONTACT & VALIDATED FORM SECTION
+           AUDIT CONSOLE SECTION (REPLACING OLD FORM)
            ========================================================================== */
-        .contact-section {
+        .audit-section {
             background: var(--bg-pure);
         }
 
-        .contact-grid {
-            max-width: 1000px;
+        .audit-box-container {
+            max-width: 900px;
             margin: 40px auto 0 auto;
             background: var(--surface);
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            display: grid;
-            grid-template-columns: 1fr;
-            overflow: hidden;
-        }
-
-        .form-wrapper {
-            padding: 40px;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-        }
-
-        .form-control {
-            width: 100%;
-            background: var(--bg-pure);
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            border-radius: 4px;
-            outline: none;
-            transition: var(--transition);
-        }
-
-        .form-control:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        .error-msg {
-            color: #ff5f56;
-            font-size: 0.75rem;
-            margin-top: 4px;
-            display: none;
-        }
-
-        .success-banner {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 1.5rem;
-            display: none;
-            font-size: 0.85rem;
+            padding: 50px 30px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
         }
 
         /* ==========================================================================
@@ -636,8 +613,9 @@
             .footer-socials a {
                 margin: 0 0.75rem;
             }
-            .form-wrapper {
-                padding: 20px;
+            .btn-terminal-hero {
+                font-size: 1rem;
+                padding: 16px 20px;
             }
         }
     </style>
@@ -664,7 +642,6 @@
         <a href="#security" class="nav-link" onclick="toggleNav()">[03] VALIDATION_MATRIX</a>
         <a href="#faq" class="nav-link" onclick="toggleNav()">[04] DOCS_FAQ</a>
         <a href="https://xylem.bigtreeconnection.com/verif_protocol/audit_console.html" class="nav-link" onclick="toggleNav()">[05] AUDIT_CONSOLE</a>
-        
     </nav>
 
     <!-- ==========================================================================
@@ -687,7 +664,7 @@
                 Nanosecond Precision. Multi-Chain Immutability. The Fastest Stamp on Earth. BUHS L1 notarizes your data integrity in real-time. Calculate your SHA-256 hash locally, secure it instantly through our high-concurrency Rust pipeline, and lock it forever into the world's most resilient decentralized networks.
             </p>
             <a href="https://buhs-time-stamper.netlify.app/pipeline.html" class="btn-terminal">START <i class="fa-solid fa-terminal"></i></a>
-            <a href="https://xylem.bigtreeconnection.com/verify.html" class="btn-terminal">VERIFY<i class="fa-solid fa-terminal"></i></a>
+            <a href="https://xylem.bigtreeconnection.com/verify.html" class="btn-terminal">VERIFY <i class="fa-solid fa-terminal"></i></a>
         </div>
         
     </section>
@@ -811,47 +788,28 @@
     </section>
 
     <!-- ==========================================================================
-       SECTION 4: CONTACT ENGINE WITH SECURE VALIDATION
+       SECTION 4: SYSTEM AUDIT CONSOLE GATEWAY
        ========================================================================== -->
-    <section id="contact" class="contact-section section-padding">
-        <span class="section-prefix" style="text-align: center; display: block;">// 04_SECURE_GATEWAY_COMMUNICATION</span>
-        <h2 style="text-align: center; color: #fff; margin-bottom: 1rem;">Initialize Gateway Connection</h2>
-        <p style="text-align: center; color: var(--text-muted); max-width: 600px; margin: 0 auto 3rem auto; font-size: 0.9rem;">
-            Provide parameters below to verify security metrics and obtain access key hashes for our high-throughput testing environments.
+    <section id="audit" class="audit-section section-padding">
+        <span class="section-prefix" style="text-align: center; display: block;">// 04_REALTIME_BLOCKCHAIN_AUDIT</span>
+        <h2 style="text-align: center; color: #fff; margin-bottom: 1rem;">Transaction & Oracle Verification</h2>
+        <p style="text-align: center; color: var(--text-muted); max-width: 650px; margin: 0 auto 2.5rem auto; font-size: 0.9rem;">
+            Launch the live system console to perform full cryptographic audits, verify server routines, inspect oracle data streams, and validate state roots directly on-chain.
         </p>
 
-        <div class="contact-grid">
-            <div class="form-wrapper">
-                <div class="success-banner" id="successBanner">
-                    [SYSTEM STATE: SUCCESS] Transmission packets validated. Our core dev team will dispatch API verification keys downstream to your endpoint shortly.
-                </div>
-                
-                <form id="terminalForm" onsubmit="return validateAndSubmit(event)">
-                    <div class="form-group">
-                        <label for="orgName">Organization / Dev Identifier</label>
-                        <input type="text" id="orgName" class="form-control" placeholder="e.g., OMNI_CORP_LABS">
-                        <div class="error-msg" id="orgError">[!] Identifier string cannot be empty.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Endpoint Target (Email)</label>
-                        <input type="text" id="email" class="form-control" placeholder="operator@domain.xyz">
-                        <div class="error-msg" id="emailError">[!] Please structure a valid, high-integrity email coordinate.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="payload">Integration Parameters / Message</label>
-                        <textarea id="payload" class="form-control" rows="4" placeholder="Specify your architectural scale requirements..."></textarea>
-                        <div class="error-msg" id="payloadError">[!] Integration context requirement unfulfilled.</div>
-                    </div>
-                    <button type="submit" class="btn-terminal" style="width: 100%; justify-content: center;">
-                        Transmit Packet Payload <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </form>
+        <div class="audit-box-container">
+            <a href="https://xylem.bigtreeconnection.com/verif_protocol/audit_console.html" class="btn-terminal-hero">
+                <i class="fa-solid fa-shield-halved"></i> LAUNCH SYSTEM AUDIT CONSOLE
+            </a>
+            <div style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted);">
+                <i class="fa-brands fa-github"></i> Inspect automated routines &amp; scripts on GitHub: 
+                <a href="https://github.com/BigtreeUniversal/Xylem_Protocol" target="_blank" style="color: var(--accent); text-decoration: underline;">Repository Root</a>
             </div>
         </div>
     </section>
 
     <!-- ==========================================================================
-       MINIMAL FOLLOWER FOOTER & LOGISTICS
+       MINIMAL FOOTER
        ========================================================================== -->
     <footer>
         <div>&copy; 2026 BUHS L1 PROTOCOL SYSTEMS INC. ALL OPERATIONS LOGGED.</div>
@@ -912,45 +870,6 @@
             if (!isActive) {
                 item.classList.add('active');
             }
-        }
-
-        // Contact Form Integrity Verification
-        function validateAndSubmit(e) {
-            e.preventDefault();
-            
-            let isValid = true;
-            const orgName = document.getElementById('orgName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const payload = document.getElementById('payload').value.trim();
-
-            // Reset Display Errors
-            document.querySelectorAll('.error-msg').forEach(msg => msg.style.display = 'none');
-
-            if (!orgName) {
-                document.getElementById('orgError').style.display = 'block';
-                isValid = false;
-            }
-
-            // High reliability standard regex testing
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                document.getElementById('emailError').style.display = 'block';
-                isValid = false;
-            }
-
-            if (!payload) {
-                document.getElementById('payloadError').style.display = 'block';
-                isValid = false;
-            }
-
-            if (isValid) {
-                document.getElementById('terminalForm').reset();
-                const banner = document.getElementById('successBanner');
-                banner.style.display = 'block';
-                banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-
-            return false;
         }
 
         // Monitoring Scroll Events for Back To Top Visibility
